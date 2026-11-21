@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { CURRENT_GAME } from '@/static'
-import { ANNA, BOHDAN, startGame, SWATCHES, type DotPosition } from '@/test/game-page'
+import { ANNA, BOHDAN, startGame, stubScreen, SWATCHES, type DotPosition } from '@/test/game-page'
 
 // ANNA plays in coral and BOHDAN in sky
 const CORAL = SWATCHES.coral.rgb
@@ -150,6 +150,28 @@ describe('game screen: board (MV-4..8)', () => {
 
     expect(page.dotsIn('selected')).toEqual([[0, 1]])
     expect(page.lineCount).toBe(1)
+  })
+})
+
+describe('game screen: board size (MB-3)', () => {
+  // a phone in landscape, 800 px wide, with the panel beside the board (236 px with its gap)
+  const PANEL_WITH_GAP = 236
+
+  it('keeps 48 px squares when the board fits beside the panel', async () => {
+    stubScreen({ width: 1024, sideBySide: true })
+    const page = await startGame({ size: 10 })
+
+    expect(page.boardSize().cell).toBe(48)
+  })
+
+  it('leaves out the navigation bar and the cutout, so a 10×10 board is never cut off in landscape (MB-1, MB-3)', async () => {
+    // Android edge-to-edge: the shell's padding is the 8 px gutter plus a 44 px navigation bar
+    stubScreen({ width: 800, paddingLeft: 52, paddingRight: 8, sideBySide: true })
+    const page = await startGame({ size: 10 })
+
+    const column = 800 - 52 - 8 - PANEL_WITH_GAP
+    expect(page.boardSize().width).toBeLessThanOrEqual(column)
+    expect(page.boardSize().cell).toBe(47)
   })
 })
 

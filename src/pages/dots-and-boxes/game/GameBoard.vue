@@ -60,7 +60,7 @@ const BORDER = 1
 const LINE_WIDTH = 4
 const HALO_WIDTH = 4
 const MAX_TAP_AREA = 44
-// horizontal space taken by the app's p-2 gutters
+// the app's p-2 gutters, for when there is no app shell to measure
 const APP_GUTTERS = 16
 // from Tailwind's sm breakpoint the side panel (GameStatus or GameResult, both w-53) and gap-6 sit beside the board
 const SIDE_PANEL_WITH_GAP = 212 + 24
@@ -93,23 +93,47 @@ const { t } = useI18n()
 const displayName = useDisplayName()
 
 const sideBySideMedia = window.matchMedia(SIDE_BY_SIDE_QUERY)
-// clientWidth excludes a desktop scrollbar, unlike window.innerWidth
-const viewportWidth = ref(document.documentElement.clientWidth)
+// The width the app shell gives its content: its padding is p-safe-2, so on Android in landscape
+// it leaves out the navigation bar and the camera cutout as well as the gutters (MB-3).
+// clientWidth excludes a desktop scrollbar, unlike window.innerWidth.
+function contentWidth() {
+  const shell = document.querySelector<HTMLElement>('[data-app-shell]')
+  if (!shell) return document.documentElement.clientWidth - APP_GUTTERS
+  const { paddingLeft, paddingRight } = getComputedStyle(shell)
+  return shell.clientWidth - (parseFloat(paddingLeft) || 0) - (parseFloat(paddingRight) || 0)
+}
+
+const availableWidth = ref(contentWidth())
 const isSideBySide = ref(sideBySideMedia.matches)
 
 function updateViewport() {
-  viewportWidth.value = document.documentElement.clientWidth
+  availableWidth.value = contentWidth()
   isSideBySide.value = sideBySideMedia.matches
 }
 
-onMounted(() => window.addEventListener('resize', updateViewport))
-onBeforeUnmount(() => window.removeEventListener('resize', updateViewport))
+// the shell's padding can change without a window resize (Android reports the insets after
+// launch), so the shell itself is watched too: ResizeObserver sees its content box change
+let shellObserver: ResizeObserver | undefined
+
+onMounted(() => {
+  updateViewport()
+  window.addEventListener('resize', updateViewport)
+  const shell = document.querySelector('[data-app-shell]')
+  if (shell && typeof ResizeObserver !== 'undefined') {
+    shellObserver = new ResizeObserver(updateViewport)
+    shellObserver.observe(shell)
+  }
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', updateViewport)
+  shellObserver?.disconnect()
+})
 
 // squares keep 48 px while the board fits and shrink on narrow screens (MB-3)
 const cell = computed(() => {
   const size = props.dotsAndBoxesGame.size || 1
   const sidePanel = isSideBySide.value ? SIDE_PANEL_WITH_GAP : 0
-  const available = viewportWidth.value - APP_GUTTERS - sidePanel - PADDING * 2 - BORDER * 2
+  const available = availableWidth.value - sidePanel - PADDING * 2 - BORDER * 2
   return Math.min(MAX_CELL, Math.max(MIN_CELL, Math.floor(available / size)))
 })
 
