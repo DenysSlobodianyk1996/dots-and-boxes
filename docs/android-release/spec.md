@@ -23,7 +23,7 @@ The developer account is a personal one, so Play requires a closed test with at 
   - a cream splash screen and an adaptive icon come from the existing logo.
 - **Language**: on first launch the app follows the device language (Ukrainian on Ukrainian devices, English otherwise), on the web too.
 - **Signing**: a wizard script walks the developer through the steps only a person can do: create the upload keystore, create a Play service account, and store both in GitHub secrets.
-- **CI**: pushing a version tag (`v1.2.3`) builds a signed AAB and uploads it to Play's internal testing track. Promotion to closed testing and production stays manual.
+- **CI**: every merge to `master` that changes the app builds a signed AAB, uploads it to Play's internal testing track and tags the commit with its version; a docs-only merge releases nothing. Pushing a version tag (`npm run release`) still releases a commit by hand. Promotion to closed testing and production stays manual.
 - **Store package**: `docs/store/` holds everything the developer pastes into Play Console, in both languages:
   - listing texts;
   - release notes;
@@ -51,7 +51,7 @@ The developer account is a personal one, so Play requires a closed test with at 
 ### Release pipeline
 
 9. **AR-9**: As the developer, I want a wizard that walks me through creating the upload keystore and the Play service account and saves them as GitHub secrets, so that I do the one-time setup correctly once.
-10. **AR-10**: As the developer, I want a version tag to build a signed AAB and upload it to the internal testing track, so that releasing is one `git tag` + `git push`.
+10. **AR-10**: As the developer, I want every merge to `master` that changes the app (not only docs) to build a signed AAB, upload it to the internal testing track and tag the commit with its version, so that releasing needs no step at all; a version tag pushed by hand (`npm run release`) still releases its commit.
 11. **AR-11**: As the developer, I want `versionName` and `versionCode` derived from the tag, so that I never edit Gradle files to release.
 12. **AR-12**: As the developer, I want `npm run android:build` and `npm run android:open` locally, so that I can build and debug without CI.
 
@@ -116,14 +116,15 @@ The developer account is a personal one, so Play requires a closed test with at 
 - **Secrets**: `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`, `PLAY_SERVICE_ACCOUNT_JSON`.
 - **Repository variable**: `ANDROID_PACKAGE_ID` (`app.dotsandboxes`), the Play package the release job uploads to. The wizard sets it from `applicationId`; the job fails at its first step when it is empty.
 - Play App Signing stays on, and the keystore is never committed (`.gitignore`).
-- **Workflow**: `.github/workflows/android-release.yml` runs on tags `v*.*.*`. Steps:
+- **Workflow**: `.github/workflows/android-release.yml` runs on pushes to `master` (skipping pushes that touch only docs and editor config, the same `paths-ignore` list as the Pages deploy) and on tags `v*.*.*`. On a `master` push whose version is already tagged it releases nothing. Steps:
   1. `npm ci`, then tests;
   2. web build in capacitor mode, then `cap sync`;
   3. JDK setup;
   4. decode the keystore;
   5. `gradlew bundleRelease`;
   6. upload to the `internal` track with a maintained Play upload action;
-  7. attach the AAB as a workflow artifact.
+  7. attach the AAB as a workflow artifact;
+  8. on a `master` push, tag the commit `vX.Y.Z` (the tag starts no second run).
 - **Versions**: `versionName` = the tag without `v`; `versionCode` = `major*10000 + minor*100 + patch`. Gradle reads both from env vars, with local defaults.
 - The first AAB must be uploaded by hand in Play Console (the API can't create the app). The checklist covers it.
 
