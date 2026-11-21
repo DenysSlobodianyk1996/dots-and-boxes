@@ -1,8 +1,9 @@
 name: Android release
 
-# Every merge to master that changes the app builds a signed AAB, uploads it to the Play internal
-# testing track and tags the commit with its version (AR-10); docs-only merges release nothing.
-# A version tag (npm run release) still releases its commit by hand, e.g. after a docs-only merge.
+# As in teach-clock: every merge to master that changes the app builds a signed AAB, uploads it
+# to Play's closed testing track (alpha) with short release notes and tags the commit with its
+# version (AR-10). Merges that touch only docs, tooling or other workflows release nothing.
+# A version tag (npm run release) still releases its commit by hand. Production stays manual.
 # versionName/versionCode are the commit's own version (scripts/app-version.ts, AR-11).
 # Secrets (written by scripts/android-release-wizard.sh): ANDROID_KEYSTORE_BASE64,
 # ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD, PLAY_SERVICE_ACCOUNT_JSON.
@@ -12,20 +13,21 @@ on:
   push:
     branches: [master]
     tags: ['v*.*.*']
-    # the same list as deploy.yml: a push touching only these changes nothing in the app.
-    # Tag pushes ignore paths filters, so a manual release always runs.
-    paths-ignore:
-      - 'docs/**'
-      - '**/*.md'
-      - '.claude/**'
-      - '.vscode/**'
-      - '.editorconfig'
-      - '.gitattributes'
-      - '.gitignore'
-      - '.prettierrc.json'
-      - '.oxlintrc.json'
-      - 'eslint.config.ts'
-      - 'LICENSE'
+    # only what goes into the app (teach-clock does the same); tag pushes ignore paths filters,
+    # so a manual release always runs
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'index.html'
+      - 'vite.config.ts'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig*'
+      - 'env.d.ts'
+      - 'android/**'
+      - 'scripts/**'
+      - 'capacitor.config.ts'
+      - '.github/workflows/android-release.yml'
 
 permissions:
   contents: read
@@ -148,15 +150,29 @@ jobs:
           path: android/app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
 
-      - name: Upload to Play internal testing
+      # Play's "What's new", one file per listing language (en-US default, uk), at most 500
+      # characters each; detailed notes go in by hand when promoting to production
+      - name: Release notes
+        run: |
+          dir="$RUNNER_TEMP/whatsnew"
+          mkdir -p "$dir"
+          printf '%s' 'Improvements and fixes' > "$dir/whatsnew-en-US"
+          printf '%s' 'Покращення та виправлення' > "$dir/whatsnew-uk"
+          echo "WHATSNEW_DIR=$dir" >> "$GITHUB_ENV"
+
+      - name: Upload to Play closed testing
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: ${{ vars.ANDROID_PACKAGE_ID }}
           releaseFiles: android/app/build/outputs/bundle/release/app-release.aab
           releaseName: ${{ env.ANDROID_VERSION_NAME }}
-          track: internal
+          tracks: alpha
           status: completed
+          whatsNewDirectory: ${{ env.WHATSNEW_DIR }}
+
+      - name: Play summary
+        run: echo "Uploaded $ANDROID_VERSION_NAME (versionCode $ANDROID_VERSION_CODE) to Play track \`alpha\` (closed testing)." >> "$GITHUB_STEP_SUMMARY"
 
       # a merge release marks its commit as released, as npm run release does; the tag pushed with
       # GITHUB_TOKEN starts no workflow, so this commit isn't built twice

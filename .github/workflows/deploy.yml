@@ -3,20 +3,19 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [master]
-    # skip deploys when a push touches only files that don't change the built site;
-    # a push that also touches anything else (src/, public/, configs, ...) still deploys
-    paths-ignore:
-      - 'docs/**'
-      - '**/*.md'
-      - '.claude/**'
-      - '.vscode/**'
-      - '.editorconfig'
-      - '.gitattributes'
-      - '.gitignore'
-      - '.prettierrc.json'
-      - '.oxlintrc.json'
-      - 'eslint.config.ts'
-      - 'LICENSE'
+    # deploy only when the app changes (as in teach-clock): docs, tooling and other workflows don't.
+    # scripts/ is in: vite.config.ts reads the version and the privacy date from it.
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'index.html'
+      - 'vite.config.ts'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig*'
+      - 'env.d.ts'
+      - 'scripts/**'
+      - '.github/workflows/deploy.yml'
   # manual "Run workflow" button in the Actions tab, for forcing a deploy
   workflow_dispatch:
 

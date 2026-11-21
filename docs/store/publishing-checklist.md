@@ -68,7 +68,7 @@ The Play API can't create an app's first release, so this one upload is manual.
 - [ ] Add testers by email list or Google Group, and copy the track's opt-in link.
 - [ ] Send the [tester invitation](tester-invite.md) (en or uk) to **more than 12 people** (aim for 15–20; some drop out).
 - [ ] Check **Closed testing → Testers** until at least **12 have opted in**, then mark the date: the **14 days** count from when 12 testers are opted in and must be **continuous**. Keep it there: Google counts testers who stay opted in for the whole 14 days, so a drop below 12 can cost you days.
-- [ ] During the test, ship at least one update (push a new tag, then promote it from internal to closed) and answer tester feedback; Google asks about both in step 6.
+- [ ] During the test, ship at least one update (merge a change to `master`: it goes to closed testing on its own) and answer tester feedback; Google asks about both in step 6.
 
 ## 6. Apply for production access
 
@@ -88,5 +88,5 @@ The Play API can't create an app's first release, so this one upload is manual.
 - [ ] Bump nothing by hand: every merge to `master` raises the version by one. `versionName` = `MAJOR.MINOR` from `package.json` plus the merges on master since 1.0.0 (`1.0.7` after seven merges), and `versionCode` = `10000` + those merges (spec AR-11, PV-5; `scripts/app-version.ts`). Raise `MAJOR.MINOR` in `package.json` by hand for a big change; the code keeps counting.
 - [ ] The web app shows the new version on its privacy pages as soon as the merge is deployed. To send that same commit to Play, run **`npm run release`** on an up-to-date, clean `master`: it tags the commit with its own version (`v1.0.7`) and pushes the tag. With nothing merged since the last release it stops, because that tag already exists. A hand-made tag that isn't the commit's version stops the workflow before it builds.
 - [ ] A local signed build (`npm run android:build` with the keystore) refuses to run without `ANDROID_VERSION_NAME` and `ANDROID_VERSION_CODE` (`node scripts/app-version.ts` prints both), so it can't make another 1.0.0 by accident.
-- [ ] The tag push runs the **Android release** workflow (`.github/workflows/android-release.yml`): tests, a signed AAB attached to the run as `app-release-X.Y.Z`, and an upload to the **internal** track (AR-10). If the upload fails (for example the service account lacks release rights), fix it and re-run the job, or upload the attached AAB by hand.
-- [ ] Check it on a device from the internal track, then promote it to closed testing or production by hand in Play Console, with release notes in both languages.
+- [ ] The tag push runs the **Android release** workflow (`.github/workflows/android-release.yml`): tests, a signed AAB attached to the run as `app-release-X.Y.Z`, and an upload to the **closed testing** track (`alpha`, AR-10). Every merge to `master` that changes the app does the same without a tag. If the upload fails (for example the service account lacks release rights), fix it and re-run the job, or upload the attached AAB by hand.
+- [ ] Check it on a device from closed testing, then promote it to production by hand in Play Console, with release notes in both languages.

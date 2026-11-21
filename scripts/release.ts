@@ -3,7 +3,7 @@
  * changes the app is released (and tagged) by the workflow already; this is for anything else,
  * such as a docs-only merge. It tags the current commit
  * with its own version (scripts/app-version.ts: 1.0.<merges since 1.0.0>) and pushes the tag,
- * which runs .github/workflows/android-release.yml: a signed AAB to Play's internal track. The
+ * which runs .github/workflows/android-release.yml: a signed AAB to Play's closed testing track. The
  * web app already shows that version since the merge was deployed (PV-5).
  *
  * The checkout must be clean and at origin/master. Nothing is typed by hand.
@@ -41,5 +41,5 @@ try {
 }
 
 console.log(`Released ${tag} (versionName ${version.name}, versionCode ${version.code}).
-The "Android release" workflow builds a signed AAB and uploads it to Play's internal track.
+The "Android release" workflow builds a signed AAB and uploads it to Play's closed testing track (alpha).
 Follow it with: gh run list --limit 3`)
