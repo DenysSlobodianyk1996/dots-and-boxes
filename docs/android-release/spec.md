@@ -114,6 +114,7 @@ The developer account is a personal one, so Play requires a closed test with at 
   4. capture the JSON key;
   5. write the GitHub secrets with `gh secret set`.
 - **Secrets**: `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`, `PLAY_SERVICE_ACCOUNT_JSON`.
+- **Repository variable**: `ANDROID_PACKAGE_ID` (`app.dotsandboxes`), the Play package the release job uploads to. The wizard sets it from `applicationId`; the job fails at its first step when it is empty.
 - Play App Signing stays on, and the keystore is never committed (`.gitignore`).
 - **Workflow**: `.github/workflows/android-release.yml` runs on tags `v*.*.*`. Steps:
   1. `npm ci`, then tests;
