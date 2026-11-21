@@ -104,7 +104,11 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     console.error('No git history back to 1.0.0: check out with fetch-depth: 0.')
     process.exit(1)
   }
-  const tag = process.argv[2] ?? process.env.GITHUB_REF_NAME
+  // the release tag to check: given, or the one a tag-triggered workflow runs for (a branch push
+  // releases the commit's own version, so there is nothing to check)
+  const tag =
+    process.argv[2] ??
+    (process.env.GITHUB_REF_TYPE === 'tag' ? process.env.GITHUB_REF_NAME : undefined)
   try {
     if (tag) checkReleaseTag(tag, version)
   } catch (error) {

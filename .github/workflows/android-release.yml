@@ -1,25 +1,73 @@
 name: Android release
 
-# A version tag builds a signed AAB and uploads it to the Play internal testing track (AR-10).
-# Release: git tag vX.Y.Z && git push origin vX.Y.Z. versionName/versionCode come from the tag (AR-11).
+# Every merge to master that changes the app builds a signed AAB, uploads it to the Play internal
+# testing track and tags the commit with its version (AR-10); docs-only merges release nothing.
+# A version tag (npm run release) still releases its commit by hand, e.g. after a docs-only merge.
+# versionName/versionCode are the commit's own version (scripts/app-version.ts, AR-11).
 # Secrets (written by scripts/android-release-wizard.sh): ANDROID_KEYSTORE_BASE64,
 # ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD, PLAY_SERVICE_ACCOUNT_JSON.
 # Repository variable (also written by the wizard): ANDROID_PACKAGE_ID, the Play package (app.dotsandboxes).
 # GitHub masks secret values in the logs; no step prints them or runs with `set -x`.
 on:
   push:
+    branches: [master]
     tags: ['v*.*.*']
+    # the same list as deploy.yml: a push touching only these changes nothing in the app.
+    # Tag pushes ignore paths filters, so a manual release always runs.
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+      - '.claude/**'
+      - '.vscode/**'
+      - '.editorconfig'
+      - '.gitattributes'
+      - '.gitignore'
+      - '.prettierrc.json'
+      - '.oxlintrc.json'
+      - 'eslint.config.ts'
+      - 'LICENSE'
 
 permissions:
   contents: read
 
+# one release at a time, so versionCodes reach Play in order
 concurrency:
-  group: android-release-${{ github.ref }}
+  group: android-release
   cancel-in-progress: false
 
 jobs:
-  release:
+  # a merge whose version was already released by hand (its tag exists) releases nothing
+  version:
     runs-on: ubuntu-latest
+    outputs:
+      released: ${{ steps.check.outputs.released }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Already released?
+        id: check
+        run: |
+          eval "$(node scripts/app-version.ts)"
+          released=false
+          if [ "$GITHUB_REF_TYPE" = branch ] && git rev-parse -q --verify "refs/tags/v$ANDROID_VERSION_NAME" >/dev/null; then
+            released=true
+            echo "::notice title=Already released::v$ANDROID_VERSION_NAME is already tagged; nothing to release."
+          fi
+          echo "released=$released" >> "$GITHUB_OUTPUT"
+
+  release:
+    needs: version
+    if: needs.version.outputs.released != 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      # to tag the released commit
+      contents: write
     steps:
       - uses: actions/checkout@v7
         with:
@@ -42,9 +90,9 @@ jobs:
           cache: npm
 
       # the commit's own version (1.0.<merges since 1.0.0>), the same the web app shows (PV-5);
-      # fails before anything is built unless the tag is that version (npm run release makes it)
+      # on a tag push it fails before anything is built unless the tag is that version
       - name: Version of this commit
-        run: node scripts/app-version.ts "$GITHUB_REF_NAME" >> "$GITHUB_ENV"
+        run: node scripts/app-version.ts >> "$GITHUB_ENV"
 
       - run: npm ci
 
@@ -109,6 +157,17 @@ jobs:
           releaseName: ${{ env.ANDROID_VERSION_NAME }}
           track: internal
           status: completed
+
+      # a merge release marks its commit as released, as npm run release does; the tag pushed with
+      # GITHUB_TOKEN starts no workflow, so this commit isn't built twice
+      - name: Tag the released commit
+        if: github.ref_type == 'branch'
+        run: |
+          tag="v$ANDROID_VERSION_NAME"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git tag --annotate "$tag" --message "Release $ANDROID_VERSION_NAME"
+          git push origin "$tag"
 
       - name: Delete the keystore
         if: always()

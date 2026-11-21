@@ -1,5 +1,7 @@
 /*
- * `npm run release`: sends what is on master to Google Play (AR-10). It tags the current commit
+ * `npm run release`: sends what is on master to Google Play by hand (AR-10). Every merge that
+ * changes the app is released (and tagged) by the workflow already; this is for anything else,
+ * such as a docs-only merge. It tags the current commit
  * with its own version (scripts/app-version.ts: 1.0.<merges since 1.0.0>) and pushes the tag,
  * which runs .github/workflows/android-release.yml: a signed AAB to Play's internal track. The
  * web app already shows that version since the merge was deployed (PV-5).
