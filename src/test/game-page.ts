@@ -148,6 +148,49 @@ export function stubSystemTheme(initial: TestTheme) {
   }
 }
 
+// Stubs the screen the app is laid out on before the page opens (jsdom has no layout): the app
+// shell's width, its left and right padding (the p-2 gutters plus the system bars and cutout
+// Android leaves out in landscape, p-safe-2), and whether the panel sits beside the board (MB-3).
+export function stubScreen({
+  width,
+  paddingLeft = 8,
+  paddingRight = 8,
+  sideBySide,
+}: {
+  width: number
+  paddingLeft?: number
+  paddingRight?: number
+  sideBySide: boolean
+}) {
+  const isShell = (element: Element) => element.hasAttribute('data-app-shell')
+  vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockImplementation(function (
+    this: HTMLElement,
+  ) {
+    return isShell(this) ? width : 0
+  })
+  const computedStyle = window.getComputedStyle.bind(window)
+  vi.spyOn(window, 'getComputedStyle').mockImplementation((element, pseudo) => {
+    const style = computedStyle(element, pseudo)
+    if (!isShell(element)) return style
+    Object.defineProperty(style, 'paddingLeft', { value: `${paddingLeft}px` })
+    Object.defineProperty(style, 'paddingRight', { value: `${paddingRight}px` })
+    return style
+  })
+  vi.spyOn(window, 'matchMedia').mockImplementation(
+    (query: string) =>
+      ({
+        matches: query.includes('min-width: 40rem') && sideBySide,
+        media: query,
+        onchange: null,
+        addListener: () => {},
+        removeListener: () => {},
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        dispatchEvent: () => false,
+      }) as unknown as MediaQueryList,
+  )
+}
+
 // Value for Math.random that makes start() pick the given player out of two.
 export function randomFor(first: 1 | 2) {
   return first === 1 ? 0 : 0.99
@@ -821,6 +864,17 @@ export class GamePage {
   }
 
   // ---- board ----
+
+  // the board's outer width in px, border included, and the width of one square (MB-3)
+  boardSize() {
+    const firstDot = this.dot([0, 0]).element.style
+    const nextDot = this.dot([0, 1]).element.style
+    const board = this.dot([0, 0]).element.parentElement as HTMLElement
+    return {
+      width: parseFloat(board.style.width),
+      cell: parseFloat(nextDot.left) - parseFloat(firstDot.left),
+    }
+  }
 
   dot([row, col]: DotPosition) {
     const dot = this.wrapper.find<HTMLButtonElement>(

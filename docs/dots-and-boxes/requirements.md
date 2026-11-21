@@ -104,7 +104,7 @@ Acceptance:
 
 - **MB-1**: Every screen works from 320 px wide without horizontal page scrolling. The only exception is a board that can't shrink any further (MB-3), which scrolls inside its own area.
 - **MB-2**: Below 640 px wide, the game screen stacks: the board on top, centered, and the panel below it at full width. In the panel, a full-width Stop button comes first, then Turn and Score side by side, then the hint (END-8).
-- **MB-3**: Squares are 48 px when the board fits the screen. On narrower screens they shrink so the board fits the available width, down to 24 px.
+- **MB-3**: Squares are 48 px when the board fits the screen. On narrower screens they shrink so the board fits the available width, down to 24 px. The available width leaves out the gutters and whatever the system bars and a camera cutout cover (a phone's navigation bar on the side in landscape), so the board is never cut off.
 - **MB-4**: Each dot's tap area is a square the size of one board square (at most 44 px), centered on the dot, so neighboring dots never share a tap area.
 - **MB-5**: The Stop confirmation dialog fits the screen with at least 16 px on each side.
 - **MB-6**: Below 640 px wide, the result panel sits below the board at full width, with Settings and Rematch side by side at equal width at the top of the panel (Settings on the left, UP-7). A label that does not fit wraps onto more lines; it is never cut off.

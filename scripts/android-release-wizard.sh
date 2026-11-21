@@ -405,7 +405,14 @@ if [[ -n "$PLAY_SERVICE_ACCOUNT_JSON" ]]; then
 elif ! secret_exists PLAY_SERVICE_ACCOUNT_JSON; then
   SKIPPED+=("GitHub secret PLAY_SERVICE_ACCOUNT_JSON (re-run the wizard for the service account stage)")
 fi
-note "Check with: gh secret list"
+# not a secret: the Play package the release workflow uploads to
+PACKAGE_ID=$(sed -n 's/^ *applicationId "\(.*\)"$/\1/p' "$REPO_ROOT/android/app/build.gradle")
+if [[ -n "$PACKAGE_ID" ]]; then
+  set_var ANDROID_PACKAGE_ID "$PACKAGE_ID"
+else
+  SKIPPED+=("GitHub variable ANDROID_PACKAGE_ID (gh variable set ANDROID_PACKAGE_ID --body app.dotsandboxes)")
+fi
+note "Check with: gh secret list; gh variable list"
 pause
 
 # ── 7 ─────────────────────────────────────────────────────────────────────
