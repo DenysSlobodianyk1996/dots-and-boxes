@@ -2,7 +2,7 @@
 
 Terms follow [GLOSSARY.md](../../GLOSSARY.md). User stories carry IDs **WL-n** (Welcome) and **LG-n** (languages) for commits. Shipped rules this touches: RL-1, RL-2, NG-5, NG-6, NG-8, FT-1, FT-2, PS-2, PS-3, AR-3, AR-6, AR-10, AR-16, AR-17, I18N-2, I18N-3, I18N-5, PV-1..PV-4 and PWA-6 in [requirements](../dots-and-boxes/requirements.md).
 
-**Status**: agreed in a grilling session and a prototype on 2026-11-23, not implemented. Issue #88, tickets #89–#95, review adjustments #98–#105. The chosen prototype is on branch [`prototype/welcome-how-to-play`](https://github.com/DenysSlobodianyk1996/dots-and-boxes/tree/prototype/welcome-how-to-play): `804a955` is variant A (chosen), `e77f653` also holds the rejected GIF variant. The language plan follows teach-clock's batch 28 (commit `d6d1091`).
+**Status**: agreed in a grilling session on 2026-11-23, shipped in #97 (#89–#93, review adjustments #98–#105), with the design canvas synced in #106. WL-n and LG-n are folded into [requirements](../dots-and-boxes/requirements.md); where they differ from this spec, they win. Still open under issue #88: the four new Play listings (#94) and their release notes (#95), so LG-21 isn't shipped yet. The language plan follows teach-clock's batch 28 (commit `d6d1091`).
 
 ## Problem Statement
 
@@ -88,12 +88,11 @@ Welcome ships first, so its text is translated once and the store images are gen
 - **Settings draft**: what's filled in on Settings survives Home, Play and the privacy screen, in memory only (**no new storage key**). A new launch starts fresh, and starting a game clears it.
 - **Focus**: Play and Home move focus to the new screen's heading, with a focus ring only for keyboard use.
 - **Android back button** (AR-3): language menu, then rules panel, then Stop dialog, then exit. Home is the way from Settings to Welcome.
-- **Demo script**: one 2 × 2 game of 12 lines, played on a real `DotsAndBoxesGame` so an illegal script throws. Coral wins 3 : 1. It's a pure function of time, as in the prototype's `timeline.ts`, and is tested without timers.
+- **Demo script**: one 2 × 2 game of 12 lines, played on a real `DotsAndBoxesGame` so an illegal script throws. Coral wins 3 : 1. It's a pure function of time and is tested without timers.
 - **Demo rendering**: inline SVG in theme tokens. The players are A and B, on the score chips and inside claimed squares. The six steps are a list beside the demo (below it on phones), with the current one highlighted. The animation uses `requestAnimationFrame` and stops on unmount.
 - **Reduced motion** renders the finished frame with the winning caption, with no loop.
 - **Accessibility**: the SVG is `aria-hidden`. The six steps are a visible ordered list, with `aria-current` on the highlighted one.
 - **Rules**: remove the goal and link from `GameSetup.vue` and `rules.howToPlay`. Changed after review: the Rules panel now repeats Welcome's demo and six steps in a smaller, stacked block, replacing its goal, five rules and storyboard.
-- **Prototype**: #89 relies on `prototype/welcome-how-to-play` (`804a955`) as the reference for the demo script, timing, captions, layout and Home button. Its code is rewritten to project standards, not merged. When #89 is finished, delete the branch locally and on GitHub, and remove the references to it from this spec.
 
 ### Languages (LG-1..LG-13)
 
@@ -159,5 +158,5 @@ Changed on purpose after the first build, each tracked as a sub-ticket of #88:
 
 ## Further Notes
 
-- After shipping, fold WL-n and LG-n into `requirements.md` and mark this spec shipped in `docs/README.md`.
-- The workflow's design step applies: the Welcome and language menu boards go on the design canvas as part of their tickets, with the prototype as the visual reference.
+- After #94 and #95, mark LG-21 shipped in `requirements.md` and close #88.
+- The Welcome and language menu boards are on the design canvas.
