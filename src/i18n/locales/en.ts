@@ -2,7 +2,7 @@
 const en = {
   app: {
     title: 'Dots and Boxes',
-    // header name, the bold name in GameGoal and the install manifest short_name (NG-1, NG-7)
+    // header name, Welcome's title and the install manifest short_name (NG-1, WL-10)
     shortName: 'Dots and Boxes',
     // the header's name: the short name, with a soft hyphen where one long word needs it (LG-11)
     headerName: 'Dots and Boxes',
@@ -141,22 +141,6 @@ const en = {
     title: 'How to play',
     open: 'Rules',
     close: 'Close rules',
-    // the game's goal, first in the rules panel; {name} is the bold game name (NG-7)
-    goal: '{name} — whoever owns more squares when the board is full wins.',
-    step1: 'Take turns drawing a line between two neighboring dots: left, right, up or down.',
-    step2: 'The first line can go anywhere. After that, start from a dot that already has a line.',
-    step3: 'Draw the fourth side of a square to claim it. One line can claim two squares.',
-    step4: 'After every line, the turn passes to the other player.',
-    step5:
-      'The game ends when all squares are claimed or someone presses Stop. Most squares wins; equal scores are a draw.',
-    // the still storyboard under the steps (RL-7); captions must stay true to the rules (RL-5)
-    storyboard: {
-      title: 'In pictures',
-      frame1: 'The first line goes anywhere.',
-      frame2: 'Next lines start from a drawn one: pick a dot, then a neighbor.',
-      frame3: 'Draw the fourth side and the square is yours.',
-      frame4: 'One line can close two squares.',
-    },
   },
 }
 

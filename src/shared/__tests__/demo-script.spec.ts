@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { DEMO_DURATION, FINISHED_FRAME, frameAt, type DemoFrame } from '../demo-script'
+import { DEMO_DURATION, FINISHED_FRAME, frameAt, type DemoFrame } from '@/shared/demo-script'
 
 // every frame of one loop, 10 ms apart
 function allFrames(): DemoFrame[] {

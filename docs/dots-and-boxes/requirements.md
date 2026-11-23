@@ -125,24 +125,24 @@ Acceptance:
 
 ## RL: Rules
 
-- **RL-1**: A short "How to play" rules section opens with the game's **goal**, one sentence with the game's name in bold: "**Dots and Boxes** — whoever owns more squares when the board is full wins." / «**Крапки й квадрати** — перемагає той, у кого більше квадратів, коли поле заповниться.» (NG-7). Below it, the section explains the game in five points: how lines are drawn, where a line can start, how squares are claimed, that turns alternate, and how the game ends and who wins. The wording is neutral ("Take turns…" / "Гравці по черзі…", "the other player"), so the same rules read correctly in both game modes (VC-23).
+- **RL-1**: The rules panel shows the **same how-to-play block as Welcome**, stacked and smaller: the looping demo, then the same six numbered steps with the current one highlighted (WL-4..WL-10). It has no separate goal sentence, rules text or pictures.
 - **RL-2**: The rules live only in the **rules panel**, opened by the info button ("Правила" / "Rules") in the header of every screen (HD-1), mid-game included; it is the only info button (NG-9). The setup screen opens with its "Settings" / «Налаштування» title and has no goal sentence or "How to play" link (WL-13). The setup and game screens show no rules inline and have no Show/Hide rules button (VR-23, VR-28).
 - **RL-3**: From 640 px wide the panel slides in from the right, 384 px wide, over a dimmed backdrop; below 640 px it covers the whole screen. It closes with its ✕ button ("Закрити правила" / "Close rules"), a tap on the backdrop or Esc. It is closed whenever the app loads, on both screens, never opens by itself, and its open state isn't saved (VR-24..VR-27).
 - **RL-4**: The panel is a modal dialog labelled by its "How to play" heading. When it opens, focus moves to ✕; Tab and Shift+Tab stay inside it; when it closes, focus returns to the header's info button (UP-2). The info button reports the panel with `aria-haspopup="dialog"` and `aria-expanded` (VR-29).
 - **RL-5**: The rules text matches the game rules (MV-1..3, SQ-1..2, TR-1, END-1..3). When a rule changes, its text changes with it. The computer player follows the same rules (VC-11), so computer mode adds no rules text. The same goes for the storyboard captions (RL-7): "The first line goes anywhere." (MV-1), "Next lines start from a drawn one: pick a dot, then a neighbor." (MV-2, MV-3), "Draw the fourth side and the square is yours." (SQ-1) and "One line can close two squares." (SQ-2).
 - **RL-6**: While the rules panel is open during the computer player's turn, the computer waits; once the panel closes it gets its usual pause before moving, as with the Stop dialog (VC-13, VR-31).
-- **RL-7**: Below the five rules, the panel shows a still **storyboard** headed "In pictures" / «У картинках»: four small 3×3 boards in a 2×2 grid, each with a caption in the current language. The frames come from one scripted, legal game between a coral and a teal player (it ends Coral 1, Teal 2): (1) the first line on an empty board, "The first line goes anywhere." / «Першу лінію можна провести будь-де.»; (2) Teal has picked Dot1 at the end of that line and its free neighbors are highlighted, "Next lines start from a drawn one: pick a dot, then a neighbor." / «Наступні лінії починаються від уже проведеної: оберіть точку, потім сусідню.»; (3) Coral has drawn a fourth side and owns the square, "Draw the fourth side and the square is yours." / «Проведіть четверту сторону, і квадрат ваш.»; (4) Teal's single line has closed two squares, "One line can close two squares." / «Одна лінія може закрити два квадрати.». The boards are drawn in the app with the board's look and theme tokens, so they follow the light and dark theme live; the players' lines and squares use the coral and teal swatches (GS-4), and the owner letters are the initials of the color names in the current language (C/T, К/Б). Frames fill the panel's width, also on the full-screen phone panel, with no horizontal scroll. The storyboard is static, needs no image files (PWA-4) and is hidden from assistive technology, since the rules text says the same; the panel's labelling and focus trap are unchanged (RL-4).
+- **RL-7**: Retired: the still "In pictures" storyboard is replaced by the demo (RL-1).
 
 Acceptance:
 - Given I open the setup screen, then no rules are shown and the info button in the header reports the panel as closed.
-- Given I press the info button, on setup or during a game, then the panel opens with "How to play" and the same five rules, and focus is on ✕.
+- Given I press the info button, on any screen, then the panel opens with "How to play", the demo and the same six steps as Welcome.
 - Given the panel is open, when I press ✕, tap the backdrop or press Esc, then it closes and focus is back on the info button.
 - Given the panel is open, when I press Tab or Shift+Tab, then focus stays inside it.
 - Given it's the computer player's turn and the panel is open, then the computer doesn't move however long I wait; when I close the panel, it moves after about one second.
 - Given a 390 px wide phone, then the open panel covers the screen.
-- Given I open the panel, then below the rules it shows "In pictures" and four captioned 3×3 boards in a 2×2 grid: one line on an empty board; Dot1 with highlighted neighbors; one owned square; two squares owned through one line.
-- Given the panel is open, when I switch the language or the theme, then the heading, captions, owner letters and board colors follow at once.
-- Given a 320 px wide phone, then the four boards fit the panel without horizontal scroll.
+- Given the panel is open, then the step the demo is showing is highlighted, and all six stay readable.
+- Given the panel is open, when I switch the language or the theme, then the heading, steps and demo follow at once.
+- Given a 320 px wide phone, then the demo and steps fit the panel without horizontal scroll.
 
 ## WL: Welcome
 
@@ -151,14 +151,14 @@ Spec: [Welcome and languages](../welcome-and-languages/spec.md), issue #89.
 - **WL-1, WL-2**: Each screen has its own address: `/` is **Welcome**, `/settings` is Settings and `/game` is the game. A launch at `/` without a saved game opens Welcome, and reloading a page keeps its address. `/game` without a game leads to Welcome, and any unknown address leads to `/`.
 - **WL-3**: A saved game, finished or not, always opens at `/game`: `/` and `/settings` lead there while a game exists.
 - **WL-4..WL-9**: The **How-to-play demo** is a watch-only, looping 2 × 2 game of 12 legal lines played on a real game: two dots are picked, the line grows, later lines start from a drawn dot, a fourth side claims a square, the turn passes even after a claim (TR-1), and Coral wins 3 : 1 on a full board with the winner marked.
-- **WL-10**: One caption below the board follows the demo through six stages.
+- **WL-10**: Welcome is titled with the game's name. From 640 px wide the demo is on the left and a numbered list of all six steps on the right; below that the list sits under the demo. The step the demo is showing is highlighted, and every step stays readable at any time. Where the list scrolls, it keeps the highlighted step in view, unless the player has just scrolled it.
 - **WL-11, WL-12**: Play leads to Settings. On Settings only, a round Home button in the header (HD-5) returns to Welcome. What's filled in on Settings (game mode, difficulty, names, colors, size) is still there on coming back, including through the privacy screen. This draft is in memory only: a new launch starts fresh, and starting a game clears it. Play and Home move focus to the new screen's heading, with a focus ring only for keyboard use.
-- **WL-13, WL-14**: Settings has no goal sentence or "How to play" link. The rules panel's content doesn't change.
+- **WL-13, WL-14**: Settings has no goal sentence or "How to play" link. The rules panel repeats Welcome's demo and steps (RL-1).
 - **WL-15, WL-16**: Coming back from the privacy screen returns to the screen it was opened from. Leaving a finished game through Settings doesn't reopen Welcome.
-- **WL-17**: With reduced motion, the demo is the still finished board with the winning caption.
-- **WL-18**: The picture and the changing caption are hidden from assistive technology; the six captions are available once as a visually hidden list.
-- **WL-19**: Welcome fits a 320 × 568 screen with Play visible and no scrolling; the board gives way to the space available.
-- **WL-20, WL-21**: The demo is inline SVG in theme tokens with no words inside, so it follows theme and language at once and needs no media files. Its animation stops when Welcome closes.
+- **WL-17**: With reduced motion, the demo is the still finished board with the winning step highlighted.
+- **WL-18**: The picture is hidden from assistive technology. The six steps are a normal ordered list, and the highlighted one is marked as the current step.
+- **WL-19**: Welcome fits a 320 × 568 screen with Play visible and no page scrolling; the demo and the list share the space and the list scrolls inside its area.
+- **WL-20, WL-21**: The demo is inline SVG in theme tokens, so it follows theme and language at once and needs no media files. Its only letters are the players' A and B, on the score chips and inside each claimed square. Its animation stops when the block closes.
 - The Android back button follows AR-3: language menu, then rules panel, then Stop dialog, then exit. Home is the way from Settings to Welcome.
 
 Acceptance:

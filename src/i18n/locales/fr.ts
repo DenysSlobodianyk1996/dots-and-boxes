@@ -135,23 +135,6 @@ const fr: typeof en = {
     title: 'Comment jouer',
     open: 'Règles',
     close: 'Fermer les règles',
-    goal: '{name} : celui qui a le plus de carrés quand la grille est pleine gagne.',
-    step1:
-      'À tour de rôle, tracez une ligne entre deux points voisins : à gauche, à droite, en haut ou en bas.',
-    step2:
-      'La première ligne peut aller n’importe où. Ensuite, partez d’un point qui a déjà une ligne.',
-    step3:
-      'Tracez le quatrième côté d’un carré pour le prendre. Une ligne peut prendre deux carrés.',
-    step4: 'Après chaque ligne, c’est au tour de l’autre joueur.',
-    step5:
-      'La partie se termine quand tous les carrés sont pris ou quand quelqu’un appuie sur Arrêter. Le plus de carrés gagne ; à score égal, c’est une égalité.',
-    storyboard: {
-      title: 'En images',
-      frame1: 'La première ligne peut aller n’importe où.',
-      frame2: 'Les lignes suivantes partent d’une ligne tracée : un point, puis un voisin.',
-      frame3: 'Tracez le quatrième côté et le carré est à vous.',
-      frame4: 'Une ligne peut fermer deux carrés.',
-    },
   },
 }
 

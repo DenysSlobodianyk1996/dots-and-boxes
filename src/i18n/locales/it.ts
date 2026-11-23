@@ -132,21 +132,6 @@ const it: typeof en = {
     title: 'Come si gioca',
     open: 'Regole',
     close: 'Chiudi le regole',
-    goal: '{name}: vince chi ha più quadrati quando la griglia è piena.',
-    step1: 'A turno, traccia una linea tra due punti vicini: a sinistra, a destra, su o giù.',
-    step2: 'La prima linea può stare ovunque. Poi parti da un punto che ha già una linea.',
-    step3:
-      'Traccia il quarto lato di un quadrato per prenderlo. Una linea può prendere due quadrati.',
-    step4: 'Dopo ogni linea, il turno passa all’altro giocatore.',
-    step5:
-      'La partita finisce quando tutti i quadrati sono presi o qualcuno preme Ferma. Vince chi ha più quadrati; a punteggio uguale è pareggio.',
-    storyboard: {
-      title: 'Per immagini',
-      frame1: 'La prima linea può stare ovunque.',
-      frame2: 'Le linee successive partono da una già tracciata: un punto, poi un vicino.',
-      frame3: 'Traccia il quarto lato e il quadrato è tuo.',
-      frame4: 'Una linea può chiudere due quadrati.',
-    },
   },
 }
 

@@ -10,11 +10,12 @@ import {
 } from '@/test/game-page'
 
 const RULES_EN = [
-  'Take turns drawing a line between two neighboring dots: left, right, up or down.',
-  'The first line can go anywhere. After that, start from a dot that already has a line.',
-  'Draw the fourth side of a square to claim it. One line can claim two squares.',
+  'Tap two neighboring dots to draw a line.',
+  'Players take turns. Each new line starts from a dot that already has a line.',
+  "Draw a square's fourth side and it's yours.",
   'After every line, the turn passes to the other player.',
-  'The game ends when all squares are claimed or someone presses Stop. Most squares wins; equal scores are a draw.',
+  'Keep going until every square is claimed.',
+  'Board full: most squares wins!',
 ]
 
 describe('rules panel', () => {
@@ -65,12 +66,14 @@ describe('rules panel', () => {
     expect(page.isRulesOpen()).toBe(false)
   })
 
-  it('shows the five rules unchanged (VR-30)', async () => {
+  it('shows the same demo and steps as Welcome (RL-1)', async () => {
     const page = await openGamePage()
 
     await page.openRules()
 
     expect(page.rulesPoints()).toEqual(RULES_EN)
+    expect(page.hasRulesDemo).toBe(true)
+    expect(page.rulesHighlightedStepCount()).toBe(1)
   })
 
   it('shows the rules in Ukrainian with a Ukrainian title (VR-30)', async () => {
@@ -79,7 +82,7 @@ describe('rules panel', () => {
     await page.openRules()
 
     expect(page.rulesPanelName()).toBe('Як грати')
-    expect(page.rulesText()).toContain('Гравці по черзі')
+    expect(page.rulesPoints()[0]).toBe('Торкніться двох сусідніх крапок, щоб провести лінію.')
   })
 })
 
@@ -122,40 +125,12 @@ describe('rules panel for keyboard and screen reader (VR-29)', () => {
   )
 })
 
-const GOAL = {
-  en: {
-    sentence: 'Dots and Boxes — whoever owns more squares when the board is full wins.',
-    name: 'Dots and Boxes',
-  },
-  uk: {
-    sentence: 'Крапки й квадрати — перемагає той, у кого більше квадратів, коли поле заповниться.',
-    name: 'Крапки й квадрати',
-  },
-} as const
-
 describe('info buttons (NG-9)', () => {
   it('has no info button of its own: only the header one opens the rules', async () => {
     const page = await openGamePage()
 
     expect(page.rulesInfoButtons()).toEqual(['header'])
   })
-})
-
-describe('game goal in the rules panel (NG-7)', () => {
-  it.each(['en', 'uk'] as const)(
-    'starts with the same sentence, before the steps (%s)',
-    async (locale) => {
-      const page = await openGamePage({ storage: { LOCALE: locale } })
-
-      await page.openRules()
-
-      expect(page.rulesGoal()).toEqual({
-        sentence: GOAL[locale].sentence,
-        boldName: GOAL[locale].name,
-        firstBeforeSteps: true,
-      })
-    },
-  )
 })
 
 describe('rules panel on the computer turn (VR-31)', () => {

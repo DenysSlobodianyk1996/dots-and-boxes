@@ -135,23 +135,6 @@ const de: typeof en = {
     title: 'So wird gespielt',
     open: 'Regeln',
     close: 'Regeln schließen',
-    goal: '{name}: Wer die meisten Kästchen hat, wenn das Feld voll ist, gewinnt.',
-    step1:
-      'Zieht abwechselnd eine Linie zwischen zwei benachbarten Punkten: nach links, rechts, oben oder unten.',
-    step2:
-      'Die erste Linie darf überall liegen. Danach beginnst du an einem Punkt, der schon eine Linie hat.',
-    step3:
-      'Zieh die vierte Seite eines Kästchens, um es zu holen. Eine Linie kann zwei Kästchen holen.',
-    step4: 'Nach jeder Linie ist der andere Spieler dran.',
-    step5:
-      'Das Spiel endet, wenn alle Kästchen vergeben sind oder jemand auf Stopp drückt. Die meisten Kästchen gewinnen; bei Gleichstand ist es unentschieden.',
-    storyboard: {
-      title: 'In Bildern',
-      frame1: 'Die erste Linie darf überall liegen.',
-      frame2: 'Weitere Linien beginnen an einer gezogenen: erst ein Punkt, dann ein Nachbar.',
-      frame3: 'Zieh die vierte Seite, und das Kästchen gehört dir.',
-      frame4: 'Eine Linie kann zwei Kästchen schließen.',
-    },
   },
 }
 

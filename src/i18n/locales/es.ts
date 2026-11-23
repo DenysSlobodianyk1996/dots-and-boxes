@@ -133,22 +133,6 @@ const es: typeof en = {
     title: 'Cómo jugar',
     open: 'Reglas',
     close: 'Cerrar las reglas',
-    goal: '{name}: gana quien tiene más cuadrados cuando el tablero está lleno.',
-    step1:
-      'Por turnos, traza una línea entre dos puntos vecinos: a la izquierda, a la derecha, arriba o abajo.',
-    step2:
-      'La primera línea puede ir en cualquier sitio. Después, sal de un punto que ya tenga una línea.',
-    step3: 'Traza el cuarto lado de un cuadrado para tomarlo. Una línea puede tomar dos cuadrados.',
-    step4: 'Después de cada línea, el turno pasa al otro jugador.',
-    step5:
-      'La partida termina cuando todos los cuadrados están tomados o alguien pulsa Parar. Gana quien tiene más cuadrados; con los mismos puntos hay empate.',
-    storyboard: {
-      title: 'En imágenes',
-      frame1: 'La primera línea puede ir en cualquier sitio.',
-      frame2: 'Las siguientes salen de una línea ya trazada: un punto y luego un vecino.',
-      frame3: 'Traza el cuarto lado y el cuadrado es tuyo.',
-      frame4: 'Una línea puede cerrar dos cuadrados.',
-    },
   },
 }
 

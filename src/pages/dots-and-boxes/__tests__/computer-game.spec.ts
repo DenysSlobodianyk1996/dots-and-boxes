@@ -163,7 +163,7 @@ describe('the rules read the same in both modes (CM-35, RL-5)', () => {
     await page.chooseMode('twoPlayers')
 
     expect(await rulesText(page)).toBe(computerRules)
-    expect(computerRules).toContain('Take turns')
+    expect(computerRules).toContain('Players take turns')
     expect(computerRules).toContain('the other player')
     expect(computerRules.toLowerCase()).not.toContain('two players')
   })
@@ -172,7 +172,7 @@ describe('the rules read the same in both modes (CM-35, RL-5)', () => {
     const page = await openGamePage({ storage: { LOCALE: 'uk' } })
     const rules = await rulesText(page)
 
-    expect(rules).toContain('Гравці по черзі')
+    expect(rules).toContain('Гравці ходять по черзі')
     expect(rules).toContain('іншого гравця')
     expect(rules.toLowerCase()).not.toContain('двоє')
     expect(rules.toLowerCase()).not.toContain('два гравці')

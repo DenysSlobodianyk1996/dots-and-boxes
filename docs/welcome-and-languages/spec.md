@@ -2,7 +2,7 @@
 
 Terms follow [GLOSSARY.md](../../GLOSSARY.md). User stories carry IDs **WL-n** (Welcome) and **LG-n** (languages) for commits. Shipped rules this touches: RL-1, RL-2, NG-5, NG-6, NG-8, FT-1, FT-2, PS-2, PS-3, AR-3, AR-6, AR-10, AR-16, AR-17, I18N-2, I18N-3, I18N-5, PV-1..PV-4 and PWA-6 in [requirements](../dots-and-boxes/requirements.md).
 
-**Status**: agreed in a grilling session and a prototype on 2026-11-23, not implemented. Issue #88, tickets #89–#95. The chosen prototype is on branch [`prototype/welcome-how-to-play`](https://github.com/DenysSlobodianyk1996/dots-and-boxes/tree/prototype/welcome-how-to-play): `804a955` is variant A (chosen), `e77f653` also holds the rejected GIF variant. The language plan follows teach-clock's batch 28 (commit `d6d1091`).
+**Status**: agreed in a grilling session and a prototype on 2026-11-23, not implemented. Issue #88, tickets #89–#95, review adjustments #98–#101. The chosen prototype is on branch [`prototype/welcome-how-to-play`](https://github.com/DenysSlobodianyk1996/dots-and-boxes/tree/prototype/welcome-how-to-play): `804a955` is variant A (chosen), `e77f653` also holds the rejected GIF variant. The language plan follows teach-clock's batch 28 (commit `d6d1091`).
 
 ## Problem Statement
 
@@ -89,10 +89,10 @@ Welcome ships first, so its text is translated once and the store images are gen
 - **Focus**: Play and Home move focus to the new screen's heading, with a focus ring only for keyboard use.
 - **Android back button** (AR-3): language menu, then rules panel, then Stop dialog, then exit. Home is the way from Settings to Welcome.
 - **Demo script**: one 2 × 2 game of 12 lines, played on a real `DotsAndBoxesGame` so an illegal script throws. Coral wins 3 : 1. It's a pure function of time, as in the prototype's `timeline.ts`, and is tested without timers.
-- **Demo rendering**: inline SVG in theme tokens, no words inside the picture. Scores use each color's dot. Captions are normal i18n text below the board. The animation uses `requestAnimationFrame` and stops on unmount.
+- **Demo rendering**: inline SVG in theme tokens. The players are A and B, on the score chips and inside claimed squares. The six steps are a list beside the demo (below it on phones), with the current one highlighted. The animation uses `requestAnimationFrame` and stops on unmount.
 - **Reduced motion** renders the finished frame with the winning caption, with no loop.
-- **Accessibility**: the SVG is `aria-hidden`. All six captions are available once as visually hidden text.
-- **Rules**: remove the goal and link from `GameSetup.vue` and `rules.howToPlay`. `GameGoal` stays in the Rules panel. The storyboard and the panel's text don't change.
+- **Accessibility**: the SVG is `aria-hidden`. The six steps are a visible ordered list, with `aria-current` on the highlighted one.
+- **Rules**: remove the goal and link from `GameSetup.vue` and `rules.howToPlay`. Changed after review: the Rules panel now repeats Welcome's demo and six steps in a smaller, stacked block, replacing its goal, five rules and storyboard.
 - **Prototype**: #89 relies on `prototype/welcome-how-to-play` (`804a955`) as the reference for the demo script, timing, captions, layout and Home button. Its code is rewritten to project standards, not merged. When #89 is finished, delete the branch locally and on GitHub, and remove the references to it from this spec.
 
 ### Languages (LG-1..LG-13)
@@ -125,6 +125,15 @@ Welcome ships first, so its text is translated once and the store images are gen
 - **One PR (#97)** for the app, store files and docs, merged once. The merge releases to Play closed testing.
 - **Deferred**: the four new Play listings (#94) are added later by hand from the saved `docs/store/<lang>/` files. Their release notes (#95) follow only after that, so until then release notes stay in English and Ukrainian.
 
+### Review adjustments
+
+Changed on purpose after the first build, each tracked as a sub-ticket of #88:
+
+- **#98, screen addresses** (WL-1..WL-3, WL-16): `/` is Welcome, `/settings` is Settings and `/game` is the game.
+- **#99, name error** (GS-6): a name's error goes away as soon as typing makes the name valid.
+- **#100, next-step hint** (END-8): the in-game hint is highlighted.
+- **#101, one how-to-play block** (WL-10, WL-14, WL-17..WL-20, RL-1, RL-7): Welcome is titled with the game's name, with the demo beside a list of all six steps and the current one highlighted. Players are A and B. The rules panel shows the same block, smaller, and loses its goal sentence, five rules and storyboard. This replaces WL-14's original "the Rules panel stays as it is".
+
 ## Testing Decisions
 
 - Tests check external behavior through `mountGamePage` and the page driver in `src/test/game-page.ts`, which stays the only place that knows the DOM. `mountGamePage` gets a way past Welcome so existing specs keep their intent.
@@ -136,7 +145,7 @@ Welcome ships first, so its text is translated once and the store images are gen
 ## Out of Scope
 
 - Interactive or try-it tutorials, and video or GIF demos.
-- Changes to the Rules panel's content or the game rules.
+- Changes to the game rules.
 - "Don't show again" for Welcome.
 - Teach-clock's required-name change.
 - Languages beyond the six, and a plural system.

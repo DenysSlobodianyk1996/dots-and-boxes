@@ -351,6 +351,8 @@ The phone layout is the default, and `sm:` classes (640 px and up) restore the d
 
 ## Rules [RL-1, RL-5, RL-7, VR-23..VR-31, APP-1]
 
+> **Changed**: `GameRules.vue` now renders `HowToPlay.vue` (compact), the block Welcome uses. The goal, the five rules and the storyboard described below are gone; [requirements](requirements.md) RL-1 and WL-10 are current.
+
 - **GameRules.vue** [RL-1, RL-5]: a `section` (gap 12 px) labelled by its "How to play" heading (`text-lg font-bold text-ink`). Below it, the goal sentence (`GameGoal` in a `<p data-rules-goal>`, `text-sm text-ink`, NG-7), then an ordered list of five rules (`text-sm text-ink-soft`, gap 8 px), each with a 20 px round `bg-surface-strong` number. It has no card styling of its own any more: it sits directly on the rules panel. The rules text comes from `rules.step1`–`step5` in `src/i18n/locales` (see Languages). The English wording is:
   1. Take turns drawing a line between two neighboring dots: left, right, up or down.
   2. The first line can go anywhere. After that, start from a dot that already has a line.

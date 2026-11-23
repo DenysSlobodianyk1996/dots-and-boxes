@@ -1,5 +1,5 @@
 <template>
-  <!-- no words inside, only theme tokens and player colors; the caption sits below (WL-20, WL-21) -->
+  <!-- only theme tokens and player colors; the only letters are the players' A and B (WL-20, WL-21) -->
   <svg data-demo-board :viewBox="`0 0 ${SIZE} ${SIZE + TOP}`" aria-hidden="true" focusable="false">
     <g v-for="chip in chips" :key="chip.player">
       <rect
@@ -13,7 +13,18 @@
         :stroke="chip.active ? chip.color : 'var(--color-border)'"
         stroke-width="2"
       />
-      <circle :cx="chip.x + 24" cy="30" r="8" :fill="chip.color" />
+      <circle :cx="chip.x + 24" cy="30" r="13" :fill="chip.color" />
+      <text
+        :x="chip.x + 24"
+        y="31"
+        text-anchor="middle"
+        dominant-baseline="central"
+        font-size="16"
+        font-weight="800"
+        fill="var(--color-on-accent)"
+      >
+        {{ chip.letter }}
+      </text>
       <text
         :data-demo-score="chip.player"
         :x="chip.x + 72"
@@ -37,6 +48,20 @@
       :fill="colorOf(square.ownerName)"
       fill-opacity="0.32"
     />
+    <text
+      v-for="square in frame.squares"
+      :key="`letter-${square.row},${square.col}`"
+      data-demo-square-letter
+      :x="at(square.col) + CELL / 2"
+      :y="TOP + at(square.row) + CELL / 2 + 1"
+      text-anchor="middle"
+      dominant-baseline="central"
+      font-size="44"
+      font-weight="800"
+      :fill="colorOf(square.ownerName)"
+    >
+      {{ DEMO_LETTERS[square.ownerName as DemoPlayer] }}
+    </text>
     <line
       v-for="line in frame.lines"
       :key="line.key"
@@ -55,7 +80,7 @@
       :y1="TOP + at(frame.growing.from.row)"
       :x2="between(frame.growing.from.col, frame.growing.to.col, frame.growing.progress)"
       :y2="TOP + between(frame.growing.from.row, frame.growing.to.row, frame.growing.progress)"
-      :stroke="STORY_COLORS[frame.growing.owner]"
+      :stroke="DEMO_COLORS[frame.growing.owner]"
       stroke-width="7"
       stroke-linecap="round"
     />
@@ -73,9 +98,9 @@
       :cx="at(picked.col)"
       :cy="TOP + at(picked.row)"
       r="17"
-      :fill="STORY_COLORS[frame.current]"
+      :fill="DEMO_COLORS[frame.current]"
       fill-opacity="0.2"
-      :stroke="STORY_COLORS[frame.current]"
+      :stroke="DEMO_COLORS[frame.current]"
       stroke-width="3"
     />
   </svg>
@@ -83,8 +108,13 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { STORY_COLORS, type StoryPlayer } from '@/shared/rules-storyboard'
-import { DEMO_SIZE, type DemoFrame } from './demo-script'
+import {
+  DEMO_COLORS,
+  DEMO_LETTERS,
+  DEMO_SIZE,
+  type DemoFrame,
+  type DemoPlayer,
+} from '@/shared/demo-script'
 
 const SIZE = 300
 const TOP = 56
@@ -101,7 +131,7 @@ const props = defineProps<{ frame: DemoFrame }>()
 const at = (index: number) => PAD + index * CELL
 const between = (from: number, to: number, progress: number) =>
   at(from) + (at(to) - at(from)) * progress
-const colorOf = (owner: string | null) => STORY_COLORS[owner as StoryPlayer]
+const colorOf = (owner: string | null) => DEMO_COLORS[owner as DemoPlayer]
 
 const pickedDots = computed(() =>
   [props.frame.dot1, props.frame.tapped].filter((dot) => dot !== null),
@@ -115,7 +145,8 @@ const chips = computed(() => {
     return {
       player,
       x: index === 0 ? 28 : 160,
-      color: STORY_COLORS[player],
+      color: DEMO_COLORS[player],
+      letter: DEMO_LETTERS[player],
       score: frame[player],
       active: frame.finished ? isWinner : frame.current === player,
       isWinner,

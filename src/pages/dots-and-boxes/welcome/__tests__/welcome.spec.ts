@@ -163,7 +163,7 @@ describe('Welcome screen', () => {
 
     await page.clickHome()
 
-    expect(page.focusedHeading()).toBe('How to play')
+    expect(page.focusedHeading()).toBe('Dots and Boxes')
   })
 
   it('leaves focus alone when the app opens (WL-1)', async () => {
@@ -186,13 +186,40 @@ describe('Welcome screen', () => {
     expect(page.text()).not.toContain('How to play')
   })
 
-  it('keeps the rules panel available (WL-14)', async () => {
+  it('repeats its demo and steps in the rules panel (WL-14, RL-1)', async () => {
     const page = await openGamePage({ onWelcome: true })
 
     await page.openRules()
 
     expect(page.rulesPanelName()).toBe('How to play')
-    expect(page.rulesPoints()).toHaveLength(5)
+    expect(page.hasRulesDemo).toBe(true)
+    expect(page.rulesPoints()).toEqual(STEPS)
+    expect(page.rulesHighlightedStepCount()).toBe(1)
+  })
+
+  it('is titled with the game name (WL-10)', async () => {
+    const page = await openGamePage({ onWelcome: true })
+
+    await page.clickPlay()
+    await page.clickHome()
+
+    expect(page.focusedHeading()).toBe('Dots and Boxes')
+  })
+
+  it('lists every step and highlights only the current one (WL-10)', async () => {
+    const page = await openGamePage({ onWelcome: true })
+
+    expect(page.welcomeSteps()).toEqual(STEPS)
+    expect(page.highlightedStepCount()).toBe(1)
+    expect(page.welcomeCaption()).toBe(STEPS[0])
+  })
+
+  it('marks each claimed square with its player A or B (WL-20)', async () => {
+    stubReducedMotion()
+
+    const page = await openGamePage({ onWelcome: true })
+
+    expect([...page.demoBoard().squareLetters].sort()).toEqual(['A', 'A', 'A', 'B'])
   })
 
   it('returns to Welcome from the privacy screen when it was left from there (WL-15)', async () => {
@@ -237,7 +264,7 @@ describe('Welcome screen', () => {
     const page = await openGamePage({ onWelcome: true })
 
     expect(page.welcomeCaption()).toBe('Board full: most squares wins!')
-    expect(page.demoBoard()).toEqual({ lines: 12, coral: 3, teal: 1, winner: 'coral' })
+    expect(page.demoBoard()).toMatchObject({ lines: 12, coral: 3, teal: 1, winner: 'coral' })
     expect(frame).not.toHaveBeenCalled()
   })
 
@@ -250,12 +277,11 @@ describe('Welcome screen', () => {
     expect(cancel).toHaveBeenCalled()
   })
 
-  it('gives screen readers every step once, as text (WL-18)', async () => {
+  it('gives screen readers the steps as a list, not the picture (WL-18)', async () => {
     const page = await openGamePage({ onWelcome: true })
 
     expect(page.welcomeSteps()).toEqual(STEPS)
     expect(page.isDemoHiddenFromAssistiveTech()).toBe(true)
-    expect(page.isWelcomeCaptionHiddenFromAssistiveTech()).toBe(true)
   })
 
   it('shows the steps in Ukrainian (WL-20)', async () => {
