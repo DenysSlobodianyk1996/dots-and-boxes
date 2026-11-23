@@ -1,6 +1,6 @@
 <template>
   <!-- the header's language button and its dropdown, the menu-button pattern (LG-1..LG-4) -->
-  <div ref="root" class="relative shrink-0" @keydown="onKeydown">
+  <div ref="root" class="relative shrink-0">
     <BaseIconButton
       ref="button"
       data-language-button
@@ -96,15 +96,19 @@ function moveFocus(key: string) {
   const index = items.indexOf(document.activeElement as HTMLElement)
   const next = {
     ArrowDown: (index + 1) % items.length,
-    ArrowUp: (index - 1 + items.length) % items.length,
+    // with focus outside the rows (index -1), Up starts from the last one
+    ArrowUp: index <= 0 ? items.length - 1 : index - 1,
     Home: 0,
     End: items.length - 1,
   }[key]
   if (next !== undefined) items[next]?.focus()
 }
 
+// on the document: a click on the menu's padding moves focus to the page, and the keys must keep
+// working (LG-4)
 function onKeydown(event: KeyboardEvent) {
   if (!isOpen.value) {
+    if (!root.value?.contains(event.target as Node)) return
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       event.preventDefault()
       void open()
@@ -136,10 +140,12 @@ function onResize() {
 
 onMounted(() => {
   document.addEventListener('pointerdown', onPointerDown)
+  document.addEventListener('keydown', onKeydown, true)
   window.addEventListener('resize', onResize)
 })
 onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', onPointerDown)
+  document.removeEventListener('keydown', onKeydown, true)
   window.removeEventListener('resize', onResize)
   close({ returnFocus: false })
 })

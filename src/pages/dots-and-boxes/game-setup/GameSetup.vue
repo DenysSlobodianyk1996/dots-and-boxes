@@ -2,11 +2,18 @@
   <!-- centered horizontally, top-aligned (MB-9) -->
   <div class="mx-auto max-w-130">
     <!-- only about settings: how to play is on Welcome and in the rules panel (WL-13) -->
-    <h3 data-setup-title class="mb-4 text-center text-2xl font-extrabold">
+    <!-- takes focus when Play opens this screen; a ring only for keyboard use -->
+    <h3
+      data-setup-title
+      data-screen-heading
+      tabindex="-1"
+      class="mb-4 rounded-lg text-center text-2xl font-extrabold focus-visible:outline-2 focus-visible:outline-accent"
+    >
       {{ t('setup.title') }}
     </h3>
     <!-- keep-values: what's typed survives a game mode switch (CM-10) -->
     <Form
+      ref="form"
       :initial-values="formInitialValues"
       keep-values
       class="flex flex-col gap-4"
@@ -84,10 +91,11 @@
 <script setup lang="ts">
 import { Form, Field, defineRule } from 'vee-validate'
 import { required, integer, min_value, max_value } from '@vee-validate/rules'
-import { computed, ref, useId } from 'vue'
+import { computed, onBeforeUnmount, ref, useId, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import PlayerField from './PlayerField.vue'
 import ComputerOpponentField from './ComputerOpponentField.vue'
+import { useSetupDraft, type SetupFormValues } from './useSetupDraft'
 import { createComputerPlayer, type Difficulty, type GameMode, type GameSetupForm } from '@/models'
 
 import BaseLabel from '@/shared/components/BaseLabel.vue'
@@ -130,8 +138,14 @@ function remembered<T extends string>(key: string, allowed: T[], fallback: T): T
   return allowed.find((item) => item === value) ?? fallback
 }
 
-const gameMode = ref<GameMode>(remembered(GAME_MODE, GAME_MODES, 'computer'))
-const difficulty = ref<Difficulty>(remembered(DIFFICULTY, DIFFICULTIES, 'normal'))
+// a draft left by going Home comes back as it was (WL-11, WL-12)
+const setupDraft = useSetupDraft()
+const draft = setupDraft.read()
+
+const gameMode = ref<GameMode>(draft?.gameMode ?? remembered(GAME_MODE, GAME_MODES, 'computer'))
+const difficulty = ref<Difficulty>(
+  draft?.difficulty ?? remembered(DIFFICULTY, DIFFICULTIES, 'normal'),
+)
 const isComputerMode = computed(() => gameMode.value === 'computer')
 
 const modeOptions = computed(() =>
@@ -145,17 +159,25 @@ const difficultyHint = computed(() => {
   return option ? t(option.hintKey) : undefined
 })
 
-// what the form fields hold; the game mode and difficulty come from the switches
-type SetupFormValues = Omit<GameSetupForm, 'gameMode' | 'difficulty'>
-
 // two different random swatches (VR-35)
 const player1Color = randomSwatch()
-const formInitialValues: SetupFormValues = {
+const formInitialValues: SetupFormValues = draft?.values ?? {
   player1: { name: '', color: player1Color },
   player2: { name: '', color: randomSwatch(player1Color) },
   // 4 by default (GS-2)
   size: 4,
 }
+
+const form = useTemplateRef<{ getValues: () => SetupFormValues }>('form')
+let isSubmitted = false
+onBeforeUnmount(() => {
+  if (isSubmitted || !form.value) return
+  setupDraft.save({
+    values: form.value.getValues(),
+    gameMode: gameMode.value,
+    difficulty: difficulty.value,
+  })
+})
 
 const emit = defineEmits<{
   gameSetup: [GameSetupForm]
@@ -165,6 +187,8 @@ const emit = defineEmits<{
 // person stay in the form (CM-10) but aren't used.
 function submit(values: Record<string, unknown>) {
   const { player1, player2, size } = values as SetupFormValues
+  isSubmitted = true
+  setupDraft.clear()
   // the difficulty is remembered even in Two players, for the next Versus computer game (CM-7)
   StorageService.setItem(GAME_MODE, gameMode.value)
   StorageService.setItem(DIFFICULTY, difficulty.value)

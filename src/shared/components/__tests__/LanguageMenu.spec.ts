@@ -170,6 +170,41 @@ describe('language menu by keyboard (LG-4)', () => {
     expect(document.documentElement.lang).toBe('uk')
   })
 
+  it.each([
+    ['ArrowDown', 'EN'],
+    ['ArrowUp', 'ES'],
+    ['Home', 'EN'],
+    ['End', 'ES'],
+  ])('%s still moves after a click on the menu padding', async (key, row) => {
+    const page = await openOn('uk-UA')
+    await page.clickLanguageButton()
+    await page.clickLanguageMenuPadding()
+
+    await page.pressKey(key)
+
+    expect(page.languageFocus()).toBe(row)
+  })
+
+  it('Escape still closes after a click on the menu padding', async () => {
+    const page = await openOn('uk-UA')
+    await page.clickLanguageButton()
+    await page.clickLanguageMenuPadding()
+
+    await page.pressKey('Escape')
+
+    expect(page.languageMenu()).toBeNull()
+    expect(page.languageFocus()).toBe('button')
+  })
+
+  it('leaves keys alone while the menu is closed', async () => {
+    const page = await openOn('uk-UA')
+    ;(document.activeElement as HTMLElement | null)?.blur()
+
+    await page.pressKey('ArrowDown')
+
+    expect(page.languageMenu()).toBeNull()
+  })
+
   it('Tab closes the menu', async () => {
     const page = await openOn('uk-UA')
     page.focusLanguageButton()

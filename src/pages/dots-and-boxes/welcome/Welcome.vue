@@ -2,7 +2,14 @@
   <!-- fills the space between the header and the footer: the board gives way, so Play stays on
        screen on a 320 x 568 phone (WL-19) -->
   <div data-welcome class="mx-auto flex h-full max-w-sm flex-col gap-3">
-    <h2 class="shrink-0 text-center text-2xl font-extrabold">{{ t('rules.title') }}</h2>
+    <!-- takes focus when Home opens this screen; a ring only for keyboard use -->
+    <h2
+      data-screen-heading
+      tabindex="-1"
+      class="shrink-0 rounded-lg text-center text-2xl font-extrabold focus-visible:outline-2 focus-visible:outline-accent"
+    >
+      {{ t('rules.title') }}
+    </h2>
     <div
       class="flex max-h-136 min-h-48 flex-1 flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-sm"
     >

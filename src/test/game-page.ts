@@ -294,6 +294,12 @@ export class GamePage {
     await flushPromises()
   }
 
+  // the screen heading holding keyboard focus, by its text, or null
+  focusedHeading() {
+    const active = document.activeElement
+    return active && /^H[1-6]$/.test(active.tagName) ? active.textContent?.trim() : null
+  }
+
   text() {
     return this.wrapper.text()
   }
@@ -491,7 +497,18 @@ export class GamePage {
   languageFocus() {
     const active = document.activeElement
     if (active === this.languageButton.element) return 'button'
-    return active?.querySelector('[data-language-key]')?.textContent?.trim() ?? null
+    const row = active?.closest('[role="menuitemradio"]')
+    return row?.querySelector('[data-language-key]')?.textContent?.trim() ?? null
+  }
+
+  // clicks the open menu's padding, which can't take focus, so focus falls to the page (LG-4)
+  async clickLanguageMenuPadding() {
+    const menu = document.querySelector<HTMLElement>('[role="menu"]')
+    if (!menu) throw new Error('The language menu is closed')
+    menu.dispatchEvent(new Event('pointerdown', { bubbles: true }))
+    ;(document.activeElement as HTMLElement | null)?.blur()
+    menu.click()
+    await flushPromises()
   }
 
   async tapOutsideLanguageMenu() {

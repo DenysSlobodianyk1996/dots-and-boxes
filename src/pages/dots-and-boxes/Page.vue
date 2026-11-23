@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
 import { DotsAndBoxesGame, type GameSetupForm } from '@/models'
-import { computed, onBeforeUnmount, reactive, watchEffect } from 'vue'
+import { computed, onBeforeUnmount, reactive, watch, watchEffect } from 'vue'
 import GameSetup from './game-setup/GameSetup.vue'
 import Game from './Game.vue'
 import Welcome from './welcome/Welcome.vue'
@@ -48,6 +48,12 @@ if (dotsAndBoxesGame.isGameStarted) welcome.close()
 // the header's Home button shows on Settings only (WL-12)
 watchEffect(() => welcome.setOnSetup(!dotsAndBoxesGame.isGameStarted && !welcome.isOpen.value))
 onBeforeUnmount(() => welcome.setOnSetup(false))
+
+// Play and Home remove the button that had focus, so it moves to the new screen's heading
+// (WL-11, WL-12)
+watch(welcome.isOpen, () => document.querySelector<HTMLElement>('[data-screen-heading]')?.focus(), {
+  flush: 'post',
+})
 
 const componentConfig = computed(() => {
   if (dotsAndBoxesGame.isGameStarted) {

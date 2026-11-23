@@ -80,6 +80,98 @@ describe('Welcome screen', () => {
     expect(page.hasHomeButton).toBe(false)
   })
 
+  it('keeps what was filled in on Settings across Home and Play (WL-11, WL-12)', async () => {
+    const page = await openGamePage({ onWelcome: true })
+    await page.clickPlay()
+    await page.chooseMode('twoPlayers')
+    await page.input('player1.name').setValue('Anna')
+    await page.input('player2.name').setValue('Bohdan')
+    await page.pickSwatch(2, 'teal')
+    await page.pickSwatch(1, 'coral')
+    await page.input('size').setValue('7')
+
+    await page.clickHome()
+    await page.clickPlay()
+
+    expect(page.selectedMode()).toBe('twoPlayers')
+    expect(page.input('player1.name').element.value).toBe('Anna')
+    expect(page.input('player2.name').element.value).toBe('Bohdan')
+    expect(page.selectedSwatch(1)).toBe('coral')
+    expect(page.selectedSwatch(2)).toBe('teal')
+    expect(page.input('size').element.value).toBe('7')
+  })
+
+  it('keeps the difficulty chosen on Settings across Home and Play (WL-12)', async () => {
+    const page = await openGamePage({ onWelcome: true })
+    await page.clickPlay()
+    await page.chooseDifficulty('easy')
+
+    await page.clickHome()
+    await page.clickPlay()
+
+    expect(page.selectedDifficulty()).toBe('easy')
+    expect(localStorage.getItem('DIFFICULTY')).toBeNull()
+  })
+
+  it('keeps the Settings draft through the privacy screen (WL-12, WL-15)', async () => {
+    const page = await openGamePage({ onWelcome: true })
+    await page.clickPlay()
+    await page.input('player1.name').setValue('Anna')
+
+    await page.openPrivacy()
+    await page.closePrivacy()
+
+    expect(page.input('player1.name').element.value).toBe('Anna')
+  })
+
+  it('forgets the Settings draft on a new launch (WL-2)', async () => {
+    const page = await openGamePage({ onWelcome: true })
+    await page.clickPlay()
+    await page.input('player1.name').setValue('Anna')
+    await page.clickHome()
+
+    const next = await page.reload({ onWelcome: true })
+    await next.clickPlay()
+
+    expect(next.input('player1.name').element.value).toBe('')
+  })
+
+  it('opens Settings blank after a started game has used the draft (WL-12)', async () => {
+    const page = await openGamePage({ onWelcome: true })
+    await page.clickPlay()
+    await page.clickHome()
+    await page.clickPlay()
+    await page.input('player1.name').setValue('Anna')
+    await page.submitSetupForm()
+    await page.stopGame()
+    await page.openSettings()
+
+    expect(page.input('player1.name').element.value).toBe('')
+  })
+
+  it('moves focus to the Settings heading on Play (WL-11)', async () => {
+    const page = await openGamePage({ onWelcome: true })
+
+    await page.clickPlay()
+
+    expect(page.focusedHeading()).toBe('Settings')
+  })
+
+  it('moves focus to the Welcome heading on Home (WL-12)', async () => {
+    const page = await openGamePage({ onWelcome: true })
+    await page.clickPlay()
+
+    await page.clickHome()
+
+    expect(page.focusedHeading()).toBe('How to play')
+  })
+
+  it('leaves focus alone when the app opens (WL-1)', async () => {
+    const page = await openGamePage({ onWelcome: true })
+
+    expect(page.focusedHeading()).toBeNull()
+  })
+
   it('has no Home button during a game', async () => {
     const page = await startGame()
 
