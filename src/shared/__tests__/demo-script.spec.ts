@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { DEMO_DURATION, FINISHED_FRAME, frameAt, type DemoFrame } from '@/shared/demo-script'
+import {
+  DEMO_CAPTIONS,
+  DEMO_DURATION,
+  demoStepStart,
+  demoStepStill,
+  FINISHED_FRAME,
+  frameAt,
+  type DemoFrame,
+} from '@/shared/demo-script'
 
 // every frame of one loop, 10 ms apart
 function allFrames(): DemoFrame[] {
@@ -73,6 +81,22 @@ describe('how-to-play demo script', () => {
       'keepGoing',
       'mostSquaresWins',
     ])
+  })
+
+  it('holds each step at least 4 seconds after its last line (WL-10)', () => {
+    for (const caption of DEMO_CAPTIONS.slice(0, -1)) {
+      const still = demoStepStill(caption)
+      const heldFrom = still - 3999
+
+      expect(frameAt(heldFrom).caption).toBe(caption)
+      expect(frameAt(heldFrom).growing).toBeNull()
+      expect(frameAt(heldFrom).lines).toEqual(frameAt(still).lines)
+    }
+  })
+
+  it.each(DEMO_CAPTIONS)('can jump to the start and the still picture of %s (WL-10)', (caption) => {
+    expect(frameAt(demoStepStart(caption)).caption).toBe(caption)
+    expect(frameAt(demoStepStill(caption)).caption).toBe(caption)
   })
 
   it('loops back to the empty board (WL-4)', () => {

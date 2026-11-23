@@ -6,9 +6,9 @@
     <h2
       data-screen-heading
       tabindex="-1"
-      class="shrink-0 rounded-lg text-center text-2xl font-extrabold focus-visible:outline-2 focus-visible:outline-accent"
+      class="shrink-0 rounded-lg text-center text-xl font-extrabold sm:text-2xl focus-visible:outline-2 focus-visible:outline-accent"
     >
-      {{ t('app.shortName') }}
+      {{ t('welcome.title', { name: t('app.shortName') }) }}
     </h2>
     <HowToPlay />
     <BaseButton

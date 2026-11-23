@@ -117,6 +117,7 @@ const it: typeof en = {
     rematch: 'Rivincita',
   },
   welcome: {
+    title: 'Benvenuti in {name}',
     play: 'Gioca',
     home: 'Home',
     captions: {

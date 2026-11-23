@@ -236,17 +236,32 @@ export class GamePage {
 
   // the highlighted step, the one the demo is showing (WL-10)
   welcomeCaption() {
-    return this.welcome.get('[data-demo-steps] li[aria-current="step"] > span:last-child').text()
+    return this.welcome
+      .get('[data-demo-steps] li button[aria-current="step"] > span:last-child')
+      .text()
+  }
+
+  // chooses a step (1-6) in Welcome's list (WL-10)
+  async chooseWelcomeStep(number: number) {
+    await this.welcome.findAll('[data-demo-steps] button')[number - 1]!.trigger('click')
+    await flushPromises()
+  }
+
+  // the heading above Welcome's list of steps (WL-10)
+  welcomeStepsTitle() {
+    return this.welcome.get('[data-demo-steps-title]').text()
   }
 
   // how many steps are highlighted at once (WL-10)
   highlightedStepCount() {
-    return this.welcome.findAll('[data-demo-steps] li[aria-current="step"]').length
+    return this.welcome.findAll('[data-demo-steps] button[aria-current="step"]').length
   }
 
   // every step, in order, as the list shows it, without its number (WL-10, WL-18)
   welcomeSteps() {
-    return this.welcome.findAll('[data-demo-steps] li > span:last-child').map((step) => step.text())
+    return this.welcome
+      .findAll('[data-demo-steps] li button > span:last-child')
+      .map((step) => step.text())
   }
 
   // whether the demo's picture is hidden from screen readers (WL-18)
@@ -597,8 +612,21 @@ export class GamePage {
   // each step as the open panel shows it, without its number (RL-1)
   rulesPoints() {
     return this.rulesPanel
-      .findAll('ol[data-demo-steps] > li > span:last-child')
+      .findAll('ol[data-demo-steps] > li > button > span:last-child')
       .map((point) => point.text())
+  }
+
+  // chooses a step (1-6) in the open panel's list (WL-10)
+  async chooseRulesStep(number: number) {
+    await this.rulesPanel.findAll('ol[data-demo-steps] button')[number - 1]!.trigger('click')
+    await flushPromises()
+  }
+
+  // the panel's highlighted step (WL-10)
+  rulesCurrentStep() {
+    return this.rulesPanel
+      .get('ol[data-demo-steps] button[aria-current="step"] > span:last-child')
+      .text()
   }
 
   // whether the open panel plays the demo (RL-1)
@@ -608,7 +636,7 @@ export class GamePage {
 
   // how many of the open panel's steps are highlighted (RL-1)
   rulesHighlightedStepCount() {
-    return this.rulesPanel.findAll('ol[data-demo-steps] > li[aria-current="step"]').length
+    return this.rulesPanel.findAll('ol[data-demo-steps] button[aria-current="step"]').length
   }
 
   // whether any rules text is shown on the page itself, outside the panel (VR-28)

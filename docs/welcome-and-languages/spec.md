@@ -2,7 +2,7 @@
 
 Terms follow [GLOSSARY.md](../../GLOSSARY.md). User stories carry IDs **WL-n** (Welcome) and **LG-n** (languages) for commits. Shipped rules this touches: RL-1, RL-2, NG-5, NG-6, NG-8, FT-1, FT-2, PS-2, PS-3, AR-3, AR-6, AR-10, AR-16, AR-17, I18N-2, I18N-3, I18N-5, PV-1..PV-4 and PWA-6 in [requirements](../dots-and-boxes/requirements.md).
 
-**Status**: agreed in a grilling session and a prototype on 2026-11-23, not implemented. Issue #88, tickets #89–#95, review adjustments #98–#101. The chosen prototype is on branch [`prototype/welcome-how-to-play`](https://github.com/DenysSlobodianyk1996/dots-and-boxes/tree/prototype/welcome-how-to-play): `804a955` is variant A (chosen), `e77f653` also holds the rejected GIF variant. The language plan follows teach-clock's batch 28 (commit `d6d1091`).
+**Status**: agreed in a grilling session and a prototype on 2026-11-23, not implemented. Issue #88, tickets #89–#95, review adjustments #98–#102. The chosen prototype is on branch [`prototype/welcome-how-to-play`](https://github.com/DenysSlobodianyk1996/dots-and-boxes/tree/prototype/welcome-how-to-play): `804a955` is variant A (chosen), `e77f653` also holds the rejected GIF variant. The language plan follows teach-clock's batch 28 (commit `d6d1091`).
 
 ## Problem Statement
 
@@ -132,7 +132,8 @@ Changed on purpose after the first build, each tracked as a sub-ticket of #88:
 - **#98, screen addresses** (WL-1..WL-3, WL-16): `/` is Welcome, `/settings` is Settings and `/game` is the game.
 - **#99, name error** (GS-6): a name's error goes away as soon as typing makes the name valid.
 - **#100, next-step hint** (END-8): the in-game hint is highlighted.
-- **#101, one how-to-play block** (WL-10, WL-14, WL-17..WL-20, RL-1, RL-7): Welcome is titled with the game's name, with the demo beside a list of all six steps and the current one highlighted. Players are A and B. The rules panel shows the same block, smaller, and loses its goal sentence, five rules and storyboard. This replaces WL-14's original "the Rules panel stays as it is".
+- **#101, one how-to-play block** (WL-10, WL-14, WL-17..WL-20, RL-1, RL-7): the demo beside a list of all six steps and the current one highlighted. Players are A and B. The rules panel shows the same block, smaller, and loses its goal sentence, five rules and storyboard. This replaces WL-14's original "the Rules panel stays as it is".
+- **#102, slower and clickable steps** (WL-4, WL-10, WL-17): each step holds about 4 seconds longer, and choosing a step jumps the demo to it. Welcome is titled "Welcome to Dots and Boxes", with a "How to play" heading above the steps.
 
 ## Testing Decisions
 

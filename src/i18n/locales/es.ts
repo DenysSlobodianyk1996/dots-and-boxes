@@ -117,6 +117,7 @@ const es: typeof en = {
     rematch: 'Revancha',
   },
   welcome: {
+    title: 'Bienvenidos a {name}',
     play: 'Jugar',
     home: 'Inicio',
     captions: {

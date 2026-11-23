@@ -58,7 +58,9 @@ function captionOfMove(move: number): DemoCaption {
 
 // the first six lines teach, so they go slower than the rest (ms)
 const INTRO = 500
-const END_HOLD = 3200
+const END_HOLD = 7200
+// the extra time each step stays on screen before the next one, so it can be read (WL-10)
+const STEP_HOLD = 4000
 const SLOW = { tap: 260, grow: 460, rest: 620 }
 const FAST = { tap: 120, grow: 260, rest: 300 }
 const SLOW_MOVES = 6
@@ -97,6 +99,9 @@ function buildSteps() {
     const growAt = tapAt + pace.grow
     const drawnAt = growAt + DRAW
     clock = drawnAt + pace.rest + (closedSquare ? CLAIM_PAUSE : 0)
+    const endsCaption =
+      index === MOVES.length - 1 || captionOfMove(index + 1) !== captionOfMove(index)
+    if (endsCaption) clock += STEP_HOLD
     return {
       start,
       tapAt,
@@ -165,3 +170,16 @@ export function frameAt(time: number): DemoFrame {
 
 // the still picture for reduced motion: the full board and the winning caption (WL-17)
 export const FINISHED_FRAME = frameAt(finishedAt)
+
+// when a step of the list begins: choosing it plays the demo on from here (WL-10)
+export function demoStepStart(caption: DemoCaption) {
+  if (caption === 'drawLine') return 0
+  if (caption === 'mostSquaresWins') return finishedAt
+  return steps.find((step) => step.caption === caption)!.start
+}
+
+// a step's last moment, with its lines drawn: its still picture under reduced motion (WL-17)
+export function demoStepStill(caption: DemoCaption) {
+  const next = DEMO_CAPTIONS[DEMO_CAPTIONS.indexOf(caption) + 1]
+  return next ? demoStepStart(next) - 1 : finishedAt
+}

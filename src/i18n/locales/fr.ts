@@ -119,6 +119,7 @@ const fr: typeof en = {
     rematch: 'Revanche',
   },
   welcome: {
+    title: 'Bienvenue dans {name}',
     play: 'Jouer',
     home: 'Accueil',
     captions: {

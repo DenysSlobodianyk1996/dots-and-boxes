@@ -120,6 +120,7 @@ const uk: typeof en = {
     rematch: 'Реванш',
   },
   welcome: {
+    title: 'Вітаємо у грі «{name}»',
     play: 'Грати',
     home: 'Головна',
     captions: {

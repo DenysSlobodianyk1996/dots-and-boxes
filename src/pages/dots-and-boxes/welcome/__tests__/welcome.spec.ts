@@ -163,7 +163,7 @@ describe('Welcome screen', () => {
 
     await page.clickHome()
 
-    expect(page.focusedHeading()).toBe('Dots and Boxes')
+    expect(page.focusedHeading()).toBe('Welcome to Dots and Boxes')
   })
 
   it('leaves focus alone when the app opens (WL-1)', async () => {
@@ -197,13 +197,13 @@ describe('Welcome screen', () => {
     expect(page.rulesHighlightedStepCount()).toBe(1)
   })
 
-  it('is titled with the game name (WL-10)', async () => {
+  it('welcomes the player by the game name (WL-10)', async () => {
     const page = await openGamePage({ onWelcome: true })
 
     await page.clickPlay()
     await page.clickHome()
 
-    expect(page.focusedHeading()).toBe('Dots and Boxes')
+    expect(page.focusedHeading()).toBe('Welcome to Dots and Boxes')
   })
 
   it('lists every step and highlights only the current one (WL-10)', async () => {
@@ -212,6 +212,52 @@ describe('Welcome screen', () => {
     expect(page.welcomeSteps()).toEqual(STEPS)
     expect(page.highlightedStepCount()).toBe(1)
     expect(page.welcomeCaption()).toBe(STEPS[0])
+  })
+
+  it('has a How to play heading above the steps (WL-10)', async () => {
+    const page = await openGamePage({ onWelcome: true })
+
+    expect(page.welcomeStepsTitle()).toBe('How to play')
+  })
+
+  it('titles Welcome in the current language (WL-10)', async () => {
+    const page = await openGamePage({ onWelcome: true, storage: { LOCALE: 'de' } })
+
+    await page.clickPlay()
+    await page.clickHome()
+
+    expect(page.focusedHeading()).toBe('Willkommen bei Käsekästchen')
+  })
+
+  it('jumps to a chosen step (WL-10)', async () => {
+    const page = await openGamePage({ onWelcome: true })
+
+    await page.chooseWelcomeStep(4)
+
+    expect(page.welcomeCaption()).toBe(STEPS[3])
+    expect(page.highlightedStepCount()).toBe(1)
+  })
+
+  it('shows a chosen step as a still picture under reduced motion (WL-17)', async () => {
+    stubReducedMotion()
+    const frame = vi.spyOn(window, 'requestAnimationFrame')
+    const page = await openGamePage({ onWelcome: true })
+
+    await page.chooseWelcomeStep(3)
+
+    expect(page.welcomeCaption()).toBe(STEPS[2])
+    expect(page.demoBoard()).toMatchObject({ lines: 5, coral: 1, teal: 0, winner: null })
+    expect(frame).not.toHaveBeenCalled()
+  })
+
+  it('jumps to a chosen step in the rules panel too (WL-10, RL-1)', async () => {
+    const page = await openGamePage({ onWelcome: true })
+    await page.openRules()
+
+    await page.chooseRulesStep(5)
+
+    expect(page.rulesCurrentStep()).toBe(STEPS[4])
+    expect(page.rulesHighlightedStepCount()).toBe(1)
   })
 
   it('marks each claimed square with its player A or B (WL-20)', async () => {
