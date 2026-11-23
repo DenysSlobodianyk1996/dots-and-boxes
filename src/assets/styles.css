@@ -78,6 +78,8 @@
 @theme {
   --radius-md: 0.75rem;
   --radius-lg: 1.25rem;
+  /* the content column shared by the header and every screen (MB-12): max-w-content, px-column */
+  --container-content: 1200px;
   /* the result card's single entrance (UP-13); used only as motion-safe:animate-result-in */
   --animate-result-in: result-in 250ms ease-out;
 
@@ -114,6 +116,13 @@ body {
     calc(--spacing(--value(integer)) + var(--safe-right))
     calc(--spacing(--value(integer)) + var(--safe-bottom))
     calc(--spacing(--value(integer)) + var(--safe-left));
+}
+
+/* for AppScreen's <main>, which is 1rem wider than its parent (-mx-2): keeps the p-2 gutter and
+   narrows the content to the centered column, while the scroll area stays full width (MB-12) */
+@utility px-column {
+  padding-left: max(--spacing(2), calc((100% + 1rem - var(--container-content)) / 2));
+  padding-right: max(--spacing(2), calc((100% + 1rem - var(--container-content)) / 2));
 }
 
 /* the app shell is exactly the screen's height and never scrolls; only its <main> does (MB-11).
