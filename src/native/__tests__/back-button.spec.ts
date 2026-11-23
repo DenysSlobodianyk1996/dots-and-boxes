@@ -105,7 +105,7 @@ describe('Android back button (AR-3)', () => {
     await page.openPrivacy()
     await startNative()
 
-    await pressBack()
+    await page.afterNavigation(pressBack)
 
     expect(page.privacyScreen()).toBeNull()
     expect(page.footerLinks()?.map((link) => link.text)).toEqual(['Privacy', 'Contact'])

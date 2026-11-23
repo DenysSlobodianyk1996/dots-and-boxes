@@ -12,9 +12,11 @@ export interface MountGamePageOptions {
   deviceLanguages?: string[]
   // leave the launch on Welcome; by default the page starts past it, on setup or a restored game
   onWelcome?: boolean
+  // the address the app is opened at; overrides `onWelcome`'s choice of / or /settings
+  path?: string
 }
 
-// Mounts the whole app at /game with the real router, i18n and localStorage, the way main.ts does.
+// Mounts the whole app at /settings (at / with `onWelcome`) with the real router, i18n and localStorage, the way main.ts does.
 // Modules are re-imported on every call, so i18n reads the seeded locale and a second call
 // in the same test simulates a page reload from whatever is saved in localStorage.
 export async function mountGamePage({
@@ -22,6 +24,7 @@ export async function mountGamePage({
   deviceLanguage,
   deviceLanguages = deviceLanguage ? [deviceLanguage] : undefined,
   onWelcome = false,
+  path = onWelcome ? '/' : '/settings',
 }: MountGamePageOptions = {}) {
   if (deviceLanguages) {
     // undone by vi.restoreAllMocks() in src/test/setup.ts
@@ -33,17 +36,14 @@ export async function mountGamePage({
   }
 
   vi.resetModules()
-  window.history.replaceState({}, '', '/game')
+  window.history.replaceState({}, '', path)
 
-  const [{ default: App }, { default: router }, { i18n }, { useWelcome }] = await Promise.all([
+  const [{ default: App }, { default: router }, { i18n }] = await Promise.all([
     import('@/App.vue'),
     import('@/router'),
     import('@/i18n'),
-    import('@/shared/composables/useWelcome'),
   ])
-  if (!onWelcome) useWelcome().close()
-
-  await router.push('/game')
+  await router.push(path)
   await router.isReady()
 
   const wrapper = mount(App, {

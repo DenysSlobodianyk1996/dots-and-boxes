@@ -82,7 +82,7 @@ Welcome ships first, so its text is translated once and the store images are gen
 
 ### Welcome (WL-1..WL-21)
 
-- **Screen order** in `Page.vue`: started game → `Game`; Welcome open → Welcome; otherwise `GameSetup`. Whether Welcome is open is in-memory app state, so a new launch or reload opens it, and the privacy screen doesn't. A restored game marks it closed. **No new storage key.**
+- **Screens and addresses**: `/` is Welcome, `/settings` is `GameSetup`, `/game` is `Game`. A started game always shows at `/game`; `/game` without one leads to `/`, and leaving a finished game through Settings leads to `/settings`. **No new storage key.**
 - **Footer**: Privacy and Contact show on Welcome and Settings, not during a game.
 - **Home** is a `BaseIconButton` in the `App.vue` header, on Settings only, with a new inline SVG icon component and a translated label.
 - **Settings draft**: what's filled in on Settings survives Home, Play and the privacy screen, in memory only (**no new storage key**). A new launch starts fresh, and starting a game clears it.

@@ -14,11 +14,11 @@
 
 <script setup lang="ts">
 import { DotsAndBoxesGame, type GameSetupForm } from '@/models'
-import { computed, onBeforeUnmount, reactive, watch, watchEffect } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import GameSetup from './game-setup/GameSetup.vue'
 import Game from './Game.vue'
 import Welcome from './welcome/Welcome.vue'
-import { useWelcome } from '@/shared/composables/useWelcome'
 import AppFooter from '@/shared/components/AppFooter.vue'
 import AppScreen from '@/shared/components/AppScreen.vue'
 import { StorageService } from '@/services/storage.service.ts'
@@ -40,23 +40,47 @@ if (
   dotsAndBoxesGame.start()
 }
 
-// a restored game, finished or not, goes straight to the board, and leaving it leads to Settings
-// (WL-3, WL-16)
-const welcome = useWelcome()
-if (dotsAndBoxesGame.isGameStarted) welcome.close()
+const route = useRoute()
+const router = useRouter()
 
-// the header's Home button shows on Settings only (WL-12)
-watchEffect(() => welcome.setOnSetup(!dotsAndBoxesGame.isGameStarted && !welcome.isOpen.value))
-onBeforeUnmount(() => welcome.setOnSetup(false))
+// the game was left on this page, so /game is on its way to Settings, not Welcome (WL-16)
+const hasLeftGame = ref(false)
+
+// a started game always shows, whatever the address; otherwise the address picks (WL-1..WL-3)
+const screen = computed(() => {
+  if (dotsAndBoxesGame.isGameStarted) return 'game'
+  if (route.name === 'settings' || (route.name === 'game' && hasLeftGame.value)) return 'settings'
+  return 'welcome'
+})
+
+// keeps the address on the screen on show. Replacing, so browser Back doesn't bounce off a
+// redirect. The privacy route is left alone: this page is on its way out
+watch(
+  [() => dotsAndBoxesGame.isGameStarted, () => route.name],
+  ([isStarted, name], [wasStarted] = [false, undefined]) => {
+    if (wasStarted && !isStarted) hasLeftGame.value = true
+    if (isStarted && (name === 'welcome' || name === 'settings')) {
+      void router.replace({ name: 'game' })
+    } else if (!isStarted && name === 'game') {
+      void router.replace({ name: hasLeftGame.value ? 'settings' : 'welcome' })
+    }
+  },
+  { immediate: true },
+)
 
 // Play and Home remove the button that had focus, so it moves to the new screen's heading
 // (WL-11, WL-12)
-watch(welcome.isOpen, () => document.querySelector<HTMLElement>('[data-screen-heading]')?.focus(), {
-  flush: 'post',
-})
+watch(
+  screen,
+  (now, before) => {
+    if (now === 'game' || before === 'game') return
+    document.querySelector<HTMLElement>('[data-screen-heading]')?.focus()
+  },
+  { flush: 'post' },
+)
 
 const componentConfig = computed(() => {
-  if (dotsAndBoxesGame.isGameStarted) {
+  if (screen.value === 'game') {
     return {
       component: Game,
       props: {
@@ -65,12 +89,12 @@ const componentConfig = computed(() => {
       listeners: {},
     }
   }
-  if (welcome.isOpen.value) {
+  if (screen.value === 'welcome') {
     return {
       component: Welcome,
       props: {},
       listeners: {
-        play: welcome.close,
+        play: () => router.push({ name: 'settings' }),
       },
     }
   }

@@ -6,10 +6,10 @@
          on the right (VR-18, VR-21, VR-23) -->
     <AppHeader>
       <BaseIconButton
-        v-if="welcome.isOnSetup.value"
+        v-if="route.name === 'settings'"
         data-home-button
         :aria-label="t('welcome.home')"
-        @click="welcome.open()"
+        @click="router.push({ name: 'welcome' })"
       >
         <HomeIcon :size="20" />
       </BaseIconButton>
@@ -34,18 +34,19 @@
 <script setup lang="ts">
 import { useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute, useRouter } from 'vue-router'
 import AppHeader from '@/shared/components/AppHeader.vue'
 import BaseIconButton from '@/shared/components/BaseIconButton.vue'
 import LanguageMenu from '@/shared/components/LanguageMenu.vue'
 import RulesPanel from '@/shared/components/RulesPanel.vue'
 import ThemeToggle from '@/shared/components/ThemeToggle.vue'
 import { useRulesPanel } from '@/shared/composables/useRulesPanel'
-import { useWelcome } from '@/shared/composables/useWelcome'
 import HomeIcon from '@/shared/icons/HomeIcon.vue'
 import InfoIcon from '@/shared/icons/InfoIcon.vue'
 
 const { t } = useI18n()
 const rulesPanel = useRulesPanel()
-const welcome = useWelcome()
+const route = useRoute()
+const router = useRouter()
 const rulesButton = useTemplateRef('rulesButton')
 </script>

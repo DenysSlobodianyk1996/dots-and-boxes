@@ -87,8 +87,8 @@ export const BOHDAN: TestPlayer = { name: 'Bohdan', color: 'sky' }
 
 // Opens the page in English. Pass storage (e.g. { CURRENT_GAME: game }) to load a saved game.
 // Past Welcome by default; pass onWelcome to see the launch as a player does.
-export async function openGamePage({ storage = {}, onWelcome }: MountGamePageOptions = {}) {
-  const wrapper = await mountGamePage({ storage: { LOCALE: 'en', ...storage }, onWelcome })
+export async function openGamePage({ storage = {}, onWelcome, path }: MountGamePageOptions = {}) {
+  const wrapper = await mountGamePage({ storage: { LOCALE: 'en', ...storage }, onWelcome, path })
   return new GamePage(wrapper)
 }
 
@@ -422,6 +422,11 @@ export class GamePage {
   // Back: jsdom delivers the history traversal (popstate) some tasks later, so wait for the
   // router to finish that navigation, then for the screen it leads to to render
   async closePrivacy() {
+    await this.afterNavigation(() => this.wrapper.get('[data-privacy-back]').trigger('click'))
+  }
+
+  // runs an action that navigates, then waits for the navigation and the screen it leads to
+  async afterNavigation(action: () => unknown) {
     const router = this.wrapper.vm.$router
     const navigated = new Promise<void>((resolve, reject) => {
       const stop = router.afterEach((_to, _from, failure) => {
@@ -430,9 +435,14 @@ export class GamePage {
         else resolve()
       })
     })
-    await this.wrapper.get('[data-privacy-back]').trigger('click')
+    await action()
     await navigated
     await flushPromises()
+  }
+
+  // the address the app shows, e.g. '/settings' (WL-1)
+  get path() {
+    return this.wrapper.vm.$router.currentRoute.value.path
   }
 
   // ---- document ----
@@ -760,6 +770,18 @@ export class GamePage {
 
   input(id: 'player1.name' | 'player2.name' | 'size') {
     return this.wrapper.find<HTMLInputElement>(`[id="${id}"]`)
+  }
+
+  // types into a name field without leaving it
+  async typeName(id: 'player1.name' | 'player2.name', name: string) {
+    await this.input(id).setValue(name)
+    await flushPromises()
+  }
+
+  // the error shown under a name field, or '' with none
+  nameError(id: 'player1.name' | 'player2.name') {
+    const field = this.input(id).element.parentElement
+    return field?.querySelector('[data-field-error]')?.textContent?.trim() ?? ''
   }
 
   // a setup field's label as it is shown, with its required marker, e.g. 'Name *'

@@ -7,11 +7,13 @@
       :name="`${props.parentForm}.name`"
       :label="legend ? t('setup.name') : t('setup.playerName', { number })"
       :rules="nameRules"
-      v-slot="{ field, errorMessage }"
+      v-slot="{ field, errorMessage, validate }"
     >
       <div class="flex min-w-0 flex-col gap-2">
         <BaseLabel :for="field.name" required>{{ t('setup.name') }}</BaseLabel>
-        <!-- names are at most 15 characters: the field doesn't accept more, and a longer value fails `max` (GS-1) -->
+        <!-- names are at most 15 characters: the field doesn't accept more, and a longer value fails
+             `max` (GS-1). An error shown is rechecked on every keystroke, so it goes as soon as the
+             name is valid (GS-6) -->
         <BaseInput
           v-bind="field"
           :id="field.name"
@@ -19,6 +21,7 @@
           type="text"
           aria-required="true"
           :maxlength="MAX_NAME_LENGTH"
+          @input="errorMessage && validate()"
         />
         <BaseFieldError :errorMessage />
       </div>

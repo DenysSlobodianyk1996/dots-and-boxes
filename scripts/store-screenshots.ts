@@ -211,7 +211,7 @@ async function capture(browser: Browser, url: string, lang: Lang, device: Device
       for (const [key, value] of Object.entries(items)) localStorage.setItem(key, value)
     }, storage)
     const page = await context.newPage()
-    await page.goto(`${url}game`)
+    await page.goto(url)
     await page.locator('[data-app-title]').waitFor()
     await page.evaluate(() => document.fonts.ready)
     await screen.prepare?.(page, lang)

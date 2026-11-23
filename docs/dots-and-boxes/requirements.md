@@ -11,6 +11,7 @@ Domain terms (Dot, Line, Square, Owned square, Dot1/Dot2, Turn, Swatch, Rules pa
 - **GS-3**: Submitting a valid form starts the game in the chosen game mode (VC-1). The first player is chosen at random (see TR-2).
 - **GS-4**: A player's color is one of 8 round **swatches**: coral, teal, sunflower, sky, lavender, leaf, berry and tangerine, the same in the light and the dark theme. They form a radio group labelled "Колір" / "Color", and each swatch is announced by its name in the current language ("Кораловий" / "Coral", …). The picked swatch has a ring and is slightly larger (VR-32..VR-34, VR-38).
 - **GS-5**: Setup opens with two different random swatches for Player 1 and Player 2. In Two players mode a player can't keep the other player's swatch: the form shows "Цей колір уже зайнятий" / "This color is already taken" and the game doesn't start. In Versus computer mode the computer player's color follows VC-6 (VR-35..VR-37).
+- **GS-6**: A player name's error goes away as soon as typing makes the name valid, without leaving the field. Typing doesn't raise a new error on a name that shows none: that still waits for leaving the field or Start.
 
 Acceptance:
 - Given the language is English and both names are "Ann" and "ann", when I submit, then I see "Values must be different" and the game doesn't start.
@@ -76,7 +77,7 @@ Acceptance:
 - **END-2**: A **Stop** button ends the game early, after the player confirms.
 - **END-3**: The winner is the player with more owned squares. Equal scores (including 0–0) are a **Draw**.
 - **END-4**: When the game ends, the final board stays visible and a result panel shows the winner (name and color), or "Draw", plus both scores. Its Settings and Rematch buttons sit at the top of the panel, exactly where Stop was during the game (UP-6). Below them a **result card** (accent-tinted) shows, top to bottom: a trophy for the winner (the robot when the computer won, nothing on a draw), the heading, the score as `5 : 3` in large type with the winner first and each number on its player's color chip, and why the game ended (all squares filled, or stopped). The Score list with names and colors stays below the card. The card fades and grows in once, and not at all when the device asks for reduced motion (UP-10..UP-14).
-- **END-8**: During the game, Stop sits at the top of the side panel, above the turn, the score and the hint. The text below it keeps its height: the line under the turn ("Thinking…" or the computer's last line) always takes one line even when empty, and the hint area is as tall as the longest hint in the current language and is only hidden, not removed, while the computer thinks. So Stop never moves while you play (UP-4, UP-5).
+- **END-8**: During the game, Stop sits at the top of the side panel, above the turn, the score and the hint. The text below it keeps its height: the line under the turn ("Thinking…" or the computer's last line) always takes one line even when empty, and the hint area is as tall as the longest hint in the current language and is only hidden, not removed, while the computer thinks. So Stop never moves while you play (UP-4, UP-5). The hint telling the player what to do next stands out: bold text in an accent-outlined, tinted box, which is hidden with the hint while the computer thinks.
 - **END-9**: From 640 px wide, the result buttons (Rematch and Settings, NG-10) stack at the panel's full width with Rematch on top, so a label never wraps raggedly (UP-8). Below 640 px see MB-6.
 - **END-5**: **Settings** («Налаштування», NG-10) in the result panel clears the saved game and opens the setup screen.
 - **END-6**: **Rematch** in the result panel keeps both players, the size, the game mode and the difficulty, clears all lines and owned squares, and picks a new random first player (VC-18).
@@ -147,8 +148,8 @@ Acceptance:
 
 Spec: [Welcome and languages](../welcome-and-languages/spec.md), issue #89.
 
-- **WL-1, WL-2**: A launch without a saved game opens **Welcome**. Whether it is open is in-memory state, so each launch or reload opens it again, with no storage key.
-- **WL-3**: A restored game, finished or not, skips Welcome.
+- **WL-1, WL-2**: Each screen has its own address: `/` is **Welcome**, `/settings` is Settings and `/game` is the game. A launch at `/` without a saved game opens Welcome, and reloading a page keeps its address. `/game` without a game leads to Welcome, and any unknown address leads to `/`.
+- **WL-3**: A saved game, finished or not, always opens at `/game`: `/` and `/settings` lead there while a game exists.
 - **WL-4..WL-9**: The **How-to-play demo** is a watch-only, looping 2 × 2 game of 12 legal lines played on a real game: two dots are picked, the line grows, later lines start from a drawn dot, a fourth side claims a square, the turn passes even after a claim (TR-1), and Coral wins 3 : 1 on a full board with the winner marked.
 - **WL-10**: One caption below the board follows the demo through six stages.
 - **WL-11, WL-12**: Play leads to Settings. On Settings only, a round Home button in the header (HD-5) returns to Welcome. What's filled in on Settings (game mode, difficulty, names, colors, size) is still there on coming back, including through the privacy screen. This draft is in memory only: a new launch starts fresh, and starting a game clears it. Play and Home move focus to the new screen's heading, with a focus ring only for keyboard use.
