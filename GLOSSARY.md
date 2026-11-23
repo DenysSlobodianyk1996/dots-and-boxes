@@ -108,8 +108,24 @@ One of the 8 fixed, named player colors (coral, teal, sunflower, sky, lavender, 
 _Avoid_: color picker, palette color
 
 **Rules panel**:
-The panel with the "How to play" rules, opened from the info button in the header (or next to the setup title) and closed with ✕, a tap outside or Esc.
+The panel with the "How to play" rules, opened from the info button in the header and closed with ✕, a tap outside or Esc.
 _Avoid_: rules drawer, rules modal, rules toggle
+
+**Welcome**:
+The screen that opens on every launch unless a saved game is restored: the How-to-play demo, its caption and Play, which leads to Setup.
+_Avoid_: onboarding, intro, landing page
+
+**How-to-play demo**:
+The short, watch-only game that loops on Welcome, drawn live by the app. It isn't a video or GIF, and nobody can tap it.
+_Avoid_: tutorial, video, GIF
+
+**Home button**:
+The header button on Setup that goes back to Welcome.
+_Avoid_: back button
+
+**Language menu**:
+The list of the six languages (EN, УК, DE, FR, IT, ES) that the header's language button opens.
+_Avoid_: language toggle, language switcher
 
 **Theme**:
 The light or dark version of the app's Warm cream look; follows the device until the player switches it with the theme button in the header.
