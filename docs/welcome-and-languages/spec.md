@@ -85,6 +85,8 @@ Welcome ships first, so its text is translated once and the store images are gen
 - **Screen order** in `Page.vue`: started game → `Game`; Welcome open → Welcome; otherwise `GameSetup`. Whether Welcome is open is in-memory app state, so a new launch or reload opens it, and the privacy screen doesn't. A restored game marks it closed. **No new storage key.**
 - **Footer**: Privacy and Contact show on Welcome and Settings, not during a game.
 - **Home** is a `BaseIconButton` in the `App.vue` header, on Settings only, with a new inline SVG icon component and a translated label.
+- **Settings draft**: what's filled in on Settings survives Home, Play and the privacy screen, in memory only (**no new storage key**). A new launch starts fresh, and starting a game clears it.
+- **Focus**: Play and Home move focus to the new screen's heading, with a focus ring only for keyboard use.
 - **Android back button** (AR-3): language menu, then rules panel, then Stop dialog, then exit. Home is the way from Settings to Welcome.
 - **Demo script**: one 2 × 2 game of 12 lines, played on a real `DotsAndBoxesGame` so an illegal script throws. Coral wins 3 : 1. It's a pure function of time, as in the prototype's `timeline.ts`, and is tested without timers.
 - **Demo rendering**: inline SVG in theme tokens, no words inside the picture. Scores use each color's dot. Captions are normal i18n text below the board. The animation uses `requestAnimationFrame` and stops on unmount.

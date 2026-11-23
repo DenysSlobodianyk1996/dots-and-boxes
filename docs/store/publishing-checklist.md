@@ -60,7 +60,7 @@ The Play API can't create an app's first release, so this one upload is manual.
 - [ ] Build a signed AAB. Either push the first tag (`git tag v1.0.0 && git push origin v1.0.0`) and download the AAB from the **Android release** workflow run's artifacts (`app-release-1.0.0`; it is attached before the Play upload, and that upload step is expected to fail this once), or build it locally with `npm run android:build` and the keystore from step 0.
 - [ ] **Test and release → Testing → Internal testing → Create new release**.
 - [ ] Keep **Play App Signing** on (Google manages the app signing key; yours is the upload key).
-- [ ] Upload the AAB; paste the release notes from [en/listing.md](en/listing.md#release-notes-234--500) and [uk/listing.md](uk/listing.md#release-notes-259--500).
+- [ ] Upload the AAB; paste the release notes from [en/listing.md](en/listing.md#release-notes-300--500) and [uk/listing.md](uk/listing.md#release-notes-319--500).
 - [ ] Add yourself (and anyone helping) to the internal testers list, roll out, install from the opt-in link and play one game on a real device.
 
 ## 5. Closed test: at least 12 testers for 14 continuous days
@@ -82,7 +82,7 @@ The Play API can't create an app's first release, so this one upload is manual.
 
 - [ ] **Production → Create new release → Add from library** (the tested AAB), or promote it from closed testing.
 - [ ] Countries: all, or the list you want.
-- [ ] Release notes from [en/listing.md](en/listing.md) and [uk/listing.md](uk/listing.md); start a full (100%) or staged rollout; send for review.
+- [ ] Release notes for the Welcome and six-language release from [en/listing.md](en/listing.md#release-notes-300--500) and [uk/listing.md](uk/listing.md#release-notes-319--500) (German, French, Italian and Spanish notes come with #95, LG-21); start a full (100%) or staged rollout; send for review.
 - [ ] Once live, open the listing on a phone in each language and check the texts, screenshots, rating, "No data collected" label and privacy link.
 
 ## 8. Every later release is `npm run release`

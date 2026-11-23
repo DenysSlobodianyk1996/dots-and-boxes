@@ -43,14 +43,14 @@ NO ADS. NO DATA.
 No ads, no in-app purchases, no accounts and no tracking. The app collects no data at all: games and settings stay on your device.
 ```
 
-## Release notes (234 / 500)
+## Release notes (300 / 500)
 
 Play Console → the release → **Release notes**, inside `<en-US>` … `</en-US>`.
 
 ```text
-First release of Dots and Boxes.
-• Play versus the computer (Easy or Normal) or two players on one device.
-• Boards from 2×2 to 10×10 squares.
-• Light and dark themes, English and Ukrainian.
-• Works offline. No ads, no data collected.
+New: a Welcome screen with a short animated game that shows how to play.
+• Now in six languages: English, Ukrainian, German, French, Italian and Spanish.
+• Choose yours from the new language menu in the header.
+• A Home button on the Settings screen.
+• Still works offline. No ads, no data collected.
 ```

@@ -151,7 +151,7 @@ Spec: [Welcome and languages](../welcome-and-languages/spec.md), issue #89.
 - **WL-3**: A restored game, finished or not, skips Welcome.
 - **WL-4..WL-9**: The **How-to-play demo** is a watch-only, looping 2 × 2 game of 12 legal lines played on a real game: two dots are picked, the line grows, later lines start from a drawn dot, a fourth side claims a square, the turn passes even after a claim (TR-1), and Coral wins 3 : 1 on a full board with the winner marked.
 - **WL-10**: One caption below the board follows the demo through six stages.
-- **WL-11, WL-12**: Play leads to Settings. On Settings only, a round Home button in the header (HD-5) returns to Welcome.
+- **WL-11, WL-12**: Play leads to Settings. On Settings only, a round Home button in the header (HD-5) returns to Welcome. What's filled in on Settings (game mode, difficulty, names, colors, size) is still there on coming back, including through the privacy screen. This draft is in memory only: a new launch starts fresh, and starting a game clears it. Play and Home move focus to the new screen's heading, with a focus ring only for keyboard use.
 - **WL-13, WL-14**: Settings has no goal sentence or "How to play" link. The rules panel's content doesn't change.
 - **WL-15, WL-16**: Coming back from the privacy screen returns to the screen it was opened from. Leaving a finished game through Settings doesn't reopen Welcome.
 - **WL-17**: With reduced motion, the demo is the still finished board with the winning caption.
@@ -255,15 +255,24 @@ Acceptance (checked on a build with `BASE_PATH=/dots-and-boxes/` and by hand, no
 - **LG-1**: The language button opens a list of the languages in one fixed order: EN, УК, DE, FR, IT, ES.
 - **LG-2**: Each row shows the language's key and its own name, whatever the interface language, and the current language is ticked.
 - **LG-3**: Choosing a row applies the language at once and closes the menu. A tap outside, or a second tap on the button, closes it with no change.
-- **LG-4**: The menu follows the menu-button pattern: Enter, Space or the arrow keys open it on the current language; the arrows (wrapping), Home and End move; Enter or Space chooses; Escape closes and returns focus to the button; Tab closes it. It stays inside the safe area and scrolls if it doesn't fit.
+- **LG-4**: The menu follows the menu-button pattern: Enter, Space or the arrow keys open it on the current language; the arrows (wrapping), Home and End move; Enter or Space chooses; Escape closes and returns focus to the button; Tab closes it. The keys keep working while the menu is open, even after a click on its padding. It stays inside the safe area and scrolls if it doesn't fit.
 - **LG-5**: Changing language during a game keeps the game.
 - **LG-6**: A new player gets the first device language on the list, otherwise English.
 - **LG-7**: A saved language is kept, including existing English and Ukrainian choices.
 - **LG-8**: The page has the right `lang` and tab title before its first paint: the build injects the list and the same detection rule into `index.html`.
+- **LG-9**: Every screen, dialog, validation message and color name is available in German, French, Italian and Spanish, so nobody needs English to play (I18N-1).
+- **LG-10**: Messages with numbers or names read correctly in every language. There is no plural system: such messages are worded to avoid agreement.
+- **LG-11**: Longer words fit every screen and button on a small phone, with nothing clipped (HD-2).
+- **LG-12**: The app's name follows the language in the header, the browser tab, the installed web app and the Android launcher (HD-2, PWA-6).
+- **LG-13**: Accented letters and ß match the rest of the text.
+- **LG-14**: The in-app privacy screen and its date follow the interface language (PV-2).
+- **LG-15**: The public privacy page has links to all six languages at the top (PV-4).
+- **LG-16**: The public privacy address is unchanged and the page runs no JavaScript, so the Play Console link keeps working (PV-4).
 - **LG-17**: Each language has one folder, `docs/store/<lang>/`, with `listing.md`, `feature-graphic.png`, `phone/`, `tablet-7/` and `tablet-10/`. The store root keeps `icon-512.png`, `play-console.md`, `publishing-checklist.md`, `tester-invite.md` and `review-list.md`.
 - **LG-18**: `npm run store:screenshots` regenerates every language's screenshots and feature graphic.
 - **LG-19**: Each language has a Play listing, a 1024×500 feature graphic with its app name, and six screenshots per device (phone, 7" and 10" tablet): Welcome in its reduced-motion finished frame, Settings, a game, a result, the rules and the dark theme.
 - **LG-20**: Every listing fits Play's limits of 30 (title), 80 (short description) and 4000 (full description) characters, and states its real counts; a test checks both.
+- **LG-21**: Not shipped yet (#95): testers will get release notes in their language once its listing exists in Play Console. Until then, release notes are in English and Ukrainian only.
 - **LG-22**: `docs/store/review-list.md` lists what a native speaker should check first per language: app names, game terms, listings and privacy text.
 
 Acceptance criteria elsewhere in this document quote the English text; the Ukrainian UI shows the matching translations from `src/i18n/locales/uk.ts`.

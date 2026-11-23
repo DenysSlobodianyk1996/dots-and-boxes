@@ -42,8 +42,8 @@ The developer account is a personal one, so Play requires a closed test with at 
 3. **AR-3**: As a player, I want the back button to close the language menu, the rules panel or the Stop dialog first, in that order, and only then leave the app, so that I don't exit by accident.
 4. **AR-4**: As a player, I want the status bar to match the light or dark theme, so that the app looks native.
 5. **AR-5**: As a player, I want a cream splash screen with the logo and an adaptive launcher icon, so that the app looks finished on my home screen.
-6. **AR-6**: As a new player, I want the game in my device's language on first launch (Ukrainian on a Ukrainian device, English otherwise), so that I don't have to find the language toggle first.
-7. **AR-7**: As a returning player, I want my language choice to win over the device language once I've used the toggle, so that my choice sticks.
+6. **AR-6**: As a new player, I want the game on first launch in the first language on my device's list that the app has, otherwise in English (LG-6), so that I don't have to find the language menu first.
+7. **AR-7**: As a returning player, I want my language choice to win over the device language once I've used the language menu, so that my choice sticks.
 8. **AR-8**: As a player, I want the app to work in portrait and landscape on phones and tablets, so that I can hold the device any way.
 20. **AR-20**: As a player, I want the Android app to tell me when a newer version is on Google Play and let me update without leaving the game, so that I always play the latest version.
 21. **AR-21**: As a player on an older phone whose system WebView was never updated (Chrome 88 and up, such as a Samsung S8), I want the app to look and work the same as on a new phone, so that I can play it at all.
