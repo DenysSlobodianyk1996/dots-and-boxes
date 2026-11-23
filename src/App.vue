@@ -2,8 +2,17 @@
   <!-- the screen's height and never scrolls: the header stays on top and each screen scrolls
        inside its own <main> (AppScreen.vue, MB-11) -->
   <div data-app-shell class="flex h-app flex-col overflow-hidden p-safe-2">
-    <!-- every screen: game name on the left; theme, rules and language on the right (VR-18, VR-21, VR-23) -->
+    <!-- every screen: game name on the left; Home (Settings only, WL-12), theme, rules and language
+         on the right (VR-18, VR-21, VR-23) -->
     <AppHeader>
+      <BaseIconButton
+        v-if="route.name === 'settings'"
+        data-home-button
+        :aria-label="t('welcome.home')"
+        @click="router.push({ name: 'welcome' })"
+      >
+        <HomeIcon :size="20" />
+      </BaseIconButton>
       <ThemeToggle />
       <BaseIconButton
         ref="rulesButton"
@@ -15,7 +24,7 @@
       >
         <InfoIcon :size="20" />
       </BaseIconButton>
-      <LanguageToggle />
+      <LanguageMenu />
     </AppHeader>
     <RouterView />
     <RulesPanel :return-focus-to="rulesButton?.element ?? null" />
@@ -25,15 +34,19 @@
 <script setup lang="ts">
 import { useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute, useRouter } from 'vue-router'
 import AppHeader from '@/shared/components/AppHeader.vue'
 import BaseIconButton from '@/shared/components/BaseIconButton.vue'
-import LanguageToggle from '@/shared/components/LanguageToggle.vue'
+import LanguageMenu from '@/shared/components/LanguageMenu.vue'
 import RulesPanel from '@/shared/components/RulesPanel.vue'
 import ThemeToggle from '@/shared/components/ThemeToggle.vue'
 import { useRulesPanel } from '@/shared/composables/useRulesPanel'
+import HomeIcon from '@/shared/icons/HomeIcon.vue'
 import InfoIcon from '@/shared/icons/InfoIcon.vue'
 
 const { t } = useI18n()
 const rulesPanel = useRulesPanel()
+const route = useRoute()
+const router = useRouter()
 const rulesButton = useTemplateRef('rulesButton')
 </script>

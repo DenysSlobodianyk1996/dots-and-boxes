@@ -1,3 +1,4 @@
+import { LANGUAGES, type AppLocale } from '@/i18n/languages'
 import { vi } from 'vitest'
 import { flushPromises, type DOMWrapper, type VueWrapper } from '@vue/test-utils'
 import { mountGamePage, type MountGamePageOptions } from './mount-game-page'
@@ -21,13 +22,6 @@ export const SWATCHES = {
   tangerine: { name: 'Tangerine', rgb: 'rgb(238, 138, 60)', hex: '#ee8a3c' },
 } as const
 export type SwatchKey = keyof typeof SWATCHES
-
-// a hex color as its swatch key, anything else unchanged
-function paintKeyOf(color: string | null): string {
-  const hex = color?.toLowerCase()
-  const match = Object.entries(SWATCHES).find(([, swatch]) => swatch.hex === hex)
-  return match ? match[0] : (color ?? '')
-}
 
 export interface TestPlayer {
   name: string
@@ -85,9 +79,25 @@ export const ANNA: TestPlayer = { name: 'Anna', color: 'coral' }
 export const BOHDAN: TestPlayer = { name: 'Bohdan', color: 'sky' }
 
 // Opens the page in English. Pass storage (e.g. { CURRENT_GAME: game }) to load a saved game.
-export async function openGamePage({ storage = {} }: MountGamePageOptions = {}) {
-  const wrapper = await mountGamePage({ storage: { LOCALE: 'en', ...storage } })
+// Past Welcome by default; pass onWelcome to see the launch as a player does.
+export async function openGamePage({ storage = {}, onWelcome, path }: MountGamePageOptions = {}) {
+  const wrapper = await mountGamePage({ storage: { LOCALE: 'en', ...storage }, onWelcome, path })
   return new GamePage(wrapper)
+}
+
+// Stubs the device's "reduce motion" setting before the page opens (WL-17).
+export function stubReducedMotion() {
+  const matchMedia = window.matchMedia.bind(window)
+  vi.spyOn(window, 'matchMedia').mockImplementation((query: string) =>
+    query.includes('prefers-reduced-motion: reduce')
+      ? ({
+          matches: true,
+          media: query,
+          addEventListener: () => {},
+          removeEventListener: () => {},
+        } as unknown as MediaQueryList)
+      : matchMedia(query),
+  )
 }
 
 // Opens the page, fills in the setup form and submits it.
@@ -209,9 +219,99 @@ export class GamePage {
 
   // reload: close this page (which cancels anything pending) and open the app again
   // from whatever the game saved in localStorage
-  async reload() {
+  async reload({ onWelcome }: Pick<MountGamePageOptions, 'onWelcome'> = {}) {
     this.wrapper.unmount()
-    return openGamePage()
+    return openGamePage({ onWelcome })
+  }
+
+  // ---- Welcome (WL-1..WL-21) ----
+
+  private get welcome() {
+    return this.wrapper.find('[data-welcome]')
+  }
+
+  get isWelcomeShown() {
+    return this.welcome.exists()
+  }
+
+  // the highlighted step, the one the demo is showing (WL-10)
+  welcomeCaption() {
+    return this.welcome
+      .get('[data-demo-steps] li button[aria-current="step"] > span:last-child')
+      .text()
+  }
+
+  // chooses a step (1-6) in Welcome's list (WL-10)
+  async chooseWelcomeStep(number: number) {
+    await this.welcome.findAll('[data-demo-steps] button')[number - 1]!.trigger('click')
+    await flushPromises()
+  }
+
+  // the goal under Welcome's title (WL-10)
+  welcomeGoal() {
+    return this.welcome.get('[data-welcome-goal]').text()
+  }
+
+  // the heading above Welcome's list of steps (WL-10)
+  welcomeStepsTitle() {
+    return this.welcome.get('[data-demo-steps-title]').text()
+  }
+
+  // how many steps are highlighted at once (WL-10)
+  highlightedStepCount() {
+    return this.welcome.findAll('[data-demo-steps] button[aria-current="step"]').length
+  }
+
+  // every step, in order, as the list shows it, without its number (WL-10, WL-18)
+  welcomeSteps() {
+    return this.welcome
+      .findAll('[data-demo-steps] li button > span:last-child')
+      .map((step) => step.text())
+  }
+
+  // whether the demo's picture is hidden from screen readers (WL-18)
+  isDemoHiddenFromAssistiveTech() {
+    return this.welcome.get('svg[data-demo-board]').attributes('aria-hidden') === 'true'
+  }
+
+  // what the demo's picture shows: lines drawn and each player's score (WL-9, WL-17)
+  demoBoard() {
+    const board = this.welcome.get('svg[data-demo-board]')
+    return {
+      lines: board.findAll('[data-demo-line]').length,
+      coral: Number(board.get('[data-demo-score="coral"]').text().replace('★', '').trim()),
+      teal: Number(board.get('[data-demo-score="teal"]').text().replace('★', '').trim()),
+      winner: board.find('[data-demo-score="coral"]').text().includes('★') ? 'coral' : null,
+      squareLetters: board.findAll('[data-demo-square-letter]').map((letter) => letter.text()),
+    }
+  }
+
+  async clickPlay() {
+    await this.welcome.get('button[data-welcome-play]').trigger('click')
+    await flushPromises()
+  }
+
+  private get homeButton() {
+    return this.header.find('button[data-home-button]')
+  }
+
+  get hasHomeButton() {
+    return this.homeButton.exists()
+  }
+
+  homeButtonLabel() {
+    return this.homeButton.attributes('aria-label')
+  }
+
+  async clickHome() {
+    await this.homeButton.trigger('click')
+    await flushPromises()
+  }
+
+  // the screen heading holding keyboard focus, by its text, or null
+  focusedHeading() {
+    const active = document.activeElement
+    return active && /^H[1-6]$/.test(active.tagName) ? active.textContent?.trim() : null
   }
 
   text() {
@@ -226,7 +326,10 @@ export class GamePage {
 
   // the game name at the start of the header (VR-18, VR-22)
   headerTitle() {
-    return this.header.get('[data-app-title]').text()
+    return this.header
+      .get('[data-app-title]')
+      .text()
+      .replace(/\u00ad/g, '')
   }
 
   // the logo in the header: decorative (hidden from screen readers) and placed before the game name (VR-18)
@@ -330,40 +433,118 @@ export class GamePage {
     }
   }
 
-  // Back: history back to the setup screen, which jsdom delivers (popstate) in a later task
+  // Back: jsdom delivers the history traversal (popstate) some tasks later, so wait for the
+  // router to finish that navigation, then for the screen it leads to to render
   async closePrivacy() {
-    await this.wrapper.get('[data-privacy-back]').trigger('click')
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await this.afterNavigation(() => this.wrapper.get('[data-privacy-back]').trigger('click'))
+  }
+
+  // runs an action that navigates, then waits for the navigation and the screen it leads to
+  async afterNavigation(action: () => unknown) {
+    const router = this.wrapper.vm.$router
+    const navigated = new Promise<void>((resolve, reject) => {
+      const stop = router.afterEach((_to, _from, failure) => {
+        stop()
+        if (failure) reject(failure)
+        else resolve()
+      })
+    })
+    await action()
+    await navigated
     await flushPromises()
+  }
+
+  // the address the app shows, e.g. '/settings' (WL-1)
+  get path() {
+    return this.wrapper.vm.$router.currentRoute.value.path
   }
 
   // ---- document ----
 
   private get languageButton() {
-    return this.header.get('button[data-language-toggle]')
+    return this.header.get('button[data-language-button]')
   }
 
-  // the header's one language button (I18N-3, I18N-5): what it shows (the current language),
-  // what it tells assistive technology (the switch, in the target language's own words) and
-  // the language that label is marked with
+  private get languageRows() {
+    return [...document.querySelectorAll<HTMLElement>('[role="menuitemradio"]')]
+  }
+
+  // the header's language button (LG-1, LG-4): the current key, its name for assistive
+  // technology, and how it announces its menu
   languageButtonState() {
     const button = this.languageButton
     return {
       text: button.text(),
       label: button.attributes('aria-label'),
-      labelLang: button.attributes('lang'),
+      hasPopup: button.attributes('aria-haspopup'),
+      expanded: button.attributes('aria-expanded'),
     }
   }
 
-  // one tap on the language button: switches to the other language
   async clickLanguageButton() {
     await this.languageButton.trigger('click')
     await flushPromises()
   }
 
-  // ends in the given language, tapping the language button only if it's not on already
-  async switchLanguage(locale: 'uk' | 'en') {
-    if (document.documentElement.lang !== locale) await this.clickLanguageButton()
+  // the open menu's rows in order, or null when it's closed (LG-1, LG-2)
+  languageMenu() {
+    if (!document.querySelector('[role="menu"]')) return null
+    return this.languageRows.map((row) => ({
+      key: row.querySelector('[data-language-key]')?.textContent?.trim(),
+      name: row.querySelector('[data-language-name]')?.textContent?.trim(),
+      nameLang: row.querySelector('[data-language-name]')?.getAttribute('lang'),
+      checked: row.getAttribute('aria-checked') === 'true',
+      ticked: row.querySelector('[data-icon="check"]') !== null,
+    }))
+  }
+
+  // the menu's accessible name
+  languageMenuLabel() {
+    return document.querySelector('[role="menu"]')?.getAttribute('aria-label') ?? null
+  }
+
+  // taps a row of the open menu, by its key (EN, УК, …)
+  async chooseLanguageRow(key: string) {
+    const row = this.languageRows.find(
+      (candidate) => candidate.querySelector('[data-language-key]')?.textContent?.trim() === key,
+    )
+    if (!row) throw new Error(`No language row ${key}`)
+    row.click()
+    await flushPromises()
+  }
+
+  focusLanguageButton() {
+    ;(this.languageButton.element as HTMLElement).focus()
+  }
+
+  // what holds the focus: a language row's key, 'button' for the language button, else null
+  languageFocus() {
+    const active = document.activeElement
+    if (active === this.languageButton.element) return 'button'
+    const row = active?.closest('[role="menuitemradio"]')
+    return row?.querySelector('[data-language-key]')?.textContent?.trim() ?? null
+  }
+
+  // clicks the open menu's padding, which can't take focus, so focus falls to the page (LG-4)
+  async clickLanguageMenuPadding() {
+    const menu = document.querySelector<HTMLElement>('[role="menu"]')
+    if (!menu) throw new Error('The language menu is closed')
+    menu.dispatchEvent(new Event('pointerdown', { bubbles: true }))
+    ;(document.activeElement as HTMLElement | null)?.blur()
+    menu.click()
+    await flushPromises()
+  }
+
+  async tapOutsideLanguageMenu() {
+    document.body.dispatchEvent(new Event('pointerdown', { bubbles: true }))
+    await flushPromises()
+  }
+
+  // ends in the given language, through the menu, only if it's not on already
+  async switchLanguage(locale: AppLocale) {
+    if (document.documentElement.lang === locale) return
+    await this.clickLanguageButton()
+    await this.chooseLanguageRow(LANGUAGES.find(({ code }) => code === locale)?.key ?? 'EN')
   }
 
   // the install manifest the page links to; it names the installed app (VR-50, VR-51)
@@ -389,11 +570,6 @@ export class GamePage {
     }
   }
 
-  // the "How to play →" link at the end of the setup's goal sentence (NG-6)
-  private get howToPlayLink() {
-    return this.wrapper.find<HTMLButtonElement>('[data-setup-goal] button')
-  }
-
   // where the page has an info button labelled like the header's: 'header' or 'page' for each (NG-9)
   rulesInfoButtons() {
     const label = this.rulesButton.attributes('aria-label')
@@ -403,12 +579,11 @@ export class GamePage {
       .map((button) => (this.header.element.contains(button.element) ? 'header' : 'page'))
   }
 
-  // Opens the panel with the header's info button or the setup's "How to play" link (NG-6).
+  // Opens the panel with the header's info button.
   // The button doesn't get focus first: Safari and touch screens don't focus a clicked button (UP-2).
-  async openRules({ from = 'header' }: { from?: 'header' | 'how to play' } = {}) {
-    const button = from === 'how to play' ? this.howToPlayLink : this.rulesButton
+  async openRules() {
     ;(document.activeElement as HTMLElement | null)?.blur()
-    await button.trigger('click')
+    await this.rulesButton.trigger('click')
     await flushPromises()
   }
 
@@ -434,91 +609,44 @@ export class GamePage {
     return id ? document.getElementById(id)?.textContent?.trim() : undefined
   }
 
-  // the rules points, joined, as the open panel shows them
+  // the steps, joined, as the open panel shows them
   rulesText() {
-    return this.rulesPanel.get('ol[data-rules-steps]').text()
+    return this.rulesPanel.get('ol[data-demo-steps]').text()
   }
 
-  // The open panel's goal sentence (NG-7): its text, the bold game name in it, and whether it is
-  // the only paragraph between the heading and the steps.
-  rulesGoal() {
-    const panel = this.rulesPanel.element
-    const goal = panel.querySelector<HTMLElement>('[data-rules-goal]')
-    if (!goal) return null
-    const heading = panel.querySelector('h2')!
-    const steps = panel.querySelector('ol[data-rules-steps]')!
-    const between = [...panel.querySelectorAll('p, ol, ul')].filter(
-      (el) => follows(el, heading) && follows(steps, el),
-    )
-    return {
-      sentence: goal.textContent!.trim(),
-      boldName: goal.querySelector('strong')?.textContent?.trim() ?? null,
-      firstBeforeSteps: between.length === 1 && between[0] === goal,
-    }
-  }
-
-  // each rules point as the open panel shows it, without its number
+  // each step as the open panel shows it, without its number (RL-1)
   rulesPoints() {
     return this.rulesPanel
-      .findAll('ol[data-rules-steps] > li > span:last-child')
+      .findAll('ol[data-demo-steps] > li > button > span:last-child')
       .map((point) => point.text())
   }
 
-  // The "In pictures" storyboard under the rules (RL-7), or null. Each frame lists what its small board
-  // shows: lines and owned squares by position ('row,col-row,col' / 'row,col', 0-based) with their
-  // player color, the picked Dot1 and the highlighted neighbors. Colors are swatch keys.
-  storyboard() {
-    const section = this.rulesPanel.find<HTMLElement>('[data-rules-storyboard]')
-    if (!section.exists()) return null
-    return {
-      heading: section.get('h3').text(),
-      hiddenFromAssistiveTech: section.attributes('aria-hidden') === 'true',
-      frames: section.findAll('[data-storyboard-frame]').map((frame) => {
-        const colorOf = (element: Element, attribute: 'fill' | 'stroke') =>
-          paintKeyOf(element.getAttribute(attribute))
-        const selected = frame.find('[data-dot1]')
-        return {
-          caption: frame.get('[data-caption]').text(),
-          lines: Object.fromEntries(
-            frame
-              .findAll('[data-line]')
-              .map(({ element }) => [
-                element.getAttribute('data-line'),
-                colorOf(element, 'stroke'),
-              ]),
-          ),
-          squares: Object.fromEntries(
-            frame
-              .findAll('[data-square]')
-              .map(({ element }) => [
-                element.getAttribute('data-square'),
-                { letter: element.textContent?.trim(), color: colorOf(element, 'fill') },
-              ]),
-          ),
-          dot1: selected.exists()
-            ? {
-                at: selected.attributes('data-dot1'),
-                color: colorOf(selected.element, 'stroke'),
-              }
-            : null,
-          neighbors: frame.findAll('[data-neighbor]').map((n) => n.attributes('data-neighbor')),
-        }
-      }),
-    }
+  // chooses a step (1-6) in the open panel's list (WL-10)
+  async chooseRulesStep(number: number) {
+    await this.rulesPanel.findAll('ol[data-demo-steps] button')[number - 1]!.trigger('click')
+    await flushPromises()
   }
 
-  // every paint (fill and stroke) the storyboard boards use, sorted: player colors as swatch keys,
-  // everything else as written (theme tokens are var(--color-…))
-  storyboardPaints() {
-    const section = this.rulesPanel.get('[data-rules-storyboard]')
-    const paints = new Set<string>()
-    for (const element of section.element.querySelectorAll('svg, svg *')) {
-      for (const attribute of ['fill', 'stroke'] as const) {
-        const value = element.getAttribute(attribute)
-        if (value && value !== 'none') paints.add(paintKeyOf(value))
-      }
-    }
-    return [...paints].sort()
+  // the panel's highlighted step (WL-10)
+  rulesCurrentStep() {
+    return this.rulesPanel
+      .get('ol[data-demo-steps] button[aria-current="step"] > span:last-child')
+      .text()
+  }
+
+  // the goal under the open panel's heading (RL-1)
+  rulesGoal() {
+    return this.rulesPanel.get('[data-rules-goal]').text()
+  }
+
+  // whether the open panel plays the demo (RL-1)
+  get hasRulesDemo() {
+    return this.rulesPanel.find('svg[data-demo-board]').exists()
+  }
+
+  // how many of the open panel's steps are highlighted (RL-1)
+  rulesHighlightedStepCount() {
+    return this.rulesPanel.findAll('ol[data-demo-steps] button[aria-current="step"]').length
   }
 
   // whether any rules text is shown on the page itself, outside the panel (VR-28)
@@ -527,15 +655,12 @@ export class GamePage {
   }
 
   // where keyboard focus is
-  focus(): 'rules panel' | 'info button' | 'how to play link' | 'elsewhere' {
+  focus(): 'rules panel' | 'info button' | 'elsewhere' {
     const active = document.activeElement
     if (active && this.rulesPanel.exists() && this.rulesPanel.element.contains(active)) {
       return 'rules panel'
     }
     if (active === this.rulesButton.element) return 'info button'
-    if (this.howToPlayLink.exists() && active === this.howToPlayLink.element) {
-      return 'how to play link'
-    }
     return 'elsewhere'
   }
 
@@ -575,33 +700,9 @@ export class GamePage {
     return this.wrapper.find('form').exists()
   }
 
-  // The setup screen's top (NG-5, NG-6, NG-8): the goal sentence without its link, the bold game
-  // name in it, the "How to play" link at its end and whether that is tall enough to tap below
-  // 640 px (44 px, read from the unprefixed Tailwind classes: jsdom has no layout), then the title
-  // and whether it sits after the goal and above the form.
-  setupIntro() {
-    const goal = this.wrapper.find<HTMLElement>('[data-setup-goal]')
-    if (!goal.exists()) return null
-    const link = this.howToPlayLink
-    const title = this.wrapper.get<HTMLElement>('[data-setup-title]')
-    const linkText = link.exists() ? link.text() : ''
-    const phoneClasses = link.exists() ? link.classes().filter((c) => !c.includes(':')) : []
-    return {
-      sentence: goal.text().replace(linkText, '').trim(),
-      boldName: goal.find('strong').exists() ? goal.get('strong').text() : null,
-      link: link.exists()
-        ? {
-            text: linkText,
-            atEnd: goal.element.lastElementChild === link.element,
-            tapHeight44BelowSm: phoneClasses.some((c) =>
-              /^(min-h|h|size)-(1[1-9]|[2-9]\d)$/.test(c),
-            ),
-          }
-        : null,
-      title: title.text(),
-      titleAfterGoal: follows(title.element, goal.element),
-      titleAboveForm: follows(this.wrapper.get('form').element, title.element),
-    }
+  // whether setup still opens with the goal sentence and How to play link (removed by WL-13)
+  get hasSetupGoal() {
+    return this.wrapper.find('[data-setup-goal]').exists()
   }
 
   async submitSetup({
@@ -636,6 +737,18 @@ export class GamePage {
 
   input(id: 'player1.name' | 'player2.name' | 'size') {
     return this.wrapper.find<HTMLInputElement>(`[id="${id}"]`)
+  }
+
+  // types into a name field without leaving it
+  async typeName(id: 'player1.name' | 'player2.name', name: string) {
+    await this.input(id).setValue(name)
+    await flushPromises()
+  }
+
+  // the error shown under a name field, or '' with none
+  nameError(id: 'player1.name' | 'player2.name') {
+    const field = this.input(id).element.parentElement
+    return field?.querySelector('[data-field-error]')?.textContent?.trim() ?? ''
   }
 
   // a setup field's label as it is shown, with its required marker, e.g. 'Name *'
@@ -682,6 +795,14 @@ export class GamePage {
 
   async chooseMode(mode: TestGameMode) {
     await this.chooseOption('Game mode', MODE_LABELS[mode])
+  }
+
+  // which option (0-based) the game mode switch's sliding highlight is on (VC-25)
+  modeHighlightPosition() {
+    const thumb = this.wrapper.get(
+      '[role="radiogroup"][aria-label="Game mode"] [data-switch-thumb]',
+    )
+    return Number(thumb.attributes('data-position'))
   }
 
   // the checked game mode

@@ -7,11 +7,13 @@
       :name="`${props.parentForm}.name`"
       :label="legend ? t('setup.name') : t('setup.playerName', { number })"
       :rules="nameRules"
-      v-slot="{ field, errorMessage }"
+      v-slot="{ field, errorMessage, validate }"
     >
       <div class="flex min-w-0 flex-col gap-2">
         <BaseLabel :for="field.name" required>{{ t('setup.name') }}</BaseLabel>
-        <!-- names are at most 15 characters: the field doesn't accept more, and a longer value fails `max` (GS-1) -->
+        <!-- names are at most 15 characters: the field doesn't accept more, and a longer value fails
+             `max` (GS-1). An error shown is rechecked on every keystroke, so it goes as soon as the
+             name is valid (GS-6) -->
         <BaseInput
           v-bind="field"
           :id="field.name"
@@ -19,6 +21,7 @@
           type="text"
           aria-required="true"
           :maxlength="MAX_NAME_LENGTH"
+          @input="errorMessage && validate()"
         />
         <BaseFieldError :errorMessage />
       </div>
@@ -73,7 +76,7 @@ import { Field, defineRule } from 'vee-validate'
 import { required, max } from '@vee-validate/rules'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { i18n, SUPPORTED_LOCALES } from '@/i18n'
+import { i18n, LANGUAGE_CODES } from '@/i18n'
 import BaseLabel from '@/shared/components/BaseLabel.vue'
 import BaseInput from '@/shared/components/BaseInput.vue'
 import BaseFieldError from '@/shared/components/BaseFieldError.vue'
@@ -104,7 +107,7 @@ function normalizeName(name: string) {
 // a person can't take the computer's display name in any language (CM-8);
 // the message comes from the i18n generateMessage config (validation.computerName)
 defineRule('notComputerName', (fieldValue: string) => {
-  const computerNames = SUPPORTED_LOCALES.map((locale) =>
+  const computerNames = LANGUAGE_CODES.map((locale) =>
     normalizeName(i18n.global.getLocaleMessage(locale).players.computer),
   )
   return !computerNames.includes(normalizeName(fieldValue ?? ''))

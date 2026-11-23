@@ -2,11 +2,13 @@
  * Store images for Google Play (AR-16, AR-17): run with `npm run store:screenshots`, review the
  * images and commit what it writes to `docs/store/`. It is not part of the build or the tests.
  *
- * - screenshots: builds the app, serves the build with `vite preview` and captures 5 screens per
- *   language (en, uk) and device (phone, 7" and 10" tablet), seeding localStorage with fixed games
- *   so every run gives the same images; no shot waits for a computer move
+ * - screenshots: builds the app, serves the build with `vite preview` and captures 6 screens per
+ *   listed language and device (phone, 7" and 10" tablet), Welcome first, seeding localStorage
+ *   with fixed games so every run gives the same images; no shot waits for a computer move
  * - feature graphics (1024×500, per language): the logo and the title on cream, from an HTML template
- * - icon-512.png: the logo on the cream tile, 32-bit PNG
+ * - icon-512.png: the logo on the cream tile, 32-bit PNG, in the store root
+ *
+ * Per-language images go to `docs/store/<lang>/` (LG-17, LG-18; paths in `store-paths.ts`).
  */
 import { mkdir, readFile, rm } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
@@ -14,27 +16,50 @@ import { chromium, type Browser, type Page } from 'playwright'
 import sharp from 'sharp'
 import { build, preview } from 'vite'
 import { LOGO_COLORS, logoSvg } from '../src/shared/logo.ts'
-import en from '../src/i18n/locales/en.ts'
-import uk from '../src/i18n/locales/uk.ts'
+import { LANGUAGE_CODES, type AppLocale } from '../src/i18n/languages.ts'
+import { MESSAGES } from '../src/i18n/messages.ts'
+import {
+  deviceDir,
+  featureGraphicPath,
+  screenshotPath,
+  STORE_SCREENS,
+  type StoreDevice,
+  type StoreScreen,
+} from './store-paths.ts'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
 const storeDir = `${root}docs/store/`
 
-type Lang = 'en' | 'uk'
-const LANGS: Lang[] = ['en', 'uk']
-const MESSAGES = { en, uk }
+type Lang = AppLocale
 
 // viewport × DPR = the store pixel size, portrait (Play: tablets ≥1080 px a side, ≤2:1)
+// the device language each language's screenshots run under
+const DEVICE_LOCALE: Record<Lang, string> = {
+  en: 'en-US',
+  uk: 'uk-UA',
+  de: 'de-DE',
+  fr: 'fr-FR',
+  it: 'it-IT',
+  es: 'es-ES',
+}
+
 const DEVICES = {
   phone: { width: 360, height: 640, scale: 3 }, // 1080×1920
-  tablet7: { width: 600, height: 960, scale: 2 }, // 1200×1920
-  tablet10: { width: 800, height: 1280, scale: 2 }, // 1600×2560
-} as const
+  'tablet-7': { width: 600, height: 960, scale: 2 }, // 1200×1920
+  'tablet-10': { width: 800, height: 1280, scale: 2 }, // 1600×2560
+} as const satisfies Record<StoreDevice, object>
 type Device = keyof typeof DEVICES
 
 // ---- fixture games, in the shape the game saves under CURRENT_GAME ----
 
-const PERSON = { en: 'Sofia', uk: 'Софія' }
+const PERSON: Record<Lang, string> = {
+  en: 'Sofia',
+  uk: 'Софія',
+  de: 'Sofia',
+  fr: 'Sofia',
+  it: 'Sofia',
+  es: 'Sofía',
+}
 const PERSON_COLOR = '#2a9d8f' // teal
 // computerColorFor(teal); a saved game keeps whatever color it holds
 const COMPUTER = { name: '__computer_player__', color: '#ee8a3c' } // tangerine
@@ -112,27 +137,33 @@ const darkGame = (lang: Lang) =>
 // ---- screens ----
 
 interface Screen {
-  name: string
   theme: 'light' | 'dark'
   game?: (lang: Lang) => object
   // after the app has loaded: put the screen into the state to capture
   prepare?: (page: Page, lang: Lang) => Promise<void>
 }
 
-const SCREENS: Screen[] = [
-  {
-    name: 'setup',
+const SCREEN_SETUP: Record<StoreScreen, Screen> = {
+  // no saved game, and reduced motion: the demo's finished frame with the winning caption (WL-17)
+  welcome: {
+    theme: 'light',
+    prepare: async (page) => {
+      await page.locator('[data-welcome-play]').waitFor()
+    },
+  },
+  setup: {
     theme: 'light',
     prepare: async (page, lang) => {
+      // a launch without a saved game opens on Welcome (WL-1)
+      await page.locator('[data-welcome-play]').click()
       const name = page.locator('input[name="player1.name"]')
       await name.fill(PERSON[lang])
       await name.blur()
     },
   },
-  { name: 'game', theme: 'light', game: midGame },
-  { name: 'result', theme: 'light', game: wonGame },
-  {
-    name: 'rules',
+  game: { theme: 'light', game: midGame },
+  result: { theme: 'light', game: wonGame },
+  rules: {
     theme: 'light',
     game: midGame,
     prepare: async (page) => {
@@ -142,12 +173,16 @@ const SCREENS: Screen[] = [
       await page.locator('[data-rules-close]').blur()
     },
   },
-  { name: 'dark', theme: 'dark', game: darkGame },
-]
+  dark: { theme: 'dark', game: darkGame },
+}
+
+const SCREENS = STORE_SCREENS.map((name) => ({ name, ...SCREEN_SETUP[name] }))
 
 async function capture(browser: Browser, url: string, lang: Lang, device: Device) {
   const { width, height, scale } = DEVICES[device]
-  const dir = `${storeDir}screenshots/${lang}/${device}/`
+  // only this device's folder: the language folder also holds listing.md
+  const dir = `${storeDir}${deviceDir(lang, device)}`
+  await rm(dir, { recursive: true, force: true })
   await mkdir(dir, { recursive: true })
   for (const [index, screen] of SCREENS.entries()) {
     const context = await browser.newContext({
@@ -155,7 +190,7 @@ async function capture(browser: Browser, url: string, lang: Lang, device: Device
       deviceScaleFactor: scale,
       isMobile: true,
       hasTouch: true,
-      locale: lang === 'uk' ? 'uk-UA' : 'en-US',
+      locale: DEVICE_LOCALE[lang],
       colorScheme: screen.theme,
       reducedMotion: 'reduce', // no entrance animations half-way through
       serviceWorkers: 'block',
@@ -176,7 +211,7 @@ async function capture(browser: Browser, url: string, lang: Lang, device: Device
       for (const [key, value] of Object.entries(items)) localStorage.setItem(key, value)
     }, storage)
     const page = await context.newPage()
-    await page.goto(`${url}game`)
+    await page.goto(url)
     await page.locator('[data-app-title]').waitFor()
     await page.evaluate(() => document.fonts.ready)
     await screen.prepare?.(page, lang)
@@ -184,8 +219,9 @@ async function capture(browser: Browser, url: string, lang: Lang, device: Device
     await page.waitForFunction(() =>
       document.getAnimations().every(({ playState }) => playState !== 'running'),
     )
-    const file = `${dir}${String(index + 1).padStart(2, '0')}-${screen.name}.png`
-    await page.screenshot({ path: file })
+    await page.screenshot({
+      path: `${storeDir}${screenshotPath(lang, device, index, screen.name)}`,
+    })
     await context.close()
   }
 }
@@ -195,7 +231,7 @@ async function capture(browser: Browser, url: string, lang: Lang, device: Device
 async function fontFace() {
   const files = `${root}node_modules/@fontsource-variable/nunito/files/`
   const faces = await Promise.all(
-    ['latin', 'cyrillic'].map(async (subset) => {
+    ['latin', 'latin-ext', 'cyrillic'].map(async (subset) => {
       const font = await readFile(`${files}nunito-${subset}-wght-normal.woff2`)
       return `@font-face{font-family:Nunito;font-weight:200 1000;src:url(data:font/woff2;base64,${font.toString('base64')}) format('woff2')}`
     }),
@@ -219,7 +255,7 @@ async function featureGraphic(browser: Browser, lang: Lang) {
     <h1>${MESSAGES[lang].app.title}</h1>
   </body></html>`)
   await page.evaluate(() => document.fonts.ready)
-  await page.screenshot({ path: `${storeDir}feature-graphic-${lang}.png` })
+  await page.screenshot({ path: `${storeDir}${featureGraphicPath(lang)}` })
   await page.close()
 }
 
@@ -242,8 +278,7 @@ if (!url) throw new Error('vite preview has no local URL')
 
 const browser = await chromium.launch()
 try {
-  await rm(`${storeDir}screenshots`, { recursive: true, force: true })
-  for (const lang of LANGS) {
+  for (const lang of LANGUAGE_CODES) {
     for (const device of Object.keys(DEVICES) as Device[]) {
       await capture(browser, url, lang, device)
     }

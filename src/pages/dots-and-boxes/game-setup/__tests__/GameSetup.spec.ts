@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { flushPromises, type VueWrapper } from '@vue/test-utils'
 import { mountGamePage, type MountGamePageOptions } from '@/test/mount-game-page'
-import { accessibleText } from '@/test/game-page'
+import { accessibleText, GamePage } from '@/test/game-page'
 
 const TWO_PLAYERS = ['Двоє гравців', 'Two players']
 
@@ -153,7 +153,7 @@ describe('game setup', () => {
     await submit(page)
     expect(errors(page)).toEqual(['Поле «Ім’я гравця 1» заповнено некоректно.'])
 
-    await page.get('button[lang="en"]').trigger('click')
+    await new GamePage(page).switchLanguage('en')
     await submit(page)
 
     expect(errors(page)).toEqual(['Player 1 name is not valid.'])

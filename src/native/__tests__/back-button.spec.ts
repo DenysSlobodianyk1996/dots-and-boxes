@@ -49,6 +49,22 @@ async function pressBack() {
 }
 
 describe('Android back button (AR-3)', () => {
+  it('closes the language menu first, and nothing else', async () => {
+    const page = await startGame()
+    await page.click('Stop')
+    await page.openRules()
+    await page.clickLanguageButton()
+    await startNative()
+
+    await pressBack()
+
+    expect(page.languageMenu()).toBeNull()
+    expect(page.languageFocus()).toBe('button')
+    expect(page.isRulesOpen()).toBe(true)
+    expect(page.dialog.exists()).toBe(true)
+    expect(app.exitApp).not.toHaveBeenCalled()
+  })
+
   it('closes the rules panel first, and nothing else', async () => {
     const page = await startGame()
     await page.click('Stop')
@@ -89,7 +105,7 @@ describe('Android back button (AR-3)', () => {
     await page.openPrivacy()
     await startNative()
 
-    await pressBack()
+    await page.afterNavigation(pressBack)
 
     expect(page.privacyScreen()).toBeNull()
     expect(page.footerLinks()?.map((link) => link.text)).toEqual(['Privacy', 'Contact'])

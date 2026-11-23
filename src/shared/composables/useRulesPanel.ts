@@ -1,8 +1,7 @@
 import { readonly, ref, shallowRef } from 'vue'
 
-// One rules panel for the whole app (VR-23): the header's info button or the setup's How to play
-// link (NG-6) opens it, the panel closes it, and the game screen reads whether it is open so the computer waits
-// meanwhile (VR-31). Closed whenever the app loads (VR-27); the state isn't saved.
+// One rules panel for the whole app (VR-23): the header's info button opens it, the panel closes
+// it, and the game screen reads whether it is open so the computer waits meanwhile (VR-31). Closed whenever the app loads (VR-27); the state isn't saved.
 const isOpen = ref(false)
 // the button that opened the panel, so focus can go back to it (UP-2). The button passes
 // itself in: Safari and touch screens don't focus a clicked button, so document.activeElement

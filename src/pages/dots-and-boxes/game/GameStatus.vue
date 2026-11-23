@@ -59,7 +59,12 @@
     <!-- "Thinking…" replaces the hint on the computer's turn (CM-14). The hint is only hidden, and
          the area is as tall as the longest hint in this language (invisible copies share its grid
          cell), so nothing jumps (UP-5) -->
-    <div class="grid text-sm text-muted">
+    <!-- what to do next stands out, in a box that hides with the hint (END-8) -->
+    <div
+      data-hint-box
+      class="grid items-center rounded-lg border-2 px-3 py-2 text-sm font-semibold"
+      :class="thinking ? 'border-transparent' : 'border-accent bg-accent-tint text-ink'"
+    >
       <span
         v-for="key in hintKeys"
         :key

@@ -2,13 +2,16 @@
 const en = {
   app: {
     title: 'Dots and Boxes',
-    // header name, the bold name in GameGoal and the install manifest short_name (NG-1, NG-7)
+    // header name, Welcome's title and the install manifest short_name (NG-1, WL-10)
     shortName: 'Dots and Boxes',
+    // the header's name: the short name, with a soft hyphen where one long word needs it (LG-11)
+    headerName: 'Dots and Boxes',
   },
-  // the language button's label, read in the language it switches to: each locale names the
-  // switch to itself (NG-4)
+  // the language button's accessible name and its menu's (LG-4); each language's own name is in
+  // src/i18n/languages.ts
   language: {
-    switchTo: 'Switch to English',
+    current: 'Language: {name}',
+    list: 'Language',
   },
   // the theme button names the theme it switches to (VR-16)
   theme: {
@@ -121,27 +124,25 @@ const en = {
     settings: 'Settings',
     rematch: 'Rematch',
   },
+  // the Welcome screen; one caption per stage of the how-to-play demo (WL-10, WL-12)
+  welcome: {
+    title: 'Welcome to {name}',
+    goal: 'Whoever owns more squares when the board is full wins.',
+    play: 'Play',
+    home: 'Home',
+    captions: {
+      drawLine: 'Tap two neighboring dots to draw a line.',
+      startFromLine: 'Players take turns. Each new line starts from a dot that already has a line.',
+      claimSquare: "Draw a square's fourth side and it's yours.",
+      turnPasses: 'After every line, the turn passes to the other player.',
+      keepGoing: 'Keep going until every square is claimed.',
+      mostSquaresWins: 'Board full: most squares wins!',
+    },
+  },
   rules: {
     title: 'How to play',
     open: 'Rules',
     close: 'Close rules',
-    // the game's goal, first on setup and in the rules panel; {name} is the bold game name (NG-5, NG-7)
-    goal: '{name} — whoever owns more squares when the board is full wins.',
-    howToPlay: 'How to play →',
-    step1: 'Take turns drawing a line between two neighboring dots: left, right, up or down.',
-    step2: 'The first line can go anywhere. After that, start from a dot that already has a line.',
-    step3: 'Draw the fourth side of a square to claim it. One line can claim two squares.',
-    step4: 'After every line, the turn passes to the other player.',
-    step5:
-      'The game ends when all squares are claimed or someone presses Stop. Most squares wins; equal scores are a draw.',
-    // the still storyboard under the steps (RL-7); captions must stay true to the rules (RL-5)
-    storyboard: {
-      title: 'In pictures',
-      frame1: 'The first line goes anywhere.',
-      frame2: 'Next lines start from a drawn one: pick a dot, then a neighbor.',
-      frame3: 'Draw the fourth side and the square is yours.',
-      frame4: 'One line can close two squares.',
-    },
   },
 }
 

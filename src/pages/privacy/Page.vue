@@ -19,19 +19,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+import type { AppLocale } from '@/i18n/languages'
+import { leavePrivacy as back } from '@/router'
 import AppScreen from '@/shared/components/AppScreen.vue'
 import BaseButton from '@/shared/components/BaseButton.vue'
 import PrivacyContent from '@/shared/components/PrivacyContent.vue'
 
 const { t, locale } = useI18n()
-const router = useRouter()
 
-const currentLocale = computed(() => (locale.value === 'uk' ? 'uk' : 'en'))
-
-// back to where the player came from (the setup screen), or to the game on a direct visit (PV-3)
-function back() {
-  if (window.history.state?.back) router.back()
-  else void router.push('/game')
-}
+const currentLocale = computed(() => locale.value as AppLocale)
 </script>
