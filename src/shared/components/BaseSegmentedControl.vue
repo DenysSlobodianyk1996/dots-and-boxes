@@ -14,7 +14,7 @@
         type="button"
         role="radio"
         :aria-checked="model === option.value"
-        class="min-h-11 flex-1 cursor-pointer rounded px-3 text-center text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-accent sm:min-h-8"
+        class="min-h-11 flex-1 cursor-pointer rounded-md px-3 text-center text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-accent sm:min-h-8"
         :class="
           model === option.value
             ? 'bg-accent text-on-accent'
