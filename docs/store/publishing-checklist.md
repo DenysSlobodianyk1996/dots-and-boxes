@@ -7,12 +7,13 @@ What you'll need, all in this folder or linked from it:
 | Item | Where |
 |---|---|
 | Signing and Play service account wizard | [`scripts/android-release-wizard.sh`](../../scripts/android-release-wizard.sh) |
-| Listing texts | [en/listing.md](en/listing.md), [uk/listing.md](uk/listing.md) |
+| Listing texts | `<lang>/listing.md`: [en](en/listing.md), [uk](uk/listing.md), [de](de/listing.md), [fr](fr/listing.md), [it](it/listing.md), [es](es/listing.md) |
+| Native-speaker review list | [review-list.md](review-list.md) |
 | Form answers | [play-console.md](play-console.md) |
 | Privacy policy URL | https://denysslobodianyk1996.github.io/dots-and-boxes/privacy/ (source: [`PrivacyContent.vue`](../../src/shared/components/PrivacyContent.vue), rendered by [`src/privacy-static.ts`](../../src/privacy-static.ts)) |
 | App icon 512×512 | [icon-512.png](icon-512.png) |
-| Feature graphic 1024×500 | [en/feature-graphic.png](en/feature-graphic.png), [uk/feature-graphic.png](uk/feature-graphic.png) |
-| Screenshots (phone, 7" and 10" tablet; en and uk) | [en/](en/), [uk/](uk/): `phone/`, `tablet-7/`, `tablet-10/` (regenerate with `npm run store:screenshots`) |
+| Feature graphic 1024×500 | `<lang>/feature-graphic.png`, one per language |
+| Screenshots (phone, 7" and 10" tablet; six languages) | `<lang>/phone/`, `tablet-7/`, `tablet-10/`, Welcome first (regenerate with `npm run store:screenshots`) |
 | Tester invitation | [tester-invite.md](tester-invite.md) |
 
 ## 0. One-time setup: signing
@@ -38,6 +39,7 @@ What you'll need, all in this folder or linked from it:
 - [ ] **Store settings**: category **Board**, tags, contact email (the placeholder in [play-console.md](play-console.md#app-details-store-settings); fill in your address).
 - [ ] **Main store listing** (en-US): title, short and full description from [en/listing.md](en/listing.md); icon; feature graphic `en/feature-graphic.png`; screenshots from `en/phone/`, `en/tablet-7/` and `en/tablet-10/`.
 - [ ] **Manage translations → Add your own translation text → Ukrainian**: texts from [uk/listing.md](uk/listing.md), feature graphic `uk/feature-graphic.png`, screenshots from `uk/phone/`, `uk/tablet-7/` and `uk/tablet-10/`.
+- [ ] **Manage translations → Add your own translation text → German (de-DE), French (fr-FR), Italian (it-IT), Spanish (Spain, es-ES)**: for each, the texts from `<lang>/listing.md`, `<lang>/feature-graphic.png` and the screenshots from `<lang>/phone/`, `tablet-7/` and `tablet-10/`. Their release notes join the workflow afterwards (#95).
 
 ## 3. Fill the forms
 
@@ -81,7 +83,7 @@ The Play API can't create an app's first release, so this one upload is manual.
 - [ ] **Production → Create new release → Add from library** (the tested AAB), or promote it from closed testing.
 - [ ] Countries: all, or the list you want.
 - [ ] Release notes from [en/listing.md](en/listing.md) and [uk/listing.md](uk/listing.md); start a full (100%) or staged rollout; send for review.
-- [ ] Once live, open the listing on a phone in both languages and check the texts, screenshots, rating, "No data collected" label and privacy link.
+- [ ] Once live, open the listing on a phone in each language and check the texts, screenshots, rating, "No data collected" label and privacy link.
 
 ## 8. Every later release is `npm run release`
 
@@ -89,4 +91,4 @@ The Play API can't create an app's first release, so this one upload is manual.
 - [ ] The web app shows the new version on its privacy pages as soon as the merge is deployed. To send that same commit to Play, run **`npm run release`** on an up-to-date, clean `master`: it tags the commit with its own version (`v1.0.7`) and pushes the tag. With nothing merged since the last release it stops, because that tag already exists. A hand-made tag that isn't the commit's version stops the workflow before it builds.
 - [ ] A local signed build (`npm run android:build` with the keystore) refuses to run without `ANDROID_VERSION_NAME` and `ANDROID_VERSION_CODE` (`node scripts/app-version.ts` prints both), so it can't make another 1.0.0 by accident.
 - [ ] The tag push runs the **Android release** workflow (`.github/workflows/android-release.yml`): tests, a signed AAB attached to the run as `app-release-X.Y.Z`, and an upload to the **closed testing** track (`alpha`, AR-10). Every merge to `master` that changes the app does the same without a tag. If the upload fails (for example the service account lacks release rights), fix it and re-run the job, or upload the attached AAB by hand.
-- [ ] Check it on a device from closed testing, then promote it to production by hand in Play Console, with release notes in both languages.
+- [ ] Check it on a device from closed testing, then promote it to production by hand in Play Console, with release notes in every language that has them.

@@ -10,7 +10,7 @@
 4. **Squares**: drawing the fourth side of a square makes it yours. One line can close two squares. Turns alternate after every line.
 5. **End**: the game ends when every square has an owner, or when a player presses **Stop** and confirms. More squares wins, and equal scores are a draw. **Rematch** keeps the players and size; **New game** returns to setup.
 
-The game is saved in the browser's localStorage, so reloading the page continues where you left off. It works on desktop and on phones: on narrow screens the board sits above the panel and its squares shrink to fit. A short "How to play" guide is shown under the setup form, and during a game the **Show rules** button at the bottom brings it back. On first launch the interface follows your device's language (Ukrainian on a Ukrainian device, English otherwise); the **UA / EN** toggle at the top right switches the language, and once you use it the app keeps your choice over the device's language.
+The game is saved in the browser's localStorage, so reloading the page continues where you left off. It works on desktop and on phones: on narrow screens the board sits above the panel and its squares shrink to fit. Each launch without a saved game opens on **Welcome**, a short how-to-play demo with a **Play** button, and the info button in the header opens the full rules at any time. The game speaks English, Ukrainian, German, French, Italian and Spanish. On first launch it uses the first of your device's languages on that list, otherwise English; the language button at the top right opens a menu of the six, and the app keeps your choice over the device's language.
 
 ## Getting started
 
@@ -34,6 +34,7 @@ Then open http://localhost:4200.
 | `npm test` | Run the test suite once (Vitest, Vue Test Utils, jsdom) |
 | `npm run test:watch` | Run the tests in watch mode |
 | `npm run format` | Prettier on `src/` |
+| `npm run store:screenshots` | Regenerate the Play Store images for all six languages in `docs/store/<lang>/` |
 
 Tests live in `__tests__/` folders next to the code they cover, and shared test helpers are in `src/test/`. Every pull request runs type-check, lint and tests through [`.github/workflows/ci.yml`](.github/workflows/ci.yml), and the deploy runs the tests before building.
 
@@ -58,7 +59,7 @@ Then open http://localhost:4173/dots-and-boxes/.
 
 ## Tech stack
 
-Vue 3 (`<script setup>` with TypeScript), Vite, Tailwind CSS v4, vee-validate for the setup form, vue-i18n for Ukrainian and English, and vue-router.
+Vue 3 (`<script setup>` with TypeScript), Vite, Tailwind CSS v4, vee-validate for the setup form, vue-i18n for six languages, and vue-router.
 
 ## Project structure
 
@@ -69,6 +70,7 @@ src/
   services/                        localStorage wrapper
   shared/components/               base UI components (button, input, label)
 docs/                              specs, ADRs and agent-skill config (terms in GLOSSARY.md)
+docs/store/<lang>/                 one Play listing per language: listing.md, feature graphic, screenshots
 ```
 
 ## Specs and design

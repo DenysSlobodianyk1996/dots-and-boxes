@@ -10,7 +10,7 @@ The facts every answer rests on:
 
 - The app is a local game. It has no network code, no accounts, no analytics, no crash reporting, no ads and no in-app purchases (spec: Out of Scope).
 - Player names, colors, the current game, game mode, difficulty, theme and language are saved only in the app's own storage on the device. Nothing leaves the device. Play's Data safety rules say data that stays on the device isn't "collected".
-- The game UI has one footer on the setup screen (FT-1): Privacy opens the privacy policy page bundled with the app (no website), and Contact is a `mailto:` link that opens the device's email app with the developer's address. There are no other links to websites or other apps.
+- The game UI has one footer, on Welcome and the setup screen (FT-1): Privacy opens the privacy policy page bundled with the app (no website), and Contact is a `mailto:` link that opens the device's email app with the developer's address. There are no other links to websites or other apps.
 
 ## App details (Store settings)
 
@@ -31,10 +31,10 @@ The facts every answer rests on:
 
 **Grow users → Store presence → Main store listing**
 
-- Texts: [en/listing.md](en/listing.md) (default language en-US) and [uk/listing.md](uk/listing.md) (translation, uk).
+- Texts: [en/listing.md](en/listing.md) (default language en-US) and the translations [uk](uk/listing.md), [de-DE](de/listing.md), [fr-FR](fr/listing.md), [it-IT](it/listing.md) and [es-ES](es/listing.md). Before pasting the new four, see the [review list](review-list.md).
 - App icon (512×512): [`icon-512.png`](icon-512.png).
-- Feature graphic (1024×500): [`en/feature-graphic.png`](en/feature-graphic.png) and, in the Ukrainian translation, [`uk/feature-graphic.png`](uk/feature-graphic.png).
-- Screenshots: `<lang>/<device>/` with `<device>` = `phone`, `tablet-7`, `tablet-10` (made by `npm run store:screenshots`): [en phone](en/phone/), [en 7"](en/tablet-7/), [en 10"](en/tablet-10/), [uk phone](uk/phone/), [uk 7"](uk/tablet-7/), [uk 10"](uk/tablet-10/).
+- Feature graphic (1024×500): `<lang>/feature-graphic.png`, one per language: [en](en/feature-graphic.png), [uk](uk/feature-graphic.png), [de](de/feature-graphic.png), [fr](fr/feature-graphic.png), [it](it/feature-graphic.png), [es](es/feature-graphic.png).
+- Screenshots: `<lang>/<device>/` with `<device>` = `phone`, `tablet-7`, `tablet-10` (made by `npm run store:screenshots`), six per device with Welcome first, for `en`, `uk`, `de`, `fr`, `it` and `es`.
 - Video: none.
 
 ## Privacy policy
@@ -45,7 +45,7 @@ The facts every answer rests on:
 https://denysslobodianyk1996.github.io/dots-and-boxes/privacy/
 ```
 
-One page in English and Ukrainian (rendered from the app's own privacy screen, `src/shared/components/PrivacyContent.vue`, to `privacy/index.html` by every build, with the build's commit date as "Updated"). A privacy policy is mandatory once any under-13 age group is ticked, and Play asks for it anyway.
+One page in all six languages, with links to each at the top (rendered from the app's own privacy screen, `src/shared/components/PrivacyContent.vue`, to `privacy/index.html` by every build, with the build's commit date as "Updated"). A privacy policy is mandatory once any under-13 age group is ticked, and Play asks for it anyway.
 
 ## App access
 
@@ -105,7 +105,7 @@ Follow-up questions:
 | Ads only from Families-certified SDKs, nothing interest-based | The app has no ads at all. |
 | No collection of personal information from children without disclosure and consent; no transmission of identifiers (Advertising ID, Android ID, IMEI, location) | The app collects and sends nothing. Player names stay in on-device storage. No network requests. |
 | Only Families-compliant SDKs | No third-party SDKs that touch user data: Only the Capacitor runtime and its official plugins, which work offline and collect nothing. |
-| Privacy policy linked in the listing and accurate for children | [Privacy policy](https://denysslobodianyk1996.github.io/dots-and-boxes/privacy/), plain language, en and uk: "no data". |
+| Privacy policy linked in the listing and accurate for children | [Privacy policy](https://denysslobodianyk1996.github.io/dots-and-boxes/privacy/), plain language, in all six languages: "no data". |
 | No links out of the app, to other apps or purchases without a parental gate | No web links. The setup screen's Contact is a `mailto:` link to the developer that opens the email app, with no parental gate, as in teach-clock. Privacy opens a page inside the app. |
 | No in-app purchases (or behind a parental gate) | None. |
 | Permissions kept to what the app needs; no location, contacts, camera, mic | The app requests no dangerous permissions. |

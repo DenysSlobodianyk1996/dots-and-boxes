@@ -219,7 +219,7 @@ Acceptance:
 Acceptance:
 - Given the setup screen, when the player taps Privacy, then the privacy screen shows "Privacy policy" (or "Політика конфіденційності") with the date, the email, the GitHub link and "Created by Denys Slobodianyk".
 - Given the privacy screen, when the player taps "Back to the game" or the Android back button, then the setup screen is back.
-- Given the static page with JavaScript off, then both languages show, styled, in the device's theme.
+- Given the static page with JavaScript off, then all six languages show, styled, in the device's theme, with links to each at the top.
 - Given a build of the commit 7 merges after 1.0.0, then both privacy pages read "Version: 1.0.7", on the web and in the Android app built from it.
 
 ## APP: App
@@ -234,12 +234,12 @@ Acceptance:
 - **PWA-1**: The game can be installed to the home screen from the published site (under `/dots-and-boxes/`) as well as locally. The installed app opens full screen without browser bars (standalone), in portrait or landscape (VR-44, VR-45, VR-52).
 - **PWA-2**: The install icon is the logo on a cream tile: 192 and 512 px icons on a rounded tile, and a 512 px maskable icon and a 180 px Apple touch icon on a full square that the launcher shapes itself, with the logo inside the central 80% safe zone so a circle or squircle mask never cuts it (VR-42, VR-43).
 - **PWA-3**: The splash screen and status bar use the cream background; the status bar turns cocoa when the device is in dark mode (VR-46).
-- **PWA-4**: After the first visit everything works offline: setup, playing, the computer player, the rules, both languages, the font and the icons. Reloading any app address offline opens the game (VR-47).
+- **PWA-4**: After the first visit everything works offline: setup, playing, the computer player, the rules, all six languages, the font and the icons. Reloading any app address offline opens the game (VR-47).
 - **PWA-5**: A new version installs quietly and takes effect the next time the game is opened, with no update prompt; the saved game is kept (PS-6) (VR-48, VR-49).
 - **PWA-6**: The installed app's name follows the language in use before installing: Dots and Boxes, Крапки й квадрати, Käsekästchen, Pipopipette, Punti e quadrati or Puntos y cuadrados. The short name launchers fall back to is the same (VR-50, VR-51, UP-15, NG-11, LG-12).
 
 Acceptance (checked on a build with `BASE_PATH=/dots-and-boxes/` and by hand, not by unit tests):
-- Given the build, then it contains the Ukrainian and English manifests, the service worker and every icon the manifests and `index.html` reference.
+- Given the build, then it contains one manifest per language (six), the service worker and every icon the manifests and `index.html` reference.
 - Given I switch the language to English, then the page links the English manifest.
 - Given I visited the game once, when I reload with the network off, then the game opens and plays, computer player included.
 - Given an Android phone, when I install the game, then its icon fits the launcher mask and it opens full screen.
@@ -252,7 +252,7 @@ Acceptance (checked on a build with `BASE_PATH=/dots-and-boxes/` and by hand, no
 - **I18N-4**: The chosen language is saved in localStorage and restored on reload.
 - **I18N-5**: Assistive technology hears the language button as a menu button named with the current language ("Language: English", «Мова: Українська»). Below 640 px wide it is 44×44 px (HD-5).
 - **I18N-6**: A validation message that's already on screen switches language the next time its field is validated.
-- **LG-1**: The language button opens a list of the languages in one fixed order. This build lists EN, УК; DE, FR, IT and ES join the same list (#91).
+- **LG-1**: The language button opens a list of the languages in one fixed order: EN, УК, DE, FR, IT, ES.
 - **LG-2**: Each row shows the language's key and its own name, whatever the interface language, and the current language is ticked.
 - **LG-3**: Choosing a row applies the language at once and closes the menu. A tap outside, or a second tap on the button, closes it with no change.
 - **LG-4**: The menu follows the menu-button pattern: Enter, Space or the arrow keys open it on the current language; the arrows (wrapping), Home and End move; Enter or Space chooses; Escape closes and returns focus to the button; Tab closes it. It stays inside the safe area and scrolls if it doesn't fit.
@@ -260,15 +260,20 @@ Acceptance (checked on a build with `BASE_PATH=/dots-and-boxes/` and by hand, no
 - **LG-6**: A new player gets the first device language on the list, otherwise English.
 - **LG-7**: A saved language is kept, including existing English and Ukrainian choices.
 - **LG-8**: The page has the right `lang` and tab title before its first paint: the build injects the list and the same detection rule into `index.html`.
+- **LG-17**: Each language has one folder, `docs/store/<lang>/`, with `listing.md`, `feature-graphic.png`, `phone/`, `tablet-7/` and `tablet-10/`. The store root keeps `icon-512.png`, `play-console.md`, `publishing-checklist.md`, `tester-invite.md` and `review-list.md`.
+- **LG-18**: `npm run store:screenshots` regenerates every language's screenshots and feature graphic.
+- **LG-19**: Each language has a Play listing, a 1024×500 feature graphic with its app name, and six screenshots per device (phone, 7" and 10" tablet): Welcome in its reduced-motion finished frame, Settings, a game, a result, the rules and the dark theme.
+- **LG-20**: Every listing fits Play's limits of 30 (title), 80 (short description) and 4000 (full description) characters, and states its real counts; a test checks both.
+- **LG-22**: `docs/store/review-list.md` lists what a native speaker should check first per language: app names, game terms, listings and privacy text.
 
 Acceptance criteria elsewhere in this document quote the English text; the Ukrainian UI shows the matching translations from `src/i18n/locales/uk.ts`.
 
 Acceptance:
-- Given a first visit, then the setup screen shows "Налаштування", the header shows "Крапки й квадрати", and the language button shows "УК".
-- Given I press "EN", then the setup screen shows "Settings", the tab reads "Dots and Boxes", and the page has `lang="en"`.
+- Given a first visit on a Ukrainian device, then Welcome shows «Як грати», the header shows "Крапки й квадрати", and the language button shows "УК".
+- Given I open the language menu and choose English, then the screen is in English, the tab reads "Dots and Boxes", and the page has `lang="en"`.
 - Given I chose English, when I reload, then the app is still in English.
 - Given a game in progress in Ukrainian, then the panel shows "Хід", "Рахунок" and "Зупинити", and player names are unchanged.
-- Given a 390 px wide phone, then each toggle button is at least 44×44 px.
+- Given a 390 px wide phone, then the language button is at least 44×44 px.
 
 ## VC: Versus computer
 
@@ -309,7 +314,7 @@ Result and saving:
 Rules, languages and phones:
 
 - **VC-23**: The "How to play" rules are the same in both game modes and worded neutrally (RL-1, RL-5, CM-35).
-- **VC-24**: Every new text is available in Ukrainian and English: the mode and difficulty labels, "You" and "Opponent", the computer player's name, "Thinking…", "Your turn", "You won!", "Computer won" and the name-clash message (I18N-1, CM-36).
+- **VC-24**: Every new text is available in all six languages: the mode and difficulty labels, "You" and "Opponent", the computer player's name, "Thinking…", "Your turn", "You won!", "Computer won" and the name-clash message (I18N-1, CM-36).
 - **VC-25**: The game mode and difficulty switches are full width with equal-width options, at least 44 px tall below 640 px wide, and the setup and thinking indicator fit from 320 px wide (MB-1, MB-8, CM-38).
 
 Acceptance (English UI):
