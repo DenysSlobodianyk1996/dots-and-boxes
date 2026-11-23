@@ -58,9 +58,9 @@ function captionOfMove(move: number): DemoCaption {
 
 // the first six lines teach, so they go slower than the rest (ms)
 const INTRO = 500
-const END_HOLD = 7200
+const END_HOLD = 6000
 // the extra time each step stays on screen before the next one, so it can be read (WL-10)
-const STEP_HOLD = 4000
+const STEP_HOLD = 2000
 const SLOW = { tap: 260, grow: 460, rest: 620 }
 const FAST = { tap: 120, grow: 260, rest: 300 }
 const SLOW_MOVES = 6

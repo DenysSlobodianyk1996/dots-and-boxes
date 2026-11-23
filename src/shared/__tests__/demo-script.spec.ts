@@ -83,10 +83,10 @@ describe('how-to-play demo script', () => {
     ])
   })
 
-  it('holds each step at least 4 seconds after its last line (WL-10)', () => {
+  it('holds each step at least 2 seconds after its last line (WL-10)', () => {
     for (const caption of DEMO_CAPTIONS.slice(0, -1)) {
       const still = demoStepStill(caption)
-      const heldFrom = still - 3999
+      const heldFrom = still - 1999
 
       expect(frameAt(heldFrom).caption).toBe(caption)
       expect(frameAt(heldFrom).growing).toBeNull()
