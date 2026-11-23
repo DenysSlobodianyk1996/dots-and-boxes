@@ -1,6 +1,6 @@
 <template>
   <!-- The privacy policy in one language (AR-15, PV-1). The in-app screen shows it in the interface
-       language; the static store page (src/privacy-static.ts) shows it in English and Ukrainian. -->
+       language; the static store page (src/privacy-static.ts) shows it in every listed language. -->
   <section
     data-privacy-content
     :lang="locale"
@@ -44,13 +44,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import type { AppLocale } from '@/i18n/languages'
 import { APP_VERSION, CONTACT_EMAIL, GITHUB_ISSUES_URL, PRIVACY_UPDATED } from '@/static'
 import { formatPrivacyDate } from '@/utils'
 
 const props = withDefaults(
   defineProps<{
-    locale: 'en' | 'uk'
-    // 1 for the page's only or first language; the static page's second language is a 2
+    locale: AppLocale
+    // 1 for the page's only or first language; the static page's other languages are a 2
     headingLevel?: 1 | 2
   }>(),
   { headingLevel: 1 },

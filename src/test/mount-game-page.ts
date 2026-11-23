@@ -8,6 +8,8 @@ export interface MountGamePageOptions {
   storage?: Record<string, object | string>
   // the device language (`navigator.language`); jsdom's own is 'en-US'
   deviceLanguage?: string
+  // the device's ordered languages (`navigator.languages`); defaults to just `deviceLanguage`
+  deviceLanguages?: string[]
   // leave the launch on Welcome; by default the page starts past it, on setup or a restored game
   onWelcome?: boolean
 }
@@ -18,11 +20,13 @@ export interface MountGamePageOptions {
 export async function mountGamePage({
   storage = {},
   deviceLanguage,
+  deviceLanguages = deviceLanguage ? [deviceLanguage] : undefined,
   onWelcome = false,
 }: MountGamePageOptions = {}) {
-  if (deviceLanguage) {
+  if (deviceLanguages) {
     // undone by vi.restoreAllMocks() in src/test/setup.ts
-    vi.spyOn(navigator, 'language', 'get').mockReturnValue(deviceLanguage)
+    vi.spyOn(navigator, 'languages', 'get').mockReturnValue(deviceLanguages)
+    vi.spyOn(navigator, 'language', 'get').mockReturnValue(deviceLanguages[0] ?? 'en-US')
   }
   for (const [key, value] of Object.entries(storage)) {
     localStorage.setItem(key, typeof value === 'object' ? JSON.stringify(value) : value)

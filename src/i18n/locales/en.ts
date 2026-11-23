@@ -5,10 +5,11 @@ const en = {
     // header name, the bold name in GameGoal and the install manifest short_name (NG-1, NG-7)
     shortName: 'Dots and Boxes',
   },
-  // the language button's label, read in the language it switches to: each locale names the
-  // switch to itself (NG-4)
+  // the language button's accessible name and its menu's (LG-4); each language's own name is in
+  // src/i18n/languages.ts
   language: {
-    switchTo: 'Switch to English',
+    current: 'Language: {name}',
+    list: 'Language',
   },
   // the theme button names the theme it switches to (VR-16)
   theme: {

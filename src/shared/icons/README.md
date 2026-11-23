@@ -16,3 +16,4 @@ Each component names the symbol it was copied from.
 | `RefreshIcon`                    | `refresh`                  | Rematch (UP-9)                                                  |
 | `HomeIcon`                       | `home`                     | header on Settings, back to Welcome (WL-12)                     |
 | `TrophyIcon`                     | `emoji_events`             | result card, when a person wins (UP-10)                         |
+| `CheckIcon`                      | `check`                    | the current language in the language menu (LG-2)                |

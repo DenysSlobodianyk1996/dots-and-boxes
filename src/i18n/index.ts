@@ -1,30 +1,21 @@
 import { configure } from 'vee-validate'
 import { createI18n } from 'vue-i18n'
 import { StorageService } from '@/services'
-import { LOCALE, MANIFEST_FILES } from '@/static'
-import en from './locales/en'
-import uk from './locales/uk'
+import { LOCALE, manifestFile } from '@/static'
+import { resolveLanguage, type AppLocale } from './languages'
+import { MESSAGES } from './messages'
 
-export const SUPPORTED_LOCALES = ['uk', 'en'] as const
-export type AppLocale = (typeof SUPPORTED_LOCALES)[number]
+export { LANGUAGES, LANGUAGE_CODES, type AppLocale } from './languages'
 
-function isAppLocale(value: unknown): value is AppLocale {
-  return SUPPORTED_LOCALES.includes(value as AppLocale)
-}
-
-// the first launch follows the device: Ukrainian on a Ukrainian device, English otherwise (I18N-2, AR-6)
-function deviceLocale(): AppLocale {
-  return navigator.language.toLowerCase().startsWith('uk') ? 'uk' : 'en'
-}
-
-// a saved choice always wins (I18N-4, AR-7)
-const savedLocale = StorageService.getItem(LOCALE)
+// the device's languages in preference order; some old WebViews only have navigator.language
+const deviceLanguages = navigator.languages?.length ? navigator.languages : [navigator.language]
 
 export const i18n = createI18n({
   legacy: false,
-  locale: isAppLocale(savedLocale) ? savedLocale : deviceLocale(),
+  // a saved choice wins, then the first listed device language, then English (LG-6, LG-7, AR-6, AR-7)
+  locale: resolveLanguage(StorageService.getItem(LOCALE), deviceLanguages),
   fallbackLocale: 'en',
-  messages: { uk, en },
+  messages: MESSAGES,
 })
 
 // the manifest link decides the installed app's name, so it follows the language (VR-50, VR-51)
@@ -37,7 +28,7 @@ function linkManifest(locale: AppLocale) {
     link.rel = 'manifest'
     document.head.append(link)
   }
-  link.setAttribute('href', `${import.meta.env.BASE_URL}${MANIFEST_FILES[locale]}`)
+  link.setAttribute('href', `${import.meta.env.BASE_URL}${manifestFile(locale)}`)
 }
 
 function applyDocumentLocale(locale: AppLocale) {
