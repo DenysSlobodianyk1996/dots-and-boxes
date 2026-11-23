@@ -120,6 +120,7 @@ const de: typeof en = {
   },
   welcome: {
     title: 'Willkommen bei {name}',
+    goal: 'Wer die meisten Kästchen hat, wenn das Feld voll ist, gewinnt.',
     play: 'Spielen',
     home: 'Start',
     captions: {

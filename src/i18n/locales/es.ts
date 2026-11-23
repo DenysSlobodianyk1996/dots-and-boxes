@@ -118,6 +118,7 @@ const es: typeof en = {
   },
   welcome: {
     title: 'Bienvenidos a {name}',
+    goal: 'Gana quien tiene más cuadrados cuando el tablero está lleno.',
     play: 'Jugar',
     home: 'Inicio',
     captions: {

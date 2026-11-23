@@ -120,6 +120,7 @@ const fr: typeof en = {
   },
   welcome: {
     title: 'Bienvenue dans {name}',
+    goal: 'Celui qui a le plus de carrés quand la grille est pleine gagne.',
     play: 'Jouer',
     home: 'Accueil',
     captions: {

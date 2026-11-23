@@ -127,6 +127,7 @@ const en = {
   // the Welcome screen; one caption per stage of the how-to-play demo (WL-10, WL-12)
   welcome: {
     title: 'Welcome to {name}',
+    goal: 'Whoever owns more squares when the board is full wins.',
     play: 'Play',
     home: 'Home',
     captions: {

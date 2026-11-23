@@ -3,13 +3,17 @@
        phone (WL-19) -->
   <div data-welcome class="mx-auto flex h-full max-w-4xl flex-col gap-3">
     <!-- takes focus when Home opens this screen; a ring only for keyboard use -->
-    <h2
-      data-screen-heading
-      tabindex="-1"
-      class="shrink-0 rounded-lg text-center text-xl font-extrabold sm:text-2xl focus-visible:outline-2 focus-visible:outline-accent"
-    >
-      {{ t('welcome.title', { name: t('app.shortName') }) }}
-    </h2>
+    <div class="flex shrink-0 flex-col gap-0.5 text-center">
+      <h2
+        data-screen-heading
+        tabindex="-1"
+        class="rounded-lg text-xl font-extrabold focus-visible:outline-2 focus-visible:outline-accent sm:text-2xl"
+      >
+        {{ t('welcome.title', { name: t('app.shortName') }) }}
+      </h2>
+      <!-- how to win, right under the title (WL-10) -->
+      <p data-welcome-goal class="text-sm text-ink-soft sm:text-base">{{ t('welcome.goal') }}</p>
+    </div>
     <HowToPlay />
     <BaseButton
       data-welcome-play

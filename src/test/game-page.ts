@@ -247,6 +247,11 @@ export class GamePage {
     await flushPromises()
   }
 
+  // the goal under Welcome's title (WL-10)
+  welcomeGoal() {
+    return this.welcome.get('[data-welcome-goal]').text()
+  }
+
   // the heading above Welcome's list of steps (WL-10)
   welcomeStepsTitle() {
     return this.welcome.get('[data-demo-steps-title]').text()

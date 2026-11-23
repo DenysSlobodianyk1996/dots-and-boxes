@@ -118,6 +118,7 @@ const it: typeof en = {
   },
   welcome: {
     title: 'Benvenuti in {name}',
+    goal: 'Vince chi ha più quadrati quando la griglia è piena.',
     play: 'Gioca',
     home: 'Home',
     captions: {

@@ -12,14 +12,16 @@
       :class="
         compact
           ? 'mx-auto aspect-[300/356] w-full max-w-48 shrink-0'
-          : 'min-h-40 flex-[1_1_42%] sm:aspect-[300/356] sm:h-full sm:max-h-136 sm:flex-none'
+          : 'min-h-24 flex-[1_1_42%] sm:aspect-[300/356] sm:h-full sm:max-h-136 sm:flex-none'
       "
     >
       <DemoBoard :frame="frame" class="block size-full" />
     </div>
     <div
-      class="flex min-h-32 flex-col gap-1"
-      :class="compact ? 'flex-1' : 'flex-[1_1_58%] sm:max-h-full sm:min-w-0 sm:flex-1'"
+      class="flex flex-col gap-1"
+      :class="
+        compact ? 'min-h-32 flex-1' : 'min-h-0 flex-[1_1_58%] sm:max-h-full sm:min-w-0 sm:flex-1'
+      "
     >
       <!-- the rules panel has this heading already -->
       <h3 v-if="!compact" data-demo-steps-title class="shrink-0 px-2 text-base font-bold text-ink">

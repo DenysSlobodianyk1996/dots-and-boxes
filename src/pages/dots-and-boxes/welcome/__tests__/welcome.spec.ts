@@ -214,6 +214,15 @@ describe('Welcome screen', () => {
     expect(page.welcomeCaption()).toBe(STEPS[0])
   })
 
+  it.each([
+    ['en', 'Whoever owns more squares when the board is full wins.'],
+    ['uk', 'Перемагає той, у кого більше квадратів, коли поле заповниться.'],
+  ])('shows the goal under the title in %s (WL-10)', async (LOCALE, goal) => {
+    const page = await openGamePage({ onWelcome: true, storage: { LOCALE } })
+
+    expect(page.welcomeGoal()).toBe(goal)
+  })
+
   it('has a How to play heading above the steps (WL-10)', async () => {
     const page = await openGamePage({ onWelcome: true })
 
