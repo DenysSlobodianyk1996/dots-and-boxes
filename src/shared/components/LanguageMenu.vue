@@ -63,9 +63,7 @@ const menuId = useId()
 const { isOpen, open: markOpen, close } = useLanguageMenu()
 const maxHeight = ref<string>()
 
-const current = computed(
-  () => LANGUAGES.find(({ code }) => code === locale.value) ?? LANGUAGES[0],
-)
+const current = computed(() => LANGUAGES.find(({ code }) => code === locale.value) ?? LANGUAGES[0])
 
 const rows = () => [...(menu.value?.querySelectorAll<HTMLElement>('[role="menuitemradio"]') ?? [])]
 
