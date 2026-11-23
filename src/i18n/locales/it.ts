@@ -5,6 +5,7 @@ const it: typeof en = {
   app: {
     title: 'Punti e quadrati',
     shortName: 'Punti e quadrati',
+    headerName: 'Punti e quadrati',
   },
   language: {
     current: 'Lingua: {name}',

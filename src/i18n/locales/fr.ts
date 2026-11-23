@@ -6,6 +6,7 @@ const fr: typeof en = {
   app: {
     title: 'Pipopipette',
     shortName: 'Pipopipette',
+    headerName: 'Pipopipette',
   },
   language: {
     current: 'Langue : {name}',

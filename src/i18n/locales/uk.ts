@@ -5,6 +5,7 @@ const uk: typeof en = {
   app: {
     title: 'Крапки й квадрати',
     shortName: 'Крапки й квадрати',
+    headerName: 'Крапки й квадрати',
   },
   language: {
     current: 'Мова: {name}',

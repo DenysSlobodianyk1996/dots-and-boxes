@@ -306,7 +306,10 @@ export class GamePage {
 
   // the game name at the start of the header (VR-18, VR-22)
   headerTitle() {
-    return this.header.get('[data-app-title]').text()
+    return this.header
+      .get('[data-app-title]')
+      .text()
+      .replace(/\u00ad/g, '')
   }
 
   // the logo in the header: decorative (hidden from screen readers) and placed before the game name (VR-18)

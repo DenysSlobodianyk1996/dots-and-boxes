@@ -5,6 +5,7 @@ const de: typeof en = {
   app: {
     title: 'Käsekästchen',
     shortName: 'Käsekästchen',
+    headerName: 'Käse\u00adkästchen',
   },
   language: {
     current: 'Sprache: {name}',

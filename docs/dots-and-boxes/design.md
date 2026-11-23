@@ -26,7 +26,7 @@ The artboards use the Warm cream palette of the visual refresh (see [Visual refr
 
 Rules: since the visual refresh, no screen shows the rules inline. Desktop artboard 13 shows the rules panel slid in from the right over the game, and mobile artboard 12 shows it full screen [RL-1, RL-5, VR-23..VR-28]. (Before the refresh, setup ended with "Hide rules" and the rules card, and game screens with "Show rules".)
 
-Languages: every screen has the language control in the header (top right). Screens 1–13 show the default Ukrainian UI, with sample players Оля and Богдан. Screens 14, "Mobile setup, English", and 15, "Game setup, English", show the English UI [I18N-1..5]. Since the short name (see below), the setup, rules panel and header boards show the single round language button with the current language ("UA" / "EN"); game-only boards still show the older UA | EN toggle. The generator reads all text from `src/i18n/locales`, so the canvas uses exactly the app's strings.
+Languages: every screen has the language control in the header (top right). Screens 1–13 show the default Ukrainian UI, with sample players Оля and Богдан. Screens 14, "Mobile setup, English", and 15, "Game setup, English", show the English UI [I18N-1..5]. Since the short name (see below), the setup, rules panel and header boards show the single round language button with the current language ("УК" / "EN"), which opens the language menu. The generator reads all text from `src/i18n/locales`, so the canvas uses exactly the app's strings.
 
 Source files for the artboards are in [design-canvas/](design-canvas/) (`*.dc.html` plus `canvas.json`). They were generated from the board data, so board state and highlights are consistent with the rules below. Each artboard defines the palette tokens as `--wc-<token>` custom properties in its `<helmet>`, so a dark artboard differs from its light one only in that block (and the theme button's icon).
 
@@ -121,7 +121,7 @@ Spec: [short-name-and-goal/spec.md](../short-name-and-goal/spec.md) (stories NG-
 - **Setup boards**: the screen opens with the goal sentence (centered, 16 px `ink-soft`, the name bold in `ink`) ending with the "Як грати →" / "How to play →" link (`accent`, underlined, 44 px tall on phones), then the **Settings** / «Налаштування» title at 24 px / 800, 24 px below. There is no info button on the setup screen [NG-5, NG-6, NG-8, NG-9].
 - **Rules panel boards**: the same goal sentence (14 px, `ink`) is the first paragraph under "Як грати", above the five steps [NG-7].
 - **Result boards** (5, 6, 11, 20, 21, 26, 27, D5, D11): the secondary button reads «Налаштування» / "Settings" [NG-10].
-- **Every board shows the new header**: the short name «Крапки й квадрати» / "Dots and Boxes" and the single round language button (UA or EN), as on B1.
+- **Every board shows the new header**: the short name «Крапки й квадрати» / "Dots and Boxes" and the single round language button (УК or EN), as on B1.
 
 ### Footer (2026-11-19) [FT-1..FT-4]
 

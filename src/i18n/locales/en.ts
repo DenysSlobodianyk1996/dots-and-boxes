@@ -4,6 +4,8 @@ const en = {
     title: 'Dots and Boxes',
     // header name, the bold name in GameGoal and the install manifest short_name (NG-1, NG-7)
     shortName: 'Dots and Boxes',
+    // the header's name: the short name, with a soft hyphen where one long word needs it (LG-11)
+    headerName: 'Dots and Boxes',
   },
   // the language button's accessible name and its menu's (LG-4); each language's own name is in
   // src/i18n/languages.ts

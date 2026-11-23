@@ -185,14 +185,14 @@ Acceptance:
 ## HD: Header and logo
 
 - **HD-1**: Every screen has a header: the logo and the game's name on the left; on Settings the Home button (WL-12), then the theme button (TH-5), the info button (RL-2) and the language button (I18N-3) on the right (VR-18, VR-23).
-- **HD-2**: The game's name follows the language: "Крапки й квадрати" in Ukrainian and "Dots and Boxes" in English, in the header and the browser tab (APP-1) (VR-22, UP-15, NG-11).
+- **HD-2**: The game's name follows the language, in the header and the browser tab (APP-1): Dots and Boxes, Крапки й квадрати, Käsekästchen, Pipopipette, Punti e quadrati or Puntos y cuadrados. On a 320 px phone it takes at most two lines and is never clipped; the German name breaks with a hyphen (VR-22, UP-15, NG-11, LG-11, LG-12).
 - **HD-3**: The logo shows the game in one picture: four dots in a square, a coral line on top, a teal line on the left and a dashed sunflower line on the right "waiting" to close the square, with a soft halo on the dot it starts from. Its dots take the text color (cocoa in light, cream in dark). It is decorative; the game's name is the accessible text (VR-18).
 - **HD-4**: In the header, the dashed line moves gently. When the device asks for reduced motion, it stays still (VR-19, VR-20).
 - **HD-5**: The Home, theme, info and language buttons are round and never shrink: below 640 px wide each is a 44×44 px circle, whatever the length of the game's name (VR-21, NG-2).
 - **HD-6**: The favicon is the logo on a transparent background, with cocoa dots on light tab bars and cream dots on dark ones; browsers without SVG favicons get an `.ico` version (VR-40, VR-41).
 
 Acceptance:
-- Given any screen, then the header shows the logo, the game's name, the theme button, the info button and the language button (UA or EN).
+- Given any screen, then the header shows the logo, the game's name, the theme button, the info button and the language button (its current key, such as УК or EN).
 - Given the language is English, then the header and the browser tab read "Dots and Boxes".
 - Given a 390 px wide phone, then the theme, info and language buttons are 44×44 px circles.
 
@@ -213,7 +213,7 @@ Acceptance:
 - **PV-1**: The privacy policy's text exists once and both places show it: the in-app privacy screen and the static page that Google Play links to (AR-15). Same sections, same "Updated" date (the date of the build's commit), same contact and developer lines.
 - **PV-2**: The in-app privacy screen (opened from the footer, FT-4) shows the policy in the interface language under the usual header, and follows a language switch.
 - **PV-3**: Leaving the privacy screen: its "Back to the game" button and the Android back button both return to the game; neither closes the app.
-- **PV-4**: The static page at `<pages>/dots-and-boxes/privacy/` works without JavaScript: the app's header with the logo and the game's name (no theme, rules or language buttons: they need JavaScript), English and Ukrainian on one page, the app's look, light or dark from the device, and a link to open the game.
+- **PV-4**: The static page at `<pages>/dots-and-boxes/privacy/` works without JavaScript: the app's header with the logo and the game's name (no theme, rules or language buttons: they need JavaScript), all six languages on one page with links to each at the top (LG-15), the app's look, light or dark from the device, and a link to open the game.
 - **PV-5**: Under the "Updated" date, both privacy pages (the in-app screen and the static page) show the app's version: "Version: 1.0.7" / «Версія: 1.0.7». The number goes up by one with every merge to master (1.0.<merges since 1.0.0>, the version Google Play has as 1.0.0 being the first), with nothing bumped by hand, and the web app and the Android app built from the same commit show the same version, which is also the Android versionName.
 
 Acceptance:
@@ -236,7 +236,7 @@ Acceptance:
 - **PWA-3**: The splash screen and status bar use the cream background; the status bar turns cocoa when the device is in dark mode (VR-46).
 - **PWA-4**: After the first visit everything works offline: setup, playing, the computer player, the rules, both languages, the font and the icons. Reloading any app address offline opens the game (VR-47).
 - **PWA-5**: A new version installs quietly and takes effect the next time the game is opened, with no update prompt; the saved game is kept (PS-6) (VR-48, VR-49).
-- **PWA-6**: The installed app's name follows the language in use before installing: "Крапки й квадрати" in Ukrainian, "Dots and Boxes" in English. The short name launchers fall back to is the same, «Крапки й квадрати» / "Dots and Boxes" (VR-50, VR-51, UP-15, NG-11).
+- **PWA-6**: The installed app's name follows the language in use before installing: Dots and Boxes, Крапки й квадрати, Käsekästchen, Pipopipette, Punti e quadrati or Puntos y cuadrados. The short name launchers fall back to is the same (VR-50, VR-51, UP-15, NG-11, LG-12).
 
 Acceptance (checked on a build with `BASE_PATH=/dots-and-boxes/` and by hand, not by unit tests):
 - Given the build, then it contains the Ukrainian and English manifests, the service worker and every icon the manifests and `index.html` reference.
@@ -246,9 +246,9 @@ Acceptance (checked on a build with `BASE_PATH=/dots-and-boxes/` and by hand, no
 
 ## I18N: Languages
 
-- **I18N-1**: Every text the UI shows is available in Ukrainian and English: labels, buttons, hints, the Stop dialog, the result panel, the rules, validation messages, dot `aria-label`s, the browser tab title, the header buttons and the swatch names, plus the Versus computer texts (VC-24). Player names are shown exactly as typed; only the computer player's name is translated (VC-8).
+- **I18N-1**: Every text the UI shows is available in all six languages (English, Ukrainian, German, French, Italian and Spanish; LG-9): labels, buttons, hints, the Stop dialog, the result panel, the rules, validation messages, dot `aria-label`s, the browser tab title, the header buttons and the swatch names, plus the Versus computer texts (VC-24). Player names are shown exactly as typed; only the computer player's name is translated (VC-8).
 - **I18N-2**: On the first visit (no saved language) the language is the first entry of `navigator.languages` whose base language is listed, otherwise English (LG-6, AR-6). A saved language always wins (I18N-4, LG-7, AR-7).
-- **I18N-3**: One round language button sits in the header of every screen (HD-1, VR-18). It shows the current language's key ("EN" or "УК") and opens the language menu (LG-1). Choosing a language changes all text at once, along with the page's `lang` attribute, the tab title and the linked install manifest (PWA-6).
+- **I18N-3**: One round language button sits in the header of every screen (HD-1, VR-18). It shows the current language's key (EN, УК, DE, FR, IT or ES) and opens the language menu (LG-1). Choosing a language changes all text at once, along with the page's `lang` attribute, the tab title and the linked install manifest (PWA-6).
 - **I18N-4**: The chosen language is saved in localStorage and restored on reload.
 - **I18N-5**: Assistive technology hears the language button as a menu button named with the current language ("Language: English", «Мова: Українська»). Below 640 px wide it is 44×44 px (HD-5).
 - **I18N-6**: A validation message that's already on screen switches language the next time its field is validated.
@@ -264,7 +264,7 @@ Acceptance (checked on a build with `BASE_PATH=/dots-and-boxes/` and by hand, no
 Acceptance criteria elsewhere in this document quote the English text; the Ukrainian UI shows the matching translations from `src/i18n/locales/uk.ts`.
 
 Acceptance:
-- Given a first visit, then the setup screen shows "Налаштування", the header shows "Крапки й квадрати", and "UA" is pressed in the toggle.
+- Given a first visit, then the setup screen shows "Налаштування", the header shows "Крапки й квадрати", and the language button shows "УК".
 - Given I press "EN", then the setup screen shows "Settings", the tab reads "Dots and Boxes", and the page has `lang="en"`.
 - Given I chose English, when I reload, then the app is still in English.
 - Given a game in progress in Ukrainian, then the panel shows "Хід", "Рахунок" and "Зупинити", and player names are unchanged.

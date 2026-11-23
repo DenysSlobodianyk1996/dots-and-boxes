@@ -27,6 +27,18 @@ describe('the language list', () => {
   })
 })
 
+describe('the header name (LG-11, LG-12)', () => {
+  it.each(LANGUAGES.map(({ code }) => code))('in %s is the app name', (code) => {
+    const { headerName, shortName } = MESSAGES[code].app
+    expect(headerName.replace(/\u00ad/g, '')).toBe(shortName)
+    expect(shortName).not.toContain('\u00ad')
+  })
+
+  it('can break the one-word German name on a 320 px phone', () => {
+    expect(MESSAGES.de.app.headerName).toBe('Käse\u00adkästchen')
+  })
+})
+
 describe('resolving the language', () => {
   it.each([
     [['uk-UA'], 'uk'],

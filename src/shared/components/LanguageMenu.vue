@@ -70,7 +70,8 @@ const rows = () => [...(menu.value?.querySelectorAll<HTMLElement>('[role="menuit
 // the room below the button, so a long list scrolls inside the safe area (LG-4)
 function measure() {
   const bottom = button.value?.element?.getBoundingClientRect().bottom ?? 0
-  maxHeight.value = `calc(${window.innerHeight - bottom - 16}px - env(safe-area-inset-bottom, 0px))`
+  // --safe-bottom, not env(): older Android WebViews report env() as 0 (styles.css)
+  maxHeight.value = `calc(${window.innerHeight - bottom - 16}px - var(--safe-bottom))`
 }
 
 async function open() {

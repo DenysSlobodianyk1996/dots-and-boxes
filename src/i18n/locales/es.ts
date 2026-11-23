@@ -5,6 +5,7 @@ const es: typeof en = {
   app: {
     title: 'Puntos y cuadrados',
     shortName: 'Puntos y cuadrados',
+    headerName: 'Puntos y cuadrados',
   },
   language: {
     current: 'Idioma: {name}',
