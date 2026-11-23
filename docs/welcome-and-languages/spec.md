@@ -91,7 +91,7 @@ Welcome ships first, so its text is translated once and the store images are gen
 - **Reduced motion** renders the finished frame with the winning caption, with no loop.
 - **Accessibility**: the SVG is `aria-hidden`. All six captions are available once as visually hidden text.
 - **Rules**: remove the goal and link from `GameSetup.vue` and `rules.howToPlay`. `GameGoal` stays in the Rules panel. The storyboard and the panel's text don't change.
-- Prototype code is rewritten, not merged.
+- **Prototype**: #89 relies on `prototype/welcome-how-to-play` (`804a955`) as the reference for the demo script, timing, captions, layout and Home button. Its code is rewritten to project standards, not merged. When #89 is finished, delete the branch locally and on GitHub, and remove the references to it from this spec.
 
 ### Languages (LG-1..LG-13)
 
