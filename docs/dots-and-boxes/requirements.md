@@ -111,9 +111,10 @@ Acceptance:
 - **MB-6**: Below 640 px wide, the result panel sits below the board at full width, with Settings and Rematch side by side at equal width at the top of the panel (Settings on the left, UP-7). A label that does not fit wraps onto more lines; it is never cut off.
 - **MB-7**: Below 640 px wide, the setup form shows Player 1 above Player 2.
 - **MB-8**: Below 640 px wide, buttons on the game screen are at least 44 px tall.
-- **MB-9**: On every screen width, the setup form and the game screen (the board with its panel, in progress or finished, side by side or stacked) are centered horizontally below the header, which keeps its full width. They stay top-aligned: nothing is centered vertically, so validation messages, the mode switch or the result replacing the status never move the content up or down.
+- **MB-9**: On every screen width, the setup form and the game screen (the board with its panel, in progress or finished, side by side or stacked) are centered horizontally below the header, in the content column (MB-12). They stay top-aligned: nothing is centered vertically, so validation messages, the mode switch or the result replacing the status never move the content up or down.
 - **MB-10**: When the player cards sit side by side, a validation message in one card never moves the fields of the other card. Each card's fields stay top-aligned, and the cards keep the same height.
 - **MB-11**: The app never scrolls as a whole, as in teach-clock: it is exactly the screen's height (the browser window, or the phone screen in the Android app). The header stays at the top and, on Welcome and the setup screen, the footer (FT-1) stays at the bottom; only the screen between them (Welcome, setup, game or privacy) scrolls, inside itself, when it is taller than the space left. Scrolling it to its end never moves or bounces the header or the footer.
+- **MB-12**: On every screen, the content sits in one column at most 1200 px wide, centered in the window. The header's logo and buttons line up with that column's left and right edges. The page background and the scroll area still reach the window's edges, so a scrollbar stays at the edge of the window.
 
 Acceptance:
 - Given a 390 px wide phone and N=4, then squares are 48 px and the board is centered above the panel.
