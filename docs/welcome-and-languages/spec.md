@@ -2,7 +2,7 @@
 
 Terms follow [GLOSSARY.md](../../GLOSSARY.md). User stories carry IDs **WL-n** (Welcome) and **LG-n** (languages) for commits. Shipped rules this touches: RL-1, RL-2, NG-5, NG-6, NG-8, FT-1, FT-2, PS-2, PS-3, AR-3, AR-6, AR-10, AR-16, AR-17, I18N-2, I18N-3, I18N-5, PV-1..PV-4 and PWA-6 in [requirements](../dots-and-boxes/requirements.md).
 
-**Status**: agreed in a grilling session and a prototype on 2026-11-23, not implemented. The chosen prototype is on branch [`prototype/welcome-how-to-play`](https://github.com/DenysSlobodianyk1996/dots-and-boxes/tree/prototype/welcome-how-to-play): `804a955` is variant A (chosen), `e77f653` also holds the rejected GIF variant. The language plan follows teach-clock's batch 28 (commit `d6d1091`).
+**Status**: agreed in a grilling session and a prototype on 2026-11-23, not implemented. Issue #88, tickets #89–#95. The chosen prototype is on branch [`prototype/welcome-how-to-play`](https://github.com/DenysSlobodianyk1996/dots-and-boxes/tree/prototype/welcome-how-to-play): `804a955` is variant A (chosen), `e77f653` also holds the rejected GIF variant. The language plan follows teach-clock's batch 28 (commit `d6d1091`).
 
 ## Problem Statement
 
