@@ -112,7 +112,7 @@ Acceptance:
 - **MB-8**: Below 640 px wide, buttons on the game screen are at least 44 px tall.
 - **MB-9**: On every screen width, the setup form and the game screen (the board with its panel, in progress or finished, side by side or stacked) are centered horizontally below the header, which keeps its full width. They stay top-aligned: nothing is centered vertically, so validation messages, the mode switch or the result replacing the status never move the content up or down.
 - **MB-10**: When the player cards sit side by side, a validation message in one card never moves the fields of the other card. Each card's fields stay top-aligned, and the cards keep the same height.
-- **MB-11**: The app never scrolls as a whole, as in teach-clock: it is exactly the screen's height (the browser window, or the phone screen in the Android app). The header stays at the top and, on the setup screen, the footer (FT-1) stays at the bottom; only the screen between them (setup, game or privacy) scrolls, inside itself, when it is taller than the space left. Scrolling it to its end never moves or bounces the header or the footer.
+- **MB-11**: The app never scrolls as a whole, as in teach-clock: it is exactly the screen's height (the browser window, or the phone screen in the Android app). The header stays at the top and, on Welcome and the setup screen, the footer (FT-1) stays at the bottom; only the screen between them (Welcome, setup, game or privacy) scrolls, inside itself, when it is taller than the space left. Scrolling it to its end never moves or bounces the header or the footer.
 
 Acceptance:
 - Given a 390 px wide phone and N=4, then squares are 48 px and the board is centered above the panel.
@@ -124,10 +124,10 @@ Acceptance:
 
 ## RL: Rules
 
-- **RL-1**: A short "How to play" rules section opens with the game's **goal**, one sentence with the game's name in bold: "**Dots and Boxes** — whoever owns more squares when the board is full wins." / «**Крапки й квадрати** — перемагає той, у кого більше квадратів, коли поле заповниться.» (NG-7). The same sentence, from the same translation, opens the setup screen (RL-2). Below it, the section explains the game in five points: how lines are drawn, where a line can start, how squares are claimed, that turns alternate, and how the game ends and who wins. The wording is neutral ("Take turns…" / "Гравці по черзі…", "the other player"), so the same rules read correctly in both game modes (VC-23).
-- **RL-2**: The rules live only in the **rules panel**, opened by the info button ("Правила" / "Rules") in the header of every screen (HD-1), mid-game included; it is the only info button (NG-9). The setup screen opens with the goal sentence (RL-1) in muted text, centred, ending with an inline "How to play →" / «Як грати →» link that also opens the panel, at least 44 px tall below 640 px (NG-5, NG-6, UP-1). Below it, with a gap, comes the bigger "Settings" / «Налаштування» title (NG-8). The setup and game screens show no rules inline and have no Show/Hide rules button (VR-23, VR-28).
+- **RL-1**: A short "How to play" rules section opens with the game's **goal**, one sentence with the game's name in bold: "**Dots and Boxes** — whoever owns more squares when the board is full wins." / «**Крапки й квадрати** — перемагає той, у кого більше квадратів, коли поле заповниться.» (NG-7). Below it, the section explains the game in five points: how lines are drawn, where a line can start, how squares are claimed, that turns alternate, and how the game ends and who wins. The wording is neutral ("Take turns…" / "Гравці по черзі…", "the other player"), so the same rules read correctly in both game modes (VC-23).
+- **RL-2**: The rules live only in the **rules panel**, opened by the info button ("Правила" / "Rules") in the header of every screen (HD-1), mid-game included; it is the only info button (NG-9). The setup screen opens with its "Settings" / «Налаштування» title and has no goal sentence or "How to play" link (WL-13). The setup and game screens show no rules inline and have no Show/Hide rules button (VR-23, VR-28).
 - **RL-3**: From 640 px wide the panel slides in from the right, 384 px wide, over a dimmed backdrop; below 640 px it covers the whole screen. It closes with its ✕ button ("Закрити правила" / "Close rules"), a tap on the backdrop or Esc. It is closed whenever the app loads, on both screens, never opens by itself, and its open state isn't saved (VR-24..VR-27).
-- **RL-4**: The panel is a modal dialog labelled by its "How to play" heading. When it opens, focus moves to ✕; Tab and Shift+Tab stay inside it; when it closes, focus returns to whatever opened it, the header's info button or the setup's "How to play" link (UP-2). The info button and the link each report the panel with `aria-haspopup="dialog"` and `aria-expanded` (VR-29).
+- **RL-4**: The panel is a modal dialog labelled by its "How to play" heading. When it opens, focus moves to ✕; Tab and Shift+Tab stay inside it; when it closes, focus returns to the header's info button (UP-2). The info button reports the panel with `aria-haspopup="dialog"` and `aria-expanded` (VR-29).
 - **RL-5**: The rules text matches the game rules (MV-1..3, SQ-1..2, TR-1, END-1..3). When a rule changes, its text changes with it. The computer player follows the same rules (VC-11), so computer mode adds no rules text. The same goes for the storyboard captions (RL-7): "The first line goes anywhere." (MV-1), "Next lines start from a drawn one: pick a dot, then a neighbor." (MV-2, MV-3), "Draw the fourth side and the square is yours." (SQ-1) and "One line can close two squares." (SQ-2).
 - **RL-6**: While the rules panel is open during the computer player's turn, the computer waits; once the panel closes it gets its usual pause before moving, as with the Stop dialog (VC-13, VR-31).
 - **RL-7**: Below the five rules, the panel shows a still **storyboard** headed "In pictures" / «У картинках»: four small 3×3 boards in a 2×2 grid, each with a caption in the current language. The frames come from one scripted, legal game between a coral and a teal player (it ends Coral 1, Teal 2): (1) the first line on an empty board, "The first line goes anywhere." / «Першу лінію можна провести будь-де.»; (2) Teal has picked Dot1 at the end of that line and its free neighbors are highlighted, "Next lines start from a drawn one: pick a dot, then a neighbor." / «Наступні лінії починаються від уже проведеної: оберіть точку, потім сусідню.»; (3) Coral has drawn a fourth side and owns the square, "Draw the fourth side and the square is yours." / «Проведіть четверту сторону, і квадрат ваш.»; (4) Teal's single line has closed two squares, "One line can close two squares." / «Одна лінія може закрити два квадрати.». The boards are drawn in the app with the board's look and theme tokens, so they follow the light and dark theme live; the players' lines and squares use the coral and teal swatches (GS-4), and the owner letters are the initials of the color names in the current language (C/T, К/Б). Frames fill the panel's width, also on the full-screen phone panel, with no horizontal scroll. The storyboard is static, needs no image files (PWA-4) and is hidden from assistive technology, since the rules text says the same; the panel's labelling and focus trap are unchanged (RL-4).
@@ -142,6 +142,31 @@ Acceptance:
 - Given I open the panel, then below the rules it shows "In pictures" and four captioned 3×3 boards in a 2×2 grid: one line on an empty board; Dot1 with highlighted neighbors; one owned square; two squares owned through one line.
 - Given the panel is open, when I switch the language or the theme, then the heading, captions, owner letters and board colors follow at once.
 - Given a 320 px wide phone, then the four boards fit the panel without horizontal scroll.
+
+## WL: Welcome
+
+Spec: [Welcome and languages](../welcome-and-languages/spec.md), issue #89.
+
+- **WL-1, WL-2**: A launch without a saved game opens **Welcome**. Whether it is open is in-memory state, so each launch or reload opens it again, with no storage key.
+- **WL-3**: A restored game, finished or not, skips Welcome.
+- **WL-4..WL-9**: The **How-to-play demo** is a watch-only, looping 2 × 2 game of 12 legal lines played on a real game: two dots are picked, the line grows, later lines start from a drawn dot, a fourth side claims a square, the turn passes even after a claim (TR-1), and Coral wins 3 : 1 on a full board with the winner marked.
+- **WL-10**: One caption below the board follows the demo through six stages.
+- **WL-11, WL-12**: Play leads to Settings. On Settings only, a round Home button in the header (HD-5) returns to Welcome.
+- **WL-13, WL-14**: Settings has no goal sentence or "How to play" link. The rules panel's content doesn't change.
+- **WL-15, WL-16**: Coming back from the privacy screen returns to the screen it was opened from. Leaving a finished game through Settings doesn't reopen Welcome.
+- **WL-17**: With reduced motion, the demo is the still finished board with the winning caption.
+- **WL-18**: The picture and the changing caption are hidden from assistive technology; the six captions are available once as a visually hidden list.
+- **WL-19**: Welcome fits a 320 × 568 screen with Play visible and no scrolling; the board gives way to the space available.
+- **WL-20, WL-21**: The demo is inline SVG in theme tokens with no words inside, so it follows theme and language at once and needs no media files. Its animation stops when Welcome closes.
+- The Android back button stays as in AR-3: rules panel, then Stop dialog, then exit. Home is the way from Settings to Welcome.
+
+Acceptance:
+- Given a launch with no saved game, then Welcome shows the demo, a caption, Play and the footer, and no Home button.
+- Given a saved game, finished or not, when the app opens, then the game shows and Welcome doesn't.
+- Given Welcome, when I press Play, then Settings opens with Home; when I press Home, then Welcome opens.
+- Given I open Privacy from Welcome or Settings, when I go back, then the same screen shows.
+- Given the device asks for reduced motion, then the demo is still, on the finished board, with "Board full: most squares wins!".
+- Given a 320 × 568 phone in either theme, then Play is visible without scrolling.
 
 ## TH: Look and theme
 
@@ -159,11 +184,11 @@ Acceptance:
 
 ## HD: Header and logo
 
-- **HD-1**: Every screen has a header: the logo and the game's name on the left; the theme button (TH-5), the info button (RL-2) and the language button (I18N-3) on the right (VR-18, VR-23).
+- **HD-1**: Every screen has a header: the logo and the game's name on the left; on Settings the Home button (WL-12), then the theme button (TH-5), the info button (RL-2) and the language button (I18N-3) on the right (VR-18, VR-23).
 - **HD-2**: The game's name follows the language: "Крапки й квадрати" in Ukrainian and "Dots and Boxes" in English, in the header and the browser tab (APP-1) (VR-22, UP-15, NG-11).
 - **HD-3**: The logo shows the game in one picture: four dots in a square, a coral line on top, a teal line on the left and a dashed sunflower line on the right "waiting" to close the square, with a soft halo on the dot it starts from. Its dots take the text color (cocoa in light, cream in dark). It is decorative; the game's name is the accessible text (VR-18).
 - **HD-4**: In the header, the dashed line moves gently. When the device asks for reduced motion, it stays still (VR-19, VR-20).
-- **HD-5**: The theme, info and language buttons are round and never shrink: below 640 px wide each is a 44×44 px circle, whatever the length of the game's name (VR-21, NG-2).
+- **HD-5**: The Home, theme, info and language buttons are round and never shrink: below 640 px wide each is a 44×44 px circle, whatever the length of the game's name (VR-21, NG-2).
 - **HD-6**: The favicon is the logo on a transparent background, with cocoa dots on light tab bars and cream dots on dark ones; browsers without SVG favicons get an `.ico` version (VR-40, VR-41).
 
 Acceptance:
@@ -173,8 +198,8 @@ Acceptance:
 
 ## FT: Footer
 
-- **FT-1**: The setup screen ends with a footer, pinned to the bottom of the screen (MB-11), holding two links and nothing else, as in teach-clock: Privacy, which opens the privacy policy (AR-15), and Contact, which opens an email to the developer with the subject "Contact support from Dots and Boxes".
-- **FT-2**: The footer belongs to the setup screen only. The game screen, in progress or finished, has none.
+- **FT-1**: Welcome and the setup screen end with a footer, pinned to the bottom of the screen (MB-11), holding two links and nothing else, as in teach-clock: Privacy, which opens the privacy policy (AR-15), and Contact, which opens an email to the developer with the subject "Contact support from Dots and Boxes".
+- **FT-2**: The footer belongs to Welcome and the setup screen only. The game screen, in progress or finished, has none.
 - **FT-3**: The links follow the language ("Конфіденційність" and "Зв’язатися" in Ukrainian). Below 640 px wide each link is at least 44 px tall.
 - **FT-4**: Privacy opens the in-app privacy screen (PV-2), so it works offline and in the Android app (AR-2).
 

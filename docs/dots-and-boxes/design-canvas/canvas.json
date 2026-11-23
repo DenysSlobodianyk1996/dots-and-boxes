@@ -354,6 +354,24 @@
       "y": 0,
       "w": 920,
       "h": 1060
+    },
+    {
+      "file": "MobileWelcome.dc.html",
+      "title": "W1 · Mobile Welcome, finished demo frame",
+      "page": "page-2",
+      "x": 0,
+      "y": 4300,
+      "w": 390,
+      "h": 844
+    },
+    {
+      "file": "DarkMobileWelcome.dc.html",
+      "title": "W2 · Mobile Welcome, dark",
+      "page": "page-2",
+      "x": 470,
+      "y": 4300,
+      "w": 390,
+      "h": 844
     }
   ],
   "annotations": [

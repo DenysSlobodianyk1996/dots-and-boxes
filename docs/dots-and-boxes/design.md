@@ -109,6 +109,10 @@ Mobile page, D row (dark):
 
 The remote Claude Design canvas is synced from these files separately.
 
+### Welcome (2026-11-23, #89)
+
+Mobile boards W1 and W2 show Welcome, light and dark, on its finished demo frame: the "How to play" title, the demo card (score chips, 2 × 2 board, caption) and Play above the footer. The setup boards drop the goal sentence and link and gain the header's Home button [WL-12, WL-13]. Code: `src/pages/dots-and-boxes/welcome/` (`demo-script.ts` is the pure timeline, `DemoBoard.vue` the SVG, `Welcome.vue` the screen) and `useWelcome()`. The board takes the height left over through flex rather than a `dvh` calculation, so the layout also works on old WebViews (AR-21).
+
 ### Short name, goal and lighter header (2026-11-19, #67)
 
 Spec: [short-name-and-goal/spec.md](../short-name-and-goal/spec.md) (stories NG-n), folded into HD, APP, PWA, RL, I18N and END in [requirements](requirements.md). The local boards were updated to the shipped UI (#71), with text from `src/i18n/locales`:
