@@ -8,11 +8,12 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA, type ManifestOptions } from 'vite-plugin-pwa'
 import { lowerForOldWebView } from './scripts/css-floor'
-import { MANIFEST_FILES } from './src/static/manifests'
+import { manifestFile } from './src/static/manifests'
 import { OLDEST_CHROME } from './src/static/oldest-chrome'
 import { NOT_THE_APP_PAGES } from './src/static/service-worker'
-import en from './src/i18n/locales/en'
-import uk from './src/i18n/locales/uk'
+import { firstPaintScript } from './src/i18n/first-paint'
+import { LANGUAGE_CODES, type AppLocale } from './src/i18n/languages'
+import { MESSAGES } from './src/i18n/messages'
 import { privacyUpdated } from './scripts/privacy-updated'
 import { appVersion } from './scripts/app-version'
 
@@ -29,13 +30,18 @@ const base = process.env.BASE_PATH ?? '/'
 // add the dark (cocoa) one (VR-46)
 const CREAM = '#fbf5ec'
 
-// Install manifest shared by both languages; only the names differ (VR-44..VR-46, VR-50, VR-51).
+// The first listed language's manifest comes from the PWA plugin, which links it in the page; the
+// others are emitted beside it (extraPwaFiles)
+const [PLUGIN_MANIFEST_LANGUAGE, ...EXTRA_MANIFEST_LANGUAGES] = LANGUAGE_CODES as [
+  AppLocale,
+  ...AppLocale[],
+]
+
+// Install manifest shared by all languages; only the names differ (VR-44..VR-46, VR-50, VR-51).
 // short_name is the shorter launcher label, because launchers truncate the full name (UP-15).
 // Icon paths are relative to the manifest, which sits at the base, so they work under any base.
-function manifestFor(
-  lang: keyof typeof MANIFEST_FILES,
-  { title, shortName }: { title: string; shortName: string },
-): Partial<ManifestOptions> {
+function manifestFor(lang: AppLocale): Partial<ManifestOptions> {
+  const { title, shortName } = MESSAGES[lang].app
   return {
     id: base,
     lang,
@@ -60,19 +66,21 @@ function manifestFor(
   }
 }
 
-// The PWA plugin emits the Ukrainian manifest (the default the page links); this adds the English
-// one and a 404.html copy of the page (GitHub Pages' deep-link fallback) so both get precached.
+// The PWA plugin emits the first language's manifest; this adds the other languages' and a
+// 404.html copy of the page (GitHub Pages' deep-link fallback) so they all get precached.
 function extraPwaFiles(): Plugin {
   return {
     name: 'dots-and-boxes:extra-pwa-files',
     apply: 'build',
     enforce: 'post',
     generateBundle(_options, bundle) {
-      this.emitFile({
-        type: 'asset',
-        fileName: MANIFEST_FILES.en,
-        source: JSON.stringify(manifestFor('en', en.app)),
-      })
+      for (const lang of EXTRA_MANIFEST_LANGUAGES) {
+        this.emitFile({
+          type: 'asset',
+          fileName: manifestFile(lang),
+          source: JSON.stringify(manifestFor(lang)),
+        })
+      }
       const page = bundle['index.html']
       if (page?.type === 'asset') {
         this.emitFile({ type: 'asset', fileName: '404.html', source: page.source })
@@ -211,19 +219,31 @@ function oldWebViewCss(): Plugin {
   }
 }
 
+// The right language and tab title before the first paint (LG-8), in every build and in dev.
+// Injected at the end of <head>, after <title>, so it updates that element.
+function firstPaintLanguage(): Plugin {
+  return {
+    name: 'dots-and-boxes:first-paint-language',
+    transformIndexHtml: () => [{ tag: 'script', children: firstPaintScript(), injectTo: 'head' }],
+  }
+}
+
 // installable and offline (VR-44..VR-52): updates install silently and apply on the next
 // launch; the game lives in localStorage, so an update never loses it (VR-48, VR-49)
 function pwaPlugins() {
   return [
     VitePWA({
       registerType: 'autoUpdate',
-      manifestFilename: MANIFEST_FILES.uk,
-      manifest: manifestFor('uk', uk.app),
+      manifestFilename: manifestFile(PLUGIN_MANIFEST_LANGUAGE),
+      manifest: manifestFor(PLUGIN_MANIFEST_LANGUAGE),
       // the icons are already matched by globPatterns, and the plugin precaches its own manifest
       includeManifestIcons: false,
       workbox: {
         // every built asset, incl. 404.html, the font and the icons, so it all works offline (VR-47)
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}', MANIFEST_FILES.en],
+        globPatterns: [
+          '**/*.{js,css,html,ico,png,svg,woff2}',
+          ...EXTRA_MANIFEST_LANGUAGES.map(manifestFile),
+        ],
         navigateFallback: 'index.html',
         // the privacy policy is its own page (precached through privacy/index.html), not the app (AR-15)
         navigateFallbackDenylist: NOT_THE_APP_PAGES,
@@ -249,6 +269,7 @@ export default defineConfig(({ mode }) => {
       vue(),
       vueDevTools(),
       tailwindcss(),
+      firstPaintLanguage(),
       oldWebViewCss(),
       // after oldWebViewCss: the page links the final stylesheet
       privacyPage(),

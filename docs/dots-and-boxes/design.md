@@ -272,7 +272,7 @@ src/shared/
   components/AppLogo.vue              # the logo SVG (dot color, optional animation)
   components/BaseSegmentedControl.vue # labelled radiogroup switch (game mode, difficulty), optional hint
   components/BaseHint.vue             # muted hint text under a control (aria-describedby target)
-  components/LanguageToggle.vue       # one UA / EN button in the header
+  components/LanguageMenu.vue         # the header's language button and menu
   components/PlayerName.vue           # displayed name, with the robot for the computer player
   components/RobotIcon.vue            # inline-SVG smart_toy icon
   composables/useDisplayName.ts       # stored name → displayed name
@@ -369,7 +369,7 @@ The phone layout is the default, and `sm:` classes (640 px and up) restore the d
   - Closed by default on every screen, and the open state isn't saved [VR-27].
 - **useRulesPanel.ts**: a module-level `isOpen` ref with `open(button)` and `close()`, shared by the header info button and the setup's How to play link (NG-6), the panel and `Game.vue`. `open` remembers the button that opened it (passed in, since Safari and touch screens don't focus a clicked button); `isOpenedBy(button)` drives each button's `aria-expanded`, and the panel's `returnFocus(fallback)` focuses that button on close and forgets it [UP-2].
 - **Computer turn** [VR-31, RL-6]: `Game.vue` passes `isStopConfirmOpen || rulesPanel.isOpen` as `useComputerTurn`'s `paused`, so the computer waits while the panel is open, as with the Stop dialog.
-- **index.html** [APP-1]: `<html lang="uk">` with `<title>Крапки й квадрати</title>`, the default before the app starts. At runtime the title and `lang` follow the language (see Languages). The deploy workflow's `404.html` copy inherits the same defaults.
+- **index.html** [APP-1, LG-8]: `<html lang="en">` with `<title>Dots and Boxes</title>`. A script the build injects at the end of `<head>` sets the right `lang` and title before the first paint, and at runtime they follow the language (see Languages). The deploy workflow's `404.html` copy gets the same.
 
 ## Languages [I18N-1..6, APP-1]
 
@@ -377,24 +377,27 @@ Library: `vue-i18n` with the Composition API (`legacy: false`). The design canva
 
 ```
 src/i18n/
-  index.ts          # createI18n, SUPPORTED_LOCALES, setLocale(), vee-validate message config
+  languages.ts      # the one ordered list (code, key, own name) and the detection rule [LG-1, LG-6]
+  messages.ts       # every listed language's messages
+  first-paint.ts    # the script the build injects into index.html [LG-8]
+  index.ts          # createI18n, setLocale(), vee-validate message config
   locales/
     en.ts           # source of keys (app, language, setup, validation, game, status, result, rules)
     uk.ts           # typed as `typeof en`, so a missing or extra key fails type-check
-src/shared/components/LanguageToggle.vue
+src/shared/components/LanguageMenu.vue
 ```
 
 - **index.ts**:
-  - `SUPPORTED_LOCALES = ['uk', 'en']` and `DEFAULT_LOCALE = 'uk'` [I18N-2].
-  - The initial locale is the saved `LOCALE` value from localStorage (through `StorageService`), if it's supported, otherwise `uk` [I18N-4]. `fallbackLocale` is `en`.
+  - The initial locale is `resolveLanguage(saved, navigator.languages)`: a listed saved `LOCALE`, then the first listed device language, then English [I18N-2, I18N-4, LG-6, LG-7]. `fallbackLocale` is `en`.
   - `setLocale(locale)` sets `i18n.global.locale.value`, saves `LOCALE`, then sets `document.documentElement.lang` and `document.title = t('app.title')` [I18N-3, APP-1]. The same document update runs once at startup.
   - `configure({ generateMessage })` from vee-validate: the `differentFromAll` rule gets `validation.differentNames`, `notComputerName` gets `validation.computerName`, `max` gets `validation.maxLength` with `{ field, length }`, and every other rule gets `validation.invalid` with `{ field }`. `field` is the `<Field>`'s translated `label` [GS-1, I18N-1]. The custom rule returns `false`, not a hard-coded string. Messages are generated when validation runs, so a message already on screen updates on the next validation [I18N-6].
 - **Message keys**: `rules.step1`–`step5` for the rules, `rules.storyboard.title` and `frame1`–`frame4` for the storyboard, `game.hintFirstLine` / `hintSelected` / `hintStart` for hints, `game.dotLabel` with `{row}`/`{col}`, `result.wins` with `{name}`, `players.computer` for the computer player's name, `setup.player` / `setup.playerName` with `{number}`. Player names are passed in as parameters and never translated.
 - **Components** call `const { t } = useI18n()`. `PlayerField` takes `number` (1 or 2) instead of a `label` string.
-- **LanguageToggle.vue** [I18N-3, I18N-5, NG-3, NG-4]:
-  - One `BaseIconButton` (`data-language-toggle`) showing "UA" / "EN" for the current locale in a `text-sm font-bold` span with `lang` set to that locale (`aria-hidden`, since the label speaks for it).
-  - A click calls `setLocale()` with the other locale. The button's `aria-label` is `language.switchTo` read in the **target** locale ("Switch to English" / «Перейти на українську»), and the button's `lang` is the target locale. No `aria-pressed`, no group; two locales only.
-- **App.vue**: the header, above `RouterView`, so it's on every screen; see [Header](#header-vr-13-vr-16-vr-18vr-23). It replaces the old `<header class="mb-2 flex justify-end">` that held only `LanguageToggle`.
+- **LanguageMenu.vue** [I18N-3, I18N-5, LG-1..LG-4]:
+  - One `BaseIconButton` (`data-language-button`, `aria-haspopup="menu"`, `aria-expanded`) showing the current key in a `text-sm font-bold` span (`aria-hidden`); its `aria-label` is `language.current` with the language's own name.
+  - The open menu is a `role="menu"` dropdown, 192 px wide, right-aligned under the button, `bg-surface` with a border and shadow. Its `max-height` is the room below the button minus the bottom safe-area inset, and it scrolls past that.
+  - Each row is a `role="menuitemradio"` button, at least 44 px tall below `sm`: the key (`text-muted`, `aria-hidden`), the own name (marked with its `lang`), and `CheckIcon` on the current language.
+- **App.vue**: the header, above `RouterView`, so it's on every screen; see [Header](#header-vr-13-vr-16-vr-18vr-23). It replaces the old `<header class="mb-2 flex justify-end">` that held only the language control.
 - **vite.config.ts**: `define` sets the vue-i18n esm-bundler flags: `__VUE_I18N_FULL_INSTALL__: true`, `__VUE_I18N_LEGACY_API__: false`, `__INTLIFY_PROD_DEVTOOLS__: false`.
 - **StorageService.setItem** accepts a `string` as well as an `object`, and strings are stored as they are.
 
@@ -503,7 +506,7 @@ The palette values are the prototype's (spec token table); `on-accent` and `dang
 2. The game's short name, `t('app.shortName')` («Крапки й квадрати» / "Dots and Boxes"), `mr-auto text-lg font-extrabold text-ink` (18 px, 800). It fits on one line at 390 px and wraps to at most two on narrower phones; the buttons never shrink [VR-22, NG-1, NG-2].
 3. Theme button (`ThemeToggle.vue`): shows `DarkModeIcon` (moon) in light and `LightModeIcon` (sun) in dark; `aria-label` says what it switches to, `theme.dark` / `theme.light` [VR-13, VR-16].
 4. Info button: `InfoIcon`, `aria-label` `rules.open`, `aria-expanded` bound to the rules panel, `aria-haspopup="dialog"`; opens the rules panel [VR-23].
-5. `LanguageToggle`: one round button showing the current language, "UA" / "EN"; see [Languages](#languages-i18n-16-app-1) [NG-3, NG-4].
+5. `LanguageMenu`: one round button showing the current language's key, "EN" / "УК", that opens the language menu; see [Languages](#languages-i18n-16-app-1) [LG-1..LG-4].
 
 All three are `BaseIconButton`: `flex size-11 shrink-0 sm:size-9 items-center justify-center rounded-full border border-border bg-surface text-ink-soft shadow-sm hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-accent`, with 20 px icons: 44 px circles on phones, 36 px from `sm` up. `shrink-0` keeps them round however long the name is (before it they shrank into ovals) [VR-21, NG-2].
 

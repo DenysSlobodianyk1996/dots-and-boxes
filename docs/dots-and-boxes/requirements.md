@@ -236,7 +236,7 @@ Acceptance:
 - **PWA-3**: The splash screen and status bar use the cream background; the status bar turns cocoa when the device is in dark mode (VR-46).
 - **PWA-4**: After the first visit everything works offline: setup, playing, the computer player, the rules, both languages, the font and the icons. Reloading any app address offline opens the game (VR-47).
 - **PWA-5**: A new version installs quietly and takes effect the next time the game is opened, with no update prompt; the saved game is kept (PS-6) (VR-48, VR-49).
-- **PWA-6**: The installed app's name follows the language chosen before installing: "Крапки й квадрати" by default, "Dots and Boxes" with English. The short name launchers fall back to is the same, «Крапки й квадрати» / "Dots and Boxes" (VR-50, VR-51, UP-15, NG-11).
+- **PWA-6**: The installed app's name follows the language in use before installing: "Крапки й квадрати" in Ukrainian, "Dots and Boxes" in English. The short name launchers fall back to is the same, «Крапки й квадрати» / "Dots and Boxes" (VR-50, VR-51, UP-15, NG-11).
 
 Acceptance (checked on a build with `BASE_PATH=/dots-and-boxes/` and by hand, not by unit tests):
 - Given the build, then it contains the Ukrainian and English manifests, the service worker and every icon the manifests and `index.html` reference.
@@ -247,11 +247,19 @@ Acceptance (checked on a build with `BASE_PATH=/dots-and-boxes/` and by hand, no
 ## I18N: Languages
 
 - **I18N-1**: Every text the UI shows is available in Ukrainian and English: labels, buttons, hints, the Stop dialog, the result panel, the rules, validation messages, dot `aria-label`s, the browser tab title, the header buttons and the swatch names, plus the Versus computer texts (VC-24). Player names are shown exactly as typed; only the computer player's name is translated (VC-8).
-- **I18N-2**: On the first visit (no saved language) the language follows the device: Ukrainian when the device language is Ukrainian (`navigator.language` starts with `uk`), English otherwise (AR-6). A saved language always wins (I18N-4, AR-7).
-- **I18N-3**: One round language button sits in the header of every screen (HD-1, VR-18). It shows the current language ("UA" or "EN"), and a single tap switches to the other one, changing all text at once, along with the page's `lang` attribute, the tab title and the linked install manifest (PWA-6) (NG-3).
+- **I18N-2**: On the first visit (no saved language) the language is the first entry of `navigator.languages` whose base language is listed, otherwise English (LG-6, AR-6). A saved language always wins (I18N-4, LG-7, AR-7).
+- **I18N-3**: One round language button sits in the header of every screen (HD-1, VR-18). It shows the current language's key ("EN" or "УК") and opens the language menu (LG-1). Choosing a language changes all text at once, along with the page's `lang` attribute, the tab title and the linked install manifest (PWA-6).
 - **I18N-4**: The chosen language is saved in localStorage and restored on reload.
-- **I18N-5**: Assistive technology hears the language button as the switch, in the target language's own words and marked with that language: "Switch to English" when Ukrainian is on, «Перейти на українську» when English is on. Below 640 px wide it is 44×44 px (HD-5) (NG-4).
+- **I18N-5**: Assistive technology hears the language button as a menu button named with the current language ("Language: English", «Мова: Українська»). Below 640 px wide it is 44×44 px (HD-5).
 - **I18N-6**: A validation message that's already on screen switches language the next time its field is validated.
+- **LG-1**: The language button opens a list of the languages in one fixed order. This build lists EN, УК; DE, FR, IT and ES join the same list (#91).
+- **LG-2**: Each row shows the language's key and its own name, whatever the interface language, and the current language is ticked.
+- **LG-3**: Choosing a row applies the language at once and closes the menu. A tap outside, or a second tap on the button, closes it with no change.
+- **LG-4**: The menu follows the menu-button pattern: Enter, Space or the arrow keys open it on the current language; the arrows (wrapping), Home and End move; Enter or Space chooses; Escape closes and returns focus to the button; Tab closes it. It stays inside the safe area and scrolls if it doesn't fit.
+- **LG-5**: Changing language during a game keeps the game.
+- **LG-6**: A new player gets the first device language on the list, otherwise English.
+- **LG-7**: A saved language is kept, including existing English and Ukrainian choices.
+- **LG-8**: The page has the right `lang` and tab title before its first paint: the build injects the list and the same detection rule into `index.html`.
 
 Acceptance criteria elsewhere in this document quote the English text; the Ukrainian UI shows the matching translations from `src/i18n/locales/uk.ts`.
 

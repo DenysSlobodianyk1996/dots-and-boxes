@@ -7,8 +7,7 @@
 import { createSSRApp } from 'vue'
 import { createI18n } from 'vue-i18n'
 import { renderToString } from 'vue/server-renderer'
-import en from '@/i18n/locales/en'
-import uk from '@/i18n/locales/uk'
+import { MESSAGES } from '@/i18n/messages'
 import PrivacyStaticPage from '@/pages/privacy/PrivacyStaticPage.vue'
 
 /**
@@ -29,9 +28,9 @@ export async function renderPrivacyPage({
   darkVars: string
 }): Promise<string> {
   // its own i18n: the app's (src/i18n) reads the device and localStorage, which a build has not
-  const i18n = createI18n({ legacy: false, locale: 'en', fallbackLocale: 'en', messages: { en, uk } })
+  const i18n = createI18n({ legacy: false, locale: 'en', fallbackLocale: 'en', messages: MESSAGES })
   const body = await renderToString(createSSRApp(PrivacyStaticPage).use(i18n))
-  const title = `${en.privacy.title} · ${en.app.title}`
+  const title = `${MESSAGES.en.privacy.title} · ${MESSAGES.en.app.title}`
   return `<!doctype html>
 <html lang="en">
   <head>

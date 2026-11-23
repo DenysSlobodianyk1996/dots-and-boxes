@@ -24,7 +24,7 @@
       >
         <InfoIcon :size="20" />
       </BaseIconButton>
-      <LanguageToggle />
+      <LanguageMenu />
     </AppHeader>
     <RouterView />
     <RulesPanel :return-focus-to="rulesButton?.element ?? null" />
@@ -36,7 +36,7 @@ import { useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppHeader from '@/shared/components/AppHeader.vue'
 import BaseIconButton from '@/shared/components/BaseIconButton.vue'
-import LanguageToggle from '@/shared/components/LanguageToggle.vue'
+import LanguageMenu from '@/shared/components/LanguageMenu.vue'
 import RulesPanel from '@/shared/components/RulesPanel.vue'
 import ThemeToggle from '@/shared/components/ThemeToggle.vue'
 import { useRulesPanel } from '@/shared/composables/useRulesPanel'

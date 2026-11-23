@@ -372,6 +372,24 @@
       "y": 4300,
       "w": 390,
       "h": 844
+    },
+    {
+      "file": "MobileLanguageMenu.dc.html",
+      "title": "L1 · Language menu, 320 × 568",
+      "page": "page-2",
+      "x": 940,
+      "y": 4300,
+      "w": 320,
+      "h": 568
+    },
+    {
+      "file": "DarkMobileLanguageMenu.dc.html",
+      "title": "L2 · Language menu, dark",
+      "page": "page-2",
+      "x": 1340,
+      "y": 4300,
+      "w": 320,
+      "h": 568
     }
   ],
   "annotations": [

@@ -428,30 +428,78 @@ export class GamePage {
   // ---- document ----
 
   private get languageButton() {
-    return this.header.get('button[data-language-toggle]')
+    return this.header.get('button[data-language-button]')
   }
 
-  // the header's one language button (I18N-3, I18N-5): what it shows (the current language),
-  // what it tells assistive technology (the switch, in the target language's own words) and
-  // the language that label is marked with
+  private get languageRows() {
+    return [...document.querySelectorAll<HTMLElement>('[role="menuitemradio"]')]
+  }
+
+  // the header's language button (LG-1, LG-4): the current key, its name for assistive
+  // technology, and how it announces its menu
   languageButtonState() {
     const button = this.languageButton
     return {
       text: button.text(),
       label: button.attributes('aria-label'),
-      labelLang: button.attributes('lang'),
+      hasPopup: button.attributes('aria-haspopup'),
+      expanded: button.attributes('aria-expanded'),
     }
   }
 
-  // one tap on the language button: switches to the other language
   async clickLanguageButton() {
     await this.languageButton.trigger('click')
     await flushPromises()
   }
 
-  // ends in the given language, tapping the language button only if it's not on already
+  // the open menu's rows in order, or null when it's closed (LG-1, LG-2)
+  languageMenu() {
+    if (!document.querySelector('[role="menu"]')) return null
+    return this.languageRows.map((row) => ({
+      key: row.querySelector('[data-language-key]')?.textContent?.trim(),
+      name: row.querySelector('[data-language-name]')?.textContent?.trim(),
+      nameLang: row.querySelector('[data-language-name]')?.getAttribute('lang'),
+      checked: row.getAttribute('aria-checked') === 'true',
+      ticked: row.querySelector('[data-icon="check"]') !== null,
+    }))
+  }
+
+  // the menu's accessible name
+  languageMenuLabel() {
+    return document.querySelector('[role="menu"]')?.getAttribute('aria-label') ?? null
+  }
+
+  // taps a row of the open menu, by its key (EN, УК, …)
+  async chooseLanguageRow(key: string) {
+    const row = this.languageRows.find(
+      (candidate) => candidate.querySelector('[data-language-key]')?.textContent?.trim() === key,
+    )
+    if (!row) throw new Error(`No language row ${key}`)
+    row.click()
+    await flushPromises()
+  }
+
+  focusLanguageButton() {
+    ;(this.languageButton.element as HTMLElement).focus()
+  }
+
+  // what holds the focus: a language row's key, 'button' for the language button, else null
+  languageFocus() {
+    const active = document.activeElement
+    if (active === this.languageButton.element) return 'button'
+    return active?.querySelector('[data-language-key]')?.textContent?.trim() ?? null
+  }
+
+  async tapOutsideLanguageMenu() {
+    document.body.dispatchEvent(new Event('pointerdown', { bubbles: true }))
+    await flushPromises()
+  }
+
+  // ends in the given language, through the menu, only if it's not on already
   async switchLanguage(locale: 'uk' | 'en') {
-    if (document.documentElement.lang !== locale) await this.clickLanguageButton()
+    if (document.documentElement.lang === locale) return
+    await this.clickLanguageButton()
+    await this.chooseLanguageRow(locale === 'uk' ? 'УК' : 'EN')
   }
 
   // the install manifest the page links to; it names the installed app (VR-50, VR-51)

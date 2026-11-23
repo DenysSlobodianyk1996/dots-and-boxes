@@ -305,7 +305,7 @@ describe('playing against the computer', () => {
     const page = await startComputerGame({ first: 2 })
     expect(page.scores()).toEqual({ Anna: 0, [COMPUTER]: 0 })
 
-    await page.wrapper.get('button[lang="uk"]').trigger('click')
+    await page.switchLanguage('uk')
 
     expect(page.wrapper.text()).toContain('Комп’ютер')
     expect(page.wrapper.text()).not.toContain(COMPUTER)
@@ -614,7 +614,7 @@ describe("the computer's turn on screen", () => {
 
   it('shows the new texts in Ukrainian (CM-36)', async () => {
     const page = await startComputerGame({ first: 2 })
-    await page.wrapper.get('button[lang="uk"]').trigger('click')
+    await page.switchLanguage('uk')
 
     expect(page.wrapper.text()).toContain('Думає…')
     await page.waitForComputer()

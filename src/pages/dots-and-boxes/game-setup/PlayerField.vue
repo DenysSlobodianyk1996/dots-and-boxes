@@ -73,7 +73,7 @@ import { Field, defineRule } from 'vee-validate'
 import { required, max } from '@vee-validate/rules'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { i18n, SUPPORTED_LOCALES } from '@/i18n'
+import { i18n, LANGUAGE_CODES } from '@/i18n'
 import BaseLabel from '@/shared/components/BaseLabel.vue'
 import BaseInput from '@/shared/components/BaseInput.vue'
 import BaseFieldError from '@/shared/components/BaseFieldError.vue'
@@ -104,7 +104,7 @@ function normalizeName(name: string) {
 // a person can't take the computer's display name in any language (CM-8);
 // the message comes from the i18n generateMessage config (validation.computerName)
 defineRule('notComputerName', (fieldValue: string) => {
-  const computerNames = SUPPORTED_LOCALES.map((locale) =>
+  const computerNames = LANGUAGE_CODES.map((locale) =>
     normalizeName(i18n.global.getLocaleMessage(locale).players.computer),
   )
   return !computerNames.includes(normalizeName(fieldValue ?? ''))
