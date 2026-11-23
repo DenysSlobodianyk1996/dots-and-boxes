@@ -18,7 +18,7 @@ The facts every answer rests on:
 
 | Field | Answer |
 |---|---|
-| App name | Dots and Boxes (from [en.md](en.md)) |
+| App name | Dots and Boxes (from [en/listing.md](en/listing.md)) |
 | App or game | Game |
 | Category | **Board** |
 | Tags (pick up to 5) | Board, Puzzle, Strategy, Family, Offline (pick whatever of these Play offers in its tag list; it changes) |
@@ -31,10 +31,10 @@ The facts every answer rests on:
 
 **Grow users → Store presence → Main store listing**
 
-- Texts: [en.md](en.md) (default language en-US) and [uk.md](uk.md) (translation, uk).
+- Texts: [en/listing.md](en/listing.md) (default language en-US) and [uk/listing.md](uk/listing.md) (translation, uk).
 - App icon (512×512): [`icon-512.png`](icon-512.png).
-- Feature graphic (1024×500): [`feature-graphic-en.png`](feature-graphic-en.png) and, in the Ukrainian translation, [`feature-graphic-uk.png`](feature-graphic-uk.png).
-- Screenshots: `screenshots/<lang>/<device>/` with `<device>` = `phone`, `tablet7`, `tablet10` (made by `npm run store:screenshots`): [en phone](screenshots/en/phone/), [en 7"](screenshots/en/tablet7/), [en 10"](screenshots/en/tablet10/), [uk phone](screenshots/uk/phone/), [uk 7"](screenshots/uk/tablet7/), [uk 10"](screenshots/uk/tablet10/).
+- Feature graphic (1024×500): [`en/feature-graphic.png`](en/feature-graphic.png) and, in the Ukrainian translation, [`uk/feature-graphic.png`](uk/feature-graphic.png).
+- Screenshots: `<lang>/<device>/` with `<device>` = `phone`, `tablet-7`, `tablet-10` (made by `npm run store:screenshots`): [en phone](en/phone/), [en 7"](en/tablet-7/), [en 10"](en/tablet-10/), [uk phone](uk/phone/), [uk 7"](uk/tablet-7/), [uk 10"](uk/tablet-10/).
 - Video: none.
 
 ## Privacy policy

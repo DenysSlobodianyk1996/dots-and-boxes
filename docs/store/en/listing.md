@@ -1,6 +1,6 @@
 # Store listing: English (en-US)
 
-Paste each block into Play Console → **Grow users → Store presence → Main store listing** (default language English (United States) – en-US). Counts are Unicode characters, as Play counts them; the limit follows the slash. Terms follow [GLOSSARY.md](../../GLOSSARY.md). Spec: [AR-13](../android-release/spec.md#store-package-ar-13ar-19).
+Paste each block into Play Console → **Grow users → Store presence → Main store listing** (default language English (United States) – en-US). Counts are Unicode characters, as Play counts them; the limit follows the slash. Terms follow [GLOSSARY.md](../../../GLOSSARY.md). Spec: [AR-13](../../android-release/spec.md#store-package-ar-13ar-19).
 
 ## Title (14 / 30)
 

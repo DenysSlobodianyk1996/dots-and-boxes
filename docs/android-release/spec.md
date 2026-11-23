@@ -131,12 +131,12 @@ The developer account is a personal one, so Play requires a closed test with at 
 ### Store package (AR-13..AR-19)
 
 - **Location**: `docs/store/`. Files:
-  - `en.md` and `uk.md`: listing texts;
+  - `<lang>/listing.md`: listing texts;
   - `play-console.md`: form answers;
   - `publishing-checklist.md`;
   - `tester-invite.md`;
-  - `screenshots/<lang>/<device>/NN-<screen>.png`;
-  - `feature-graphic-<lang>.png`;
+  - `<lang>/<device>/NN-<screen>.png` (`phone`, `tablet-7`, `tablet-10`);
+  - `<lang>/feature-graphic.png`;
   - `icon-512.png`.
 - **Listing**:
   - title "Dots and Boxes: Connected" / «Крапки й квадрати: ланцюжок» (≤30 characters);

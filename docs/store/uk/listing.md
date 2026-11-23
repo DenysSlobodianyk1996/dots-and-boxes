@@ -1,6 +1,6 @@
 # Store listing: Ukrainian (uk)
 
-Play Console → **Grow users → Store presence → Main store listing** → **Manage translations → Add your own translation text** → Ukrainian – uk. Counts are Unicode characters, as Play counts them; the limit follows the slash. Terms match the app's Ukrainian UI (`src/i18n/locales/uk.ts`) and [GLOSSARY.md](../../GLOSSARY.md): квадрат, лінія, точка, «Проти комп’ютера», «Двоє гравців», «Легко» / «Нормально», «Реванш», «Нічия», «Зупинити», «Як грати». Spec: [AR-13](../android-release/spec.md#store-package-ar-13ar-19).
+Play Console → **Grow users → Store presence → Main store listing** → **Manage translations → Add your own translation text** → Ukrainian – uk. Counts are Unicode characters, as Play counts them; the limit follows the slash. Terms match the app's Ukrainian UI (`src/i18n/locales/uk.ts`) and [GLOSSARY.md](../../../GLOSSARY.md): квадрат, лінія, точка, «Проти комп’ютера», «Двоє гравців», «Легко» / «Нормально», «Реванш», «Нічия», «Зупинити», «Як грати». Spec: [AR-13](../../android-release/spec.md#store-package-ar-13ar-19).
 
 ## Title (17 / 30)
 
