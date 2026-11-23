@@ -409,10 +409,19 @@ export class GamePage {
     }
   }
 
-  // Back: history back to the setup screen, which jsdom delivers (popstate) in a later task
+  // Back: jsdom delivers the history traversal (popstate) some tasks later, so wait for the
+  // router to finish that navigation, then for the screen it leads to to render
   async closePrivacy() {
+    const router = this.wrapper.vm.$router
+    const navigated = new Promise<void>((resolve, reject) => {
+      const stop = router.afterEach((_to, _from, failure) => {
+        stop()
+        if (failure) reject(failure)
+        else resolve()
+      })
+    })
     await this.wrapper.get('[data-privacy-back]').trigger('click')
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await navigated
     await flushPromises()
   }
 
