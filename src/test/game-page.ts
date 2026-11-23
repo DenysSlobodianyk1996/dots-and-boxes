@@ -634,6 +634,11 @@ export class GamePage {
       .text()
   }
 
+  // the goal under the open panel's heading (RL-1)
+  rulesGoal() {
+    return this.rulesPanel.get('[data-rules-goal]').text()
+  }
+
   // whether the open panel plays the demo (RL-1)
   get hasRulesDemo() {
     return this.rulesPanel.find('svg[data-demo-board]').exists()

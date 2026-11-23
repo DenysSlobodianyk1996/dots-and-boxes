@@ -132,9 +132,9 @@ Changed on purpose after the first build, each tracked as a sub-ticket of #88:
 - **#98, screen addresses** (WL-1..WL-3, WL-16): `/` is Welcome, `/settings` is Settings and `/game` is the game.
 - **#99, name error** (GS-6): a name's error goes away as soon as typing makes the name valid.
 - **#100, next-step hint** (END-8): the in-game hint is highlighted.
-- **#101, one how-to-play block** (WL-10, WL-14, WL-17..WL-20, RL-1, RL-7): the demo beside a list of all six steps and the current one highlighted. Players are A and B. The rules panel shows the same block, smaller, and loses its goal sentence, five rules and storyboard. This replaces WL-14's original "the Rules panel stays as it is".
+- **#101, one how-to-play block** (WL-10, WL-14, WL-17..WL-20, RL-1, RL-7): the demo beside a list of all six steps and the current one highlighted. Players are A and B. The rules panel shows the same block, smaller, and loses its five rules and storyboard. This replaces WL-14's original "the Rules panel stays as it is".
 - **#102, slower and clickable steps** (WL-4, WL-10, WL-17): each step holds about 2 seconds longer and the finished board about 6 seconds, and choosing a step jumps the demo to it. Welcome is titled "Welcome to Dots and Boxes", with a "How to play" heading above the steps.
-- **#103, goal on Welcome** (WL-10, NG-7): the game's goal sits directly under Welcome's title.
+- **#103, goal on Welcome** (WL-10, NG-7): the game's goal sits directly under Welcome's title and under the rules panel's heading.
 - **#104, switch corners** (VC-25, CM-38): the selected Mode or Difficulty option has the same corner radius as the switch.
 - **#105, sliding switch** (VC-25, CM-38): one highlight slides between the Mode or Difficulty options.
 

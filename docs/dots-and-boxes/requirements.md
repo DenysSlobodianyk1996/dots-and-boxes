@@ -125,7 +125,7 @@ Acceptance:
 
 ## RL: Rules
 
-- **RL-1**: The rules panel shows the **same how-to-play block as Welcome**, stacked and smaller: the looping demo, then the same six numbered steps with the current one highlighted (WL-4..WL-10). It has no separate goal sentence, rules text or pictures.
+- **RL-1**: The rules panel shows the **same how-to-play block as Welcome**, stacked and smaller: the looping demo, then the same six numbered steps with the current one highlighted (WL-4..WL-10). The game's goal, the same sentence as on Welcome, sits under its heading. It has no separate rules text or pictures.
 - **RL-2**: The rules live only in the **rules panel**, opened by the info button ("Правила" / "Rules") in the header of every screen (HD-1), mid-game included; it is the only info button (NG-9). The setup screen opens with its "Settings" / «Налаштування» title and has no goal sentence or "How to play" link (WL-13). The setup and game screens show no rules inline and have no Show/Hide rules button (VR-23, VR-28).
 - **RL-3**: From 640 px wide the panel slides in from the right, 384 px wide, over a dimmed backdrop; below 640 px it covers the whole screen. It closes with its ✕ button ("Закрити правила" / "Close rules"), a tap on the backdrop or Esc. It is closed whenever the app loads, on both screens, never opens by itself, and its open state isn't saved (VR-24..VR-27).
 - **RL-4**: The panel is a modal dialog labelled by its "How to play" heading. When it opens, focus moves to ✕; Tab and Shift+Tab stay inside it; when it closes, focus returns to the header's info button (UP-2). The info button reports the panel with `aria-haspopup="dialog"` and `aria-expanded` (VR-29).

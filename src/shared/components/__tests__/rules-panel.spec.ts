@@ -76,6 +76,17 @@ describe('rules panel', () => {
     expect(page.rulesHighlightedStepCount()).toBe(1)
   })
 
+  it.each([
+    ['en', 'Whoever owns more squares when the board is full wins.'],
+    ['uk', 'Перемагає той, у кого більше квадратів, коли поле заповниться.'],
+  ])('shows the goal under the heading in %s (RL-1)', async (LOCALE, goal) => {
+    const page = await openGamePage({ storage: { LOCALE } })
+
+    await page.openRules()
+
+    expect(page.rulesGoal()).toBe(goal)
+  })
+
   it('shows the rules in Ukrainian with a Ukrainian title (VR-30)', async () => {
     const page = await openGamePage({ storage: { LOCALE: 'uk' } })
 
