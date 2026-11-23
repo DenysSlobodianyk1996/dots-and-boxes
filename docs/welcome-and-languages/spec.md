@@ -85,7 +85,7 @@ Welcome ships first, so its text is translated once and the store images are gen
 - **Screen order** in `Page.vue`: started game → `Game`; Welcome open → Welcome; otherwise `GameSetup`. Whether Welcome is open is in-memory app state, so a new launch or reload opens it, and the privacy screen doesn't. A restored game marks it closed. **No new storage key.**
 - **Footer**: Privacy and Contact show on Welcome and Settings, not during a game.
 - **Home** is a `BaseIconButton` in the `App.vue` header, on Settings only, with a new inline SVG icon component and a translated label.
-- **Android back button**: AR-3 is unchanged: rules panel, then Stop dialog, then exit. Home is the way from Settings to Welcome.
+- **Android back button** (AR-3): language menu, then rules panel, then Stop dialog, then exit. Home is the way from Settings to Welcome.
 - **Demo script**: one 2 × 2 game of 12 lines, played on a real `DotsAndBoxesGame` so an illegal script throws. Coral wins 3 : 1. It's a pure function of time, as in the prototype's `timeline.ts`, and is tested without timers.
 - **Demo rendering**: inline SVG in theme tokens, no words inside the picture. Scores use each color's dot. Captions are normal i18n text below the board. The animation uses `requestAnimationFrame` and stops on unmount.
 - **Reduced motion** renders the finished frame with the winning caption, with no loop.
@@ -120,7 +120,7 @@ Welcome ships first, so its text is translated once and the store images are gen
 
 ### Delivery
 
-- **Two PRs**: Welcome first, languages second. Each merge that changes the app releases to Play closed testing. The release-notes change is a small third PR after the Play Console step.
+- **One PR (#97)** for everything, merged once, after the Play Console step (#94) and the release notes (#95). The merge releases to Play closed testing.
 
 ## Testing Decisions
 

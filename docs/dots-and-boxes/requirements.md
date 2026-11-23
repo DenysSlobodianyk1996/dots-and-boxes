@@ -158,7 +158,7 @@ Spec: [Welcome and languages](../welcome-and-languages/spec.md), issue #89.
 - **WL-18**: The picture and the changing caption are hidden from assistive technology; the six captions are available once as a visually hidden list.
 - **WL-19**: Welcome fits a 320 × 568 screen with Play visible and no scrolling; the board gives way to the space available.
 - **WL-20, WL-21**: The demo is inline SVG in theme tokens with no words inside, so it follows theme and language at once and needs no media files. Its animation stops when Welcome closes.
-- The Android back button stays as in AR-3: rules panel, then Stop dialog, then exit. Home is the way from Settings to Welcome.
+- The Android back button follows AR-3: language menu, then rules panel, then Stop dialog, then exit. Home is the way from Settings to Welcome.
 
 Acceptance:
 - Given a launch with no saved game, then Welcome shows the demo, a caption, Play and the footer, and no Home button.

@@ -50,6 +50,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId, useTemplate
 import { useI18n } from 'vue-i18n'
 import { setLocale } from '@/i18n'
 import { LANGUAGES, type AppLocale } from '@/i18n/languages'
+import { useLanguageMenu } from '@/shared/composables/useLanguageMenu'
 import CheckIcon from '@/shared/icons/CheckIcon.vue'
 import BaseIconButton from './BaseIconButton.vue'
 
@@ -59,7 +60,7 @@ const root = useTemplateRef<HTMLElement>('root')
 const button = useTemplateRef('button')
 const menu = useTemplateRef<HTMLElement>('menu')
 const menuId = useId()
-const isOpen = ref(false)
+const { isOpen, open: markOpen, close } = useLanguageMenu()
 const maxHeight = ref<string>()
 
 const current = computed(
@@ -76,14 +77,9 @@ function measure() {
 
 async function open() {
   measure()
-  isOpen.value = true
+  markOpen(button.value?.element)
   await nextTick()
   rows()[LANGUAGES.indexOf(current.value)]?.focus()
-}
-
-function close({ returnFocus }: { returnFocus: boolean }) {
-  isOpen.value = false
-  if (returnFocus) button.value?.element?.focus()
 }
 
 function toggle() {
@@ -146,5 +142,6 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', onPointerDown)
   window.removeEventListener('resize', onResize)
+  close({ returnFocus: false })
 })
 </script>

@@ -39,7 +39,7 @@ The developer account is a personal one, so Play requires a closed test with at 
 
 1. **AR-1**: As an Android user, I want to install "Dots and Boxes: Connected" from Google Play, so that I get it where I get every other game.
 2. **AR-2**: As a player, I want the Android app to work fully offline from the first launch, so that I can play on a plane.
-3. **AR-3**: As a player, I want the back button to close the rules panel or the Stop dialog first, and only then leave the app, so that I don't exit by accident.
+3. **AR-3**: As a player, I want the back button to close the language menu, the rules panel or the Stop dialog first, in that order, and only then leave the app, so that I don't exit by accident.
 4. **AR-4**: As a player, I want the status bar to match the light or dark theme, so that the app looks native.
 5. **AR-5**: As a player, I want a cream splash screen with the logo and an adaptive launcher icon, so that the app looks finished on my home screen.
 6. **AR-6**: As a new player, I want the game in my device's language on first launch (Ukrainian on a Ukrainian device, English otherwise), so that I don't have to find the language toggle first.
