@@ -8,12 +8,18 @@ export interface MountGamePageOptions {
   storage?: Record<string, object | string>
   // the device language (`navigator.language`); jsdom's own is 'en-US'
   deviceLanguage?: string
+  // leave the launch on Welcome; by default the page starts past it, on setup or a restored game
+  onWelcome?: boolean
 }
 
 // Mounts the whole app at /game with the real router, i18n and localStorage, the way main.ts does.
 // Modules are re-imported on every call, so i18n reads the seeded locale and a second call
 // in the same test simulates a page reload from whatever is saved in localStorage.
-export async function mountGamePage({ storage = {}, deviceLanguage }: MountGamePageOptions = {}) {
+export async function mountGamePage({
+  storage = {},
+  deviceLanguage,
+  onWelcome = false,
+}: MountGamePageOptions = {}) {
   if (deviceLanguage) {
     // undone by vi.restoreAllMocks() in src/test/setup.ts
     vi.spyOn(navigator, 'language', 'get').mockReturnValue(deviceLanguage)
@@ -25,11 +31,13 @@ export async function mountGamePage({ storage = {}, deviceLanguage }: MountGameP
   vi.resetModules()
   window.history.replaceState({}, '', '/game')
 
-  const [{ default: App }, { default: router }, { i18n }] = await Promise.all([
+  const [{ default: App }, { default: router }, { i18n }, { useWelcome }] = await Promise.all([
     import('@/App.vue'),
     import('@/router'),
     import('@/i18n'),
+    import('@/shared/composables/useWelcome'),
   ])
+  if (!onWelcome) useWelcome().close()
 
   await router.push('/game')
   await router.isReady()

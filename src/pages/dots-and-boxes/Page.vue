@@ -6,17 +6,19 @@
       v-on="componentConfig.listeners"
     >
     </component>
-    <!-- the setup screen ends with Privacy and Contact, pinned below it; the game screen has no
-         footer (FT-1, FT-2, MB-11) -->
+    <!-- Welcome and the setup screen end with Privacy and Contact, pinned below them; the game
+         screen has no footer (FT-1, FT-2, MB-11) -->
     <template v-if="!dotsAndBoxesGame.isGameStarted" #footer><AppFooter /></template>
   </AppScreen>
 </template>
 
 <script setup lang="ts">
 import { DotsAndBoxesGame, type GameSetupForm } from '@/models'
-import { computed, reactive } from 'vue'
+import { computed, onBeforeUnmount, reactive, watchEffect } from 'vue'
 import GameSetup from './game-setup/GameSetup.vue'
 import Game from './Game.vue'
+import Welcome from './welcome/Welcome.vue'
+import { useWelcome } from '@/shared/composables/useWelcome'
 import AppFooter from '@/shared/components/AppFooter.vue'
 import AppScreen from '@/shared/components/AppScreen.vue'
 import { StorageService } from '@/services/storage.service.ts'
@@ -38,6 +40,15 @@ if (
   dotsAndBoxesGame.start()
 }
 
+// a restored game, finished or not, goes straight to the board, and leaving it leads to Settings
+// (WL-3, WL-16)
+const welcome = useWelcome()
+if (dotsAndBoxesGame.isGameStarted) welcome.close()
+
+// the header's Home button shows on Settings only (WL-12)
+watchEffect(() => welcome.setOnSetup(!dotsAndBoxesGame.isGameStarted && !welcome.isOpen.value))
+onBeforeUnmount(() => welcome.setOnSetup(false))
+
 const componentConfig = computed(() => {
   if (dotsAndBoxesGame.isGameStarted) {
     return {
@@ -46,6 +57,15 @@ const componentConfig = computed(() => {
         dotsAndBoxesGame,
       },
       listeners: {},
+    }
+  }
+  if (welcome.isOpen.value) {
+    return {
+      component: Welcome,
+      props: {},
+      listeners: {
+        play: welcome.close,
+      },
     }
   }
   return {

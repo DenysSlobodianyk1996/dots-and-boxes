@@ -124,6 +124,8 @@ const SCREENS: Screen[] = [
     name: 'setup',
     theme: 'light',
     prepare: async (page, lang) => {
+      // a launch without a saved game opens on Welcome (WL-1)
+      await page.locator('[data-welcome-play]').click()
       const name = page.locator('input[name="player1.name"]')
       await name.fill(PERSON[lang])
       await name.blur()

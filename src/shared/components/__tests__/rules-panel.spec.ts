@@ -126,76 +126,18 @@ const GOAL = {
   en: {
     sentence: 'Dots and Boxes — whoever owns more squares when the board is full wins.',
     name: 'Dots and Boxes',
-    link: 'How to play →',
-    title: 'Settings',
   },
   uk: {
     sentence: 'Крапки й квадрати — перемагає той, у кого більше квадратів, коли поле заповниться.',
     name: 'Крапки й квадрати',
-    link: 'Як грати →',
-    title: 'Налаштування',
   },
 } as const
 
-describe('game goal on setup (NG-5, NG-6, NG-8)', () => {
-  it.each(['en', 'uk'] as const)(
-    'opens with the goal, the game name in bold, then How to play, then Settings (%s)',
-    async (locale) => {
-      const page = await openGamePage({ storage: { LOCALE: locale } })
-
-      expect(page.setupIntro()).toEqual({
-        sentence: GOAL[locale].sentence,
-        boldName: GOAL[locale].name,
-        link: { text: GOAL[locale].link, atEnd: true, tapHeight44BelowSm: true },
-        title: GOAL[locale].title,
-        titleAfterGoal: true,
-        titleAboveForm: true,
-      })
-    },
-  )
-
-  it('opens the rules panel from the How to play link', async () => {
-    const page = await openGamePage()
-
-    await page.openRules({ from: 'how to play' })
-
-    expect(page.isRulesOpen()).toBe(true)
-    expect(page.rulesPanelName()).toBe('How to play')
-  })
-
-  it.each(['button', 'backdrop', 'escape'] as const)(
-    'returns focus to the How to play link after closing with %s (UP-2)',
-    async (how) => {
-      const page = await openGamePage()
-      await page.openRules({ from: 'how to play' })
-
-      await page.closeRules(how)
-
-      expect(page.focus()).toBe('how to play link')
-    },
-  )
-
-  it('still returns focus to the header button when that one opened the panel (UP-2)', async () => {
-    const page = await openGamePage()
-    await page.openRules({ from: 'how to play' })
-    await page.closeRules('escape')
-
-    await page.openRules({ from: 'header' })
-    await page.closeRules('escape')
-
-    expect(page.focus()).toBe('info button')
-  })
-
-  it('has no info button of its own: only the header one opens the rules (NG-9)', async () => {
+describe('info buttons (NG-9)', () => {
+  it('has no info button of its own: only the header one opens the rules', async () => {
     const page = await openGamePage()
 
     expect(page.rulesInfoButtons()).toEqual(['header'])
-  })
-
-  it('is not on the game screen', async () => {
-    const page = await startGame()
-
-    expect(page.setupIntro()).toBeNull()
   })
 })
 

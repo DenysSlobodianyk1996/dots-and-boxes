@@ -1,0 +1,156 @@
+import { Dot, DotsAndBoxesGame, type Line, type Square } from '@/models'
+import { STORY_COLORS, type StoryPlayer } from '@/shared/rules-storyboard'
+
+// The how-to-play demo on Welcome (WL-4..WL-10): a pure function of time, so it needs no timers to
+// test. It is played on a real game, so a script that breaks the rules throws on load.
+
+export const DEMO_SIZE = 2
+
+export type DemoCaption =
+  'drawLine' | 'startFromLine' | 'claimSquare' | 'turnPasses' | 'keepGoing' | 'mostSquaresWins'
+
+// every caption once, in the order the demo shows them: what a screen reader gets (WL-18)
+export const DEMO_CAPTIONS: readonly DemoCaption[] = [
+  'drawLine',
+  'startFromLine',
+  'claimSquare',
+  'turnPasses',
+  'keepGoing',
+  'mostSquaresWins',
+]
+
+const dot = (row: number, col: number) => new Dot({ row, col })
+
+// the turn passes after every line, even one that closes a square (TR-1); Coral wins 3 : 1
+const MOVES: [Dot, Dot][] = [
+  [dot(0, 0), dot(0, 1)],
+  [dot(0, 0), dot(1, 0)],
+  [dot(0, 1), dot(0, 2)],
+  [dot(1, 0), dot(1, 1)],
+  [dot(0, 1), dot(1, 1)], // Coral closes the first square
+  [dot(0, 2), dot(1, 2)],
+  [dot(1, 1), dot(1, 2)], // Coral closes the second
+  [dot(1, 0), dot(2, 0)],
+  [dot(1, 2), dot(2, 2)],
+  [dot(2, 0), dot(2, 1)],
+  [dot(1, 1), dot(2, 1)], // Coral closes the third
+  [dot(2, 1), dot(2, 2)], // Teal closes the last
+]
+
+function captionOfMove(move: number): DemoCaption {
+  if (move === 0) return 'drawLine'
+  if (move <= 3) return 'startFromLine'
+  if (move === 4) return 'claimSquare'
+  if (move === 5) return 'turnPasses'
+  return 'keepGoing'
+}
+
+// the first six lines teach, so they go slower than the rest (ms)
+const INTRO = 500
+const END_HOLD = 3200
+const SLOW = { tap: 260, grow: 460, rest: 620 }
+const FAST = { tap: 120, grow: 260, rest: 300 }
+const SLOW_MOVES = 6
+const DRAW = 260
+const CLAIM_PAUSE = 900
+
+interface Step {
+  start: number
+  tapAt: number
+  growAt: number
+  drawnAt: number
+  from: Dot
+  to: Dot
+  owner: StoryPlayer
+  lines: Line[]
+  squares: Square[]
+  next: StoryPlayer
+  caption: DemoCaption
+}
+
+function buildSteps() {
+  const game = new DotsAndBoxesGame({
+    player1: { name: 'coral', color: STORY_COLORS.coral },
+    player2: { name: 'teal', color: STORY_COLORS.teal },
+    size: DEMO_SIZE,
+    currentPlayerName: 'coral',
+  })
+  let clock = INTRO
+  const steps = MOVES.map(([from, to], index): Step => {
+    if (!game.canDraw(from, to)) throw new Error(`Demo move ${index + 1} is not legal`)
+    const owner = game.currentPlayerName as StoryPlayer
+    const closedSquare = game.drawLine(from, to).length > 0
+    const pace = index < SLOW_MOVES ? SLOW : FAST
+    const start = clock
+    const tapAt = start + pace.tap
+    const growAt = tapAt + pace.grow
+    const drawnAt = growAt + DRAW
+    clock = drawnAt + pace.rest + (closedSquare ? CLAIM_PAUSE : 0)
+    return {
+      start,
+      tapAt,
+      growAt,
+      drawnAt,
+      from,
+      to,
+      owner,
+      lines: [...game.lines],
+      squares: [...game.dirtySquares],
+      next: (game.currentPlayerName ?? owner) as StoryPlayer,
+      caption: captionOfMove(index),
+    }
+  })
+  return { steps, finishedAt: clock }
+}
+
+const { steps, finishedAt } = buildSteps()
+
+export const DEMO_DURATION = finishedAt + END_HOLD
+
+export interface DemoFrame {
+  lines: Line[]
+  squares: Square[]
+  growing: { from: Dot; to: Dot; progress: number; owner: StoryPlayer } | null
+  dot1: Dot | null
+  tapped: Dot | null
+  current: StoryPlayer
+  coral: number
+  teal: number
+  finished: boolean
+  caption: DemoCaption
+}
+
+// what the demo shows at a moment of its loop, in ms; any time wraps around
+export function frameAt(time: number): DemoFrame {
+  const t = ((time % DEMO_DURATION) + DEMO_DURATION) % DEMO_DURATION
+  // the last step already started; a plain count, as findLastIndex is newer than AR-21's floor
+  const index = steps.filter((candidate) => candidate.start <= t).length - 1
+  const step = steps[index] ?? null
+  const isDrawn = !!step && t >= step.drawnAt
+  const shown = isDrawn ? step : (steps[index - 1] ?? null)
+  const squares = shown?.squares ?? []
+  const finished = t >= finishedAt
+  return {
+    lines: shown?.lines ?? [],
+    squares,
+    growing:
+      step && !isDrawn && t >= step.growAt
+        ? {
+            from: step.from,
+            to: step.to,
+            progress: (t - step.growAt) / (step.drawnAt - step.growAt),
+            owner: step.owner,
+          }
+        : null,
+    dot1: step && !isDrawn && t >= step.tapAt ? step.from : null,
+    tapped: step && !isDrawn && t >= step.growAt ? step.to : null,
+    current: isDrawn ? step.next : (step?.owner ?? 'coral'),
+    coral: squares.filter((square) => square.ownerName === 'coral').length,
+    teal: squares.filter((square) => square.ownerName === 'teal').length,
+    finished,
+    caption: finished ? 'mostSquaresWins' : (step?.caption ?? 'drawLine'),
+  }
+}
+
+// the still picture for reduced motion: the full board and the winning caption (WL-17)
+export const FINISHED_FRAME = frameAt(finishedAt)

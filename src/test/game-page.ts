@@ -85,9 +85,25 @@ export const ANNA: TestPlayer = { name: 'Anna', color: 'coral' }
 export const BOHDAN: TestPlayer = { name: 'Bohdan', color: 'sky' }
 
 // Opens the page in English. Pass storage (e.g. { CURRENT_GAME: game }) to load a saved game.
-export async function openGamePage({ storage = {} }: MountGamePageOptions = {}) {
-  const wrapper = await mountGamePage({ storage: { LOCALE: 'en', ...storage } })
+// Past Welcome by default; pass onWelcome to see the launch as a player does.
+export async function openGamePage({ storage = {}, onWelcome }: MountGamePageOptions = {}) {
+  const wrapper = await mountGamePage({ storage: { LOCALE: 'en', ...storage }, onWelcome })
   return new GamePage(wrapper)
+}
+
+// Stubs the device's "reduce motion" setting before the page opens (WL-17).
+export function stubReducedMotion() {
+  const matchMedia = window.matchMedia.bind(window)
+  vi.spyOn(window, 'matchMedia').mockImplementation((query: string) =>
+    query.includes('prefers-reduced-motion: reduce')
+      ? ({
+          matches: true,
+          media: query,
+          addEventListener: () => {},
+          removeEventListener: () => {},
+        } as unknown as MediaQueryList)
+      : matchMedia(query),
+  )
 }
 
 // Opens the page, fills in the setup form and submits it.
@@ -209,9 +225,72 @@ export class GamePage {
 
   // reload: close this page (which cancels anything pending) and open the app again
   // from whatever the game saved in localStorage
-  async reload() {
+  async reload({ onWelcome }: Pick<MountGamePageOptions, 'onWelcome'> = {}) {
     this.wrapper.unmount()
-    return openGamePage()
+    return openGamePage({ onWelcome })
+  }
+
+  // ---- Welcome (WL-1..WL-21) ----
+
+  private get welcome() {
+    return this.wrapper.find('[data-welcome]')
+  }
+
+  get isWelcomeShown() {
+    return this.welcome.exists()
+  }
+
+  // the caption under the demo, as shown
+  welcomeCaption() {
+    return this.welcome.get('[data-demo-caption]').text()
+  }
+
+  // whether the shown caption is hidden from screen readers, which get the steps list instead
+  isWelcomeCaptionHiddenFromAssistiveTech() {
+    return this.welcome.get('[data-demo-caption]').attributes('aria-hidden') === 'true'
+  }
+
+  // the demo's steps as a screen reader gets them (WL-18)
+  welcomeSteps() {
+    return this.welcome.findAll('[data-demo-steps] li').map((step) => step.text())
+  }
+
+  // whether the demo's picture is hidden from screen readers (WL-18)
+  isDemoHiddenFromAssistiveTech() {
+    return this.welcome.get('svg[data-demo-board]').attributes('aria-hidden') === 'true'
+  }
+
+  // what the demo's picture shows: lines drawn and each player's score (WL-9, WL-17)
+  demoBoard() {
+    const board = this.welcome.get('svg[data-demo-board]')
+    return {
+      lines: board.findAll('[data-demo-line]').length,
+      coral: Number(board.get('[data-demo-score="coral"]').text().replace('★', '').trim()),
+      teal: Number(board.get('[data-demo-score="teal"]').text().replace('★', '').trim()),
+      winner: board.find('[data-demo-score="coral"]').text().includes('★') ? 'coral' : null,
+    }
+  }
+
+  async clickPlay() {
+    await this.welcome.get('button[data-welcome-play]').trigger('click')
+    await flushPromises()
+  }
+
+  private get homeButton() {
+    return this.header.find('button[data-home-button]')
+  }
+
+  get hasHomeButton() {
+    return this.homeButton.exists()
+  }
+
+  homeButtonLabel() {
+    return this.homeButton.attributes('aria-label')
+  }
+
+  async clickHome() {
+    await this.homeButton.trigger('click')
+    await flushPromises()
   }
 
   text() {
@@ -389,11 +468,6 @@ export class GamePage {
     }
   }
 
-  // the "How to play →" link at the end of the setup's goal sentence (NG-6)
-  private get howToPlayLink() {
-    return this.wrapper.find<HTMLButtonElement>('[data-setup-goal] button')
-  }
-
   // where the page has an info button labelled like the header's: 'header' or 'page' for each (NG-9)
   rulesInfoButtons() {
     const label = this.rulesButton.attributes('aria-label')
@@ -403,12 +477,11 @@ export class GamePage {
       .map((button) => (this.header.element.contains(button.element) ? 'header' : 'page'))
   }
 
-  // Opens the panel with the header's info button or the setup's "How to play" link (NG-6).
+  // Opens the panel with the header's info button.
   // The button doesn't get focus first: Safari and touch screens don't focus a clicked button (UP-2).
-  async openRules({ from = 'header' }: { from?: 'header' | 'how to play' } = {}) {
-    const button = from === 'how to play' ? this.howToPlayLink : this.rulesButton
+  async openRules() {
     ;(document.activeElement as HTMLElement | null)?.blur()
-    await button.trigger('click')
+    await this.rulesButton.trigger('click')
     await flushPromises()
   }
 
@@ -527,15 +600,12 @@ export class GamePage {
   }
 
   // where keyboard focus is
-  focus(): 'rules panel' | 'info button' | 'how to play link' | 'elsewhere' {
+  focus(): 'rules panel' | 'info button' | 'elsewhere' {
     const active = document.activeElement
     if (active && this.rulesPanel.exists() && this.rulesPanel.element.contains(active)) {
       return 'rules panel'
     }
     if (active === this.rulesButton.element) return 'info button'
-    if (this.howToPlayLink.exists() && active === this.howToPlayLink.element) {
-      return 'how to play link'
-    }
     return 'elsewhere'
   }
 
@@ -575,33 +645,9 @@ export class GamePage {
     return this.wrapper.find('form').exists()
   }
 
-  // The setup screen's top (NG-5, NG-6, NG-8): the goal sentence without its link, the bold game
-  // name in it, the "How to play" link at its end and whether that is tall enough to tap below
-  // 640 px (44 px, read from the unprefixed Tailwind classes: jsdom has no layout), then the title
-  // and whether it sits after the goal and above the form.
-  setupIntro() {
-    const goal = this.wrapper.find<HTMLElement>('[data-setup-goal]')
-    if (!goal.exists()) return null
-    const link = this.howToPlayLink
-    const title = this.wrapper.get<HTMLElement>('[data-setup-title]')
-    const linkText = link.exists() ? link.text() : ''
-    const phoneClasses = link.exists() ? link.classes().filter((c) => !c.includes(':')) : []
-    return {
-      sentence: goal.text().replace(linkText, '').trim(),
-      boldName: goal.find('strong').exists() ? goal.get('strong').text() : null,
-      link: link.exists()
-        ? {
-            text: linkText,
-            atEnd: goal.element.lastElementChild === link.element,
-            tapHeight44BelowSm: phoneClasses.some((c) =>
-              /^(min-h|h|size)-(1[1-9]|[2-9]\d)$/.test(c),
-            ),
-          }
-        : null,
-      title: title.text(),
-      titleAfterGoal: follows(title.element, goal.element),
-      titleAboveForm: follows(this.wrapper.get('form').element, title.element),
-    }
+  // whether setup still opens with the goal sentence and How to play link (removed by WL-13)
+  get hasSetupGoal() {
+    return this.wrapper.find('[data-setup-goal]').exists()
   }
 
   async submitSetup({

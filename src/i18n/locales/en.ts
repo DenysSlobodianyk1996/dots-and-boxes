@@ -121,13 +121,25 @@ const en = {
     settings: 'Settings',
     rematch: 'Rematch',
   },
+  // the Welcome screen; one caption per stage of the how-to-play demo (WL-10, WL-12)
+  welcome: {
+    play: 'Play',
+    home: 'Home',
+    captions: {
+      drawLine: 'Tap two neighboring dots to draw a line.',
+      startFromLine: 'Players take turns. Each new line starts from a dot that already has a line.',
+      claimSquare: "Draw a square's fourth side and it's yours.",
+      turnPasses: 'After every line, the turn passes to the other player.',
+      keepGoing: 'Keep going until every square is claimed.',
+      mostSquaresWins: 'Board full: most squares wins!',
+    },
+  },
   rules: {
     title: 'How to play',
     open: 'Rules',
     close: 'Close rules',
-    // the game's goal, first on setup and in the rules panel; {name} is the bold game name (NG-5, NG-7)
+    // the game's goal, first in the rules panel; {name} is the bold game name (NG-7)
     goal: '{name} — whoever owns more squares when the board is full wins.',
-    howToPlay: 'How to play →',
     step1: 'Take turns drawing a line between two neighboring dots: left, right, up or down.',
     step2: 'The first line can go anywhere. After that, start from a dot that already has a line.',
     step3: 'Draw the fourth side of a square to claim it. One line can claim two squares.',

@@ -1,24 +1,8 @@
 <template>
   <!-- centered horizontally, top-aligned (MB-9) -->
   <div class="mx-auto max-w-130">
-    <!-- what the game is and how to win, with a link to the rules panel (NG-5, NG-6); the
-         header's info button is the only info button (NG-9). Focus returns to the link (UP-2). -->
-    <p data-setup-goal class="text-center text-ink-soft">
-      <GameGoal />
-      {{ ' ' }}
-      <button
-        ref="howToPlayLink"
-        type="button"
-        aria-haspopup="dialog"
-        :aria-expanded="rulesPanel.isOpenedBy(howToPlayLink)"
-        class="inline-flex min-h-11 cursor-pointer items-center whitespace-nowrap rounded text-accent underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-accent sm:min-h-0"
-        @click="rulesPanel.open($event.currentTarget)"
-      >
-        {{ t('rules.howToPlay') }}
-      </button>
-    </p>
-    <!-- below the goal, bigger: the screen reads what the game is, then how to set it up (NG-8) -->
-    <h3 data-setup-title class="mt-6 mb-4 text-center text-2xl font-extrabold">
+    <!-- only about settings: how to play is on Welcome and in the rules panel (WL-13) -->
+    <h3 data-setup-title class="mb-4 text-center text-2xl font-extrabold">
       {{ t('setup.title') }}
     </h3>
     <!-- keep-values: what's typed survives a game mode switch (CM-10) -->
@@ -100,7 +84,7 @@
 <script setup lang="ts">
 import { Form, Field, defineRule } from 'vee-validate'
 import { required, integer, min_value, max_value } from '@vee-validate/rules'
-import { computed, ref, useId, useTemplateRef } from 'vue'
+import { computed, ref, useId } from 'vue'
 import { useI18n } from 'vue-i18n'
 import PlayerField from './PlayerField.vue'
 import ComputerOpponentField from './ComputerOpponentField.vue'
@@ -112,8 +96,6 @@ import BaseFieldError from '@/shared/components/BaseFieldError.vue'
 import BaseButton from '@/shared/components/BaseButton.vue'
 import BaseSegmentedControl from '@/shared/components/BaseSegmentedControl.vue'
 import BaseHint from '@/shared/components/BaseHint.vue'
-import GameGoal from '@/shared/components/GameGoal.vue'
-import { useRulesPanel } from '@/shared/composables/useRulesPanel'
 
 import { computerColorFor, randomSwatch } from '@/utils'
 import { StorageService } from '@/services'
@@ -125,8 +107,6 @@ defineRule('min_value', min_value)
 defineRule('max_value', max_value)
 
 const { t } = useI18n()
-const rulesPanel = useRulesPanel()
-const howToPlayLink = useTemplateRef<HTMLButtonElement>('howToPlayLink')
 const sizeHintId = useId()
 const sizeErrorId = useId()
 

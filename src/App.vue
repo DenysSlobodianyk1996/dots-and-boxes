@@ -2,8 +2,17 @@
   <!-- the screen's height and never scrolls: the header stays on top and each screen scrolls
        inside its own <main> (AppScreen.vue, MB-11) -->
   <div data-app-shell class="flex h-app flex-col overflow-hidden p-safe-2">
-    <!-- every screen: game name on the left; theme, rules and language on the right (VR-18, VR-21, VR-23) -->
+    <!-- every screen: game name on the left; Home (Settings only, WL-12), theme, rules and language
+         on the right (VR-18, VR-21, VR-23) -->
     <AppHeader>
+      <BaseIconButton
+        v-if="welcome.isOnSetup.value"
+        data-home-button
+        :aria-label="t('welcome.home')"
+        @click="welcome.open()"
+      >
+        <HomeIcon :size="20" />
+      </BaseIconButton>
       <ThemeToggle />
       <BaseIconButton
         ref="rulesButton"
@@ -31,9 +40,12 @@ import LanguageToggle from '@/shared/components/LanguageToggle.vue'
 import RulesPanel from '@/shared/components/RulesPanel.vue'
 import ThemeToggle from '@/shared/components/ThemeToggle.vue'
 import { useRulesPanel } from '@/shared/composables/useRulesPanel'
+import { useWelcome } from '@/shared/composables/useWelcome'
+import HomeIcon from '@/shared/icons/HomeIcon.vue'
 import InfoIcon from '@/shared/icons/InfoIcon.vue'
 
 const { t } = useI18n()
 const rulesPanel = useRulesPanel()
+const welcome = useWelcome()
 const rulesButton = useTemplateRef('rulesButton')
 </script>
