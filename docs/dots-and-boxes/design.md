@@ -111,7 +111,7 @@ The remote Claude Design canvas is synced from these files separately.
 
 ### Welcome (2026-11-23, #89)
 
-Mobile boards W1 and W2 show Welcome, light and dark, on its finished demo frame: the "How to play" title, the demo card (score chips, 2 × 2 board, caption) and Play above the footer. The setup boards drop the goal sentence and link and gain the header's Home button [WL-12, WL-13]. Code: `src/pages/dots-and-boxes/welcome/` (`demo-script.ts` is the pure timeline, `DemoBoard.vue` the SVG, `Welcome.vue` the screen) and `useWelcome()`. The board takes the height left over through flex rather than a `dvh` calculation, so the layout also works on old WebViews (AR-21).
+Boards W1 and W2 (mobile) and W3 and W4 (desktop) show Welcome, light and dark, on its finished demo frame: the title with the game's name, the goal, the demo card (A and B score chips, 2 × 2 board with letters in claimed squares), the "How to play" steps with the current one highlighted, and Play above the footer. The rules panel boards (12, 13, D12, D13) show the same goal, demo and steps, smaller. The game boards show the highlighted hint, and the setup boards show the switch's matching corners. The setup boards drop the goal sentence and link and gain the header's Home button [WL-10, WL-12, WL-13, RL-1, END-8, VC-25]. Code: `src/shared/components/HowToPlay.vue` (demo and steps, on Welcome and in the rules panel), `DemoBoard.vue` (the SVG), `src/shared/demo-script.ts` (the pure timeline) and `src/pages/dots-and-boxes/welcome/Welcome.vue`. The layout takes the height left over through flex rather than a `dvh` calculation, so it also works on old WebViews (AR-21).
 
 ### Short name, goal and lighter header (2026-11-19, #67)
 
