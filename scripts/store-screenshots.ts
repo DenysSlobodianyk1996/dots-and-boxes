@@ -2,9 +2,9 @@
  * Store images for Google Play (AR-16, AR-17): run with `npm run store:screenshots`, review the
  * images and commit what it writes to `docs/store/`. It is not part of the build or the tests.
  *
- * - screenshots: builds the app, serves the build with `vite preview` and captures 5 screens per
- *   listed language and device (phone, 7" and 10" tablet), seeding localStorage with fixed games
- *   so every run gives the same images; no shot waits for a computer move
+ * - screenshots: builds the app, serves the build with `vite preview` and captures 6 screens per
+ *   listed language and device (phone, 7" and 10" tablet), Welcome first, seeding localStorage
+ *   with fixed games so every run gives the same images; no shot waits for a computer move
  * - feature graphics (1024×500, per language): the logo and the title on cream, from an HTML template
  * - icon-512.png: the logo on the cream tile, 32-bit PNG, in the store root
  *
@@ -18,7 +18,14 @@ import { build, preview } from 'vite'
 import { LOGO_COLORS, logoSvg } from '../src/shared/logo.ts'
 import { LANGUAGE_CODES, type AppLocale } from '../src/i18n/languages.ts'
 import { MESSAGES } from '../src/i18n/messages.ts'
-import { deviceDir, featureGraphicPath, screenshotPath, type StoreDevice } from './store-paths.ts'
+import {
+  deviceDir,
+  featureGraphicPath,
+  screenshotPath,
+  STORE_SCREENS,
+  type StoreDevice,
+  type StoreScreen,
+} from './store-paths.ts'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
 const storeDir = `${root}docs/store/`
@@ -130,16 +137,21 @@ const darkGame = (lang: Lang) =>
 // ---- screens ----
 
 interface Screen {
-  name: string
   theme: 'light' | 'dark'
   game?: (lang: Lang) => object
   // after the app has loaded: put the screen into the state to capture
   prepare?: (page: Page, lang: Lang) => Promise<void>
 }
 
-const SCREENS: Screen[] = [
-  {
-    name: 'setup',
+const SCREEN_SETUP: Record<StoreScreen, Screen> = {
+  // no saved game, and reduced motion: the demo's finished frame with the winning caption (WL-17)
+  welcome: {
+    theme: 'light',
+    prepare: async (page) => {
+      await page.locator('[data-welcome-play]').waitFor()
+    },
+  },
+  setup: {
     theme: 'light',
     prepare: async (page, lang) => {
       // a launch without a saved game opens on Welcome (WL-1)
@@ -149,10 +161,9 @@ const SCREENS: Screen[] = [
       await name.blur()
     },
   },
-  { name: 'game', theme: 'light', game: midGame },
-  { name: 'result', theme: 'light', game: wonGame },
-  {
-    name: 'rules',
+  game: { theme: 'light', game: midGame },
+  result: { theme: 'light', game: wonGame },
+  rules: {
     theme: 'light',
     game: midGame,
     prepare: async (page) => {
@@ -162,8 +173,10 @@ const SCREENS: Screen[] = [
       await page.locator('[data-rules-close]').blur()
     },
   },
-  { name: 'dark', theme: 'dark', game: darkGame },
-]
+  dark: { theme: 'dark', game: darkGame },
+}
+
+const SCREENS = STORE_SCREENS.map((name) => ({ name, ...SCREEN_SETUP[name] }))
 
 async function capture(browser: Browser, url: string, lang: Lang, device: Device) {
   const { width, height, scale } = DEVICES[device]
