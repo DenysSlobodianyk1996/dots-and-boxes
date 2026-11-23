@@ -6,7 +6,9 @@
  *   language (en, uk) and device (phone, 7" and 10" tablet), seeding localStorage with fixed games
  *   so every run gives the same images; no shot waits for a computer move
  * - feature graphics (1024×500, per language): the logo and the title on cream, from an HTML template
- * - icon-512.png: the logo on the cream tile, 32-bit PNG
+ * - icon-512.png: the logo on the cream tile, 32-bit PNG, in the store root
+ *
+ * Per-language images go to `docs/store/<lang>/` (LG-17, LG-18; paths in `store-paths.ts`).
  */
 import { mkdir, readFile, rm } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
@@ -16,6 +18,7 @@ import { build, preview } from 'vite'
 import { LOGO_COLORS, logoSvg } from '../src/shared/logo.ts'
 import en from '../src/i18n/locales/en.ts'
 import uk from '../src/i18n/locales/uk.ts'
+import { deviceDir, featureGraphicPath, screenshotPath, type StoreDevice } from './store-paths.ts'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
 const storeDir = `${root}docs/store/`
@@ -27,9 +30,9 @@ const MESSAGES = { en, uk }
 // viewport × DPR = the store pixel size, portrait (Play: tablets ≥1080 px a side, ≤2:1)
 const DEVICES = {
   phone: { width: 360, height: 640, scale: 3 }, // 1080×1920
-  tablet7: { width: 600, height: 960, scale: 2 }, // 1200×1920
-  tablet10: { width: 800, height: 1280, scale: 2 }, // 1600×2560
-} as const
+  'tablet-7': { width: 600, height: 960, scale: 2 }, // 1200×1920
+  'tablet-10': { width: 800, height: 1280, scale: 2 }, // 1600×2560
+} as const satisfies Record<StoreDevice, object>
 type Device = keyof typeof DEVICES
 
 // ---- fixture games, in the shape the game saves under CURRENT_GAME ----
@@ -149,7 +152,9 @@ const SCREENS: Screen[] = [
 
 async function capture(browser: Browser, url: string, lang: Lang, device: Device) {
   const { width, height, scale } = DEVICES[device]
-  const dir = `${storeDir}screenshots/${lang}/${device}/`
+  // only this device's folder: the language folder also holds listing.md
+  const dir = `${storeDir}${deviceDir(lang, device)}`
+  await rm(dir, { recursive: true, force: true })
   await mkdir(dir, { recursive: true })
   for (const [index, screen] of SCREENS.entries()) {
     const context = await browser.newContext({
@@ -186,8 +191,9 @@ async function capture(browser: Browser, url: string, lang: Lang, device: Device
     await page.waitForFunction(() =>
       document.getAnimations().every(({ playState }) => playState !== 'running'),
     )
-    const file = `${dir}${String(index + 1).padStart(2, '0')}-${screen.name}.png`
-    await page.screenshot({ path: file })
+    await page.screenshot({
+      path: `${storeDir}${screenshotPath(lang, device, index, screen.name)}`,
+    })
     await context.close()
   }
 }
@@ -221,7 +227,7 @@ async function featureGraphic(browser: Browser, lang: Lang) {
     <h1>${MESSAGES[lang].app.title}</h1>
   </body></html>`)
   await page.evaluate(() => document.fonts.ready)
-  await page.screenshot({ path: `${storeDir}feature-graphic-${lang}.png` })
+  await page.screenshot({ path: `${storeDir}${featureGraphicPath(lang)}` })
   await page.close()
 }
 
@@ -244,7 +250,6 @@ if (!url) throw new Error('vite preview has no local URL')
 
 const browser = await chromium.launch()
 try {
-  await rm(`${storeDir}screenshots`, { recursive: true, force: true })
   for (const lang of LANGS) {
     for (const device of Object.keys(DEVICES) as Device[]) {
       await capture(browser, url, lang, device)

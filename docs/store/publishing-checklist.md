@@ -7,12 +7,12 @@ What you'll need, all in this folder or linked from it:
 | Item | Where |
 |---|---|
 | Signing and Play service account wizard | [`scripts/android-release-wizard.sh`](../../scripts/android-release-wizard.sh) |
-| Listing texts | [en.md](en.md), [uk.md](uk.md) |
+| Listing texts | [en/listing.md](en/listing.md), [uk/listing.md](uk/listing.md) |
 | Form answers | [play-console.md](play-console.md) |
 | Privacy policy URL | https://denysslobodianyk1996.github.io/dots-and-boxes/privacy/ (source: [`PrivacyContent.vue`](../../src/shared/components/PrivacyContent.vue), rendered by [`src/privacy-static.ts`](../../src/privacy-static.ts)) |
 | App icon 512×512 | [icon-512.png](icon-512.png) |
-| Feature graphic 1024×500 | [feature-graphic-en.png](feature-graphic-en.png), [feature-graphic-uk.png](feature-graphic-uk.png) |
-| Screenshots (phone, 7" and 10" tablet; en and uk) | [screenshots/](screenshots/) (regenerate with `npm run store:screenshots`) |
+| Feature graphic 1024×500 | [en/feature-graphic.png](en/feature-graphic.png), [uk/feature-graphic.png](uk/feature-graphic.png) |
+| Screenshots (phone, 7" and 10" tablet; en and uk) | [en/](en/), [uk/](uk/): `phone/`, `tablet-7/`, `tablet-10/` (regenerate with `npm run store:screenshots`) |
 | Tester invitation | [tester-invite.md](tester-invite.md) |
 
 ## 0. One-time setup: signing
@@ -36,8 +36,8 @@ What you'll need, all in this folder or linked from it:
 ## 2. Fill the listing
 
 - [ ] **Store settings**: category **Board**, tags, contact email (the placeholder in [play-console.md](play-console.md#app-details-store-settings); fill in your address).
-- [ ] **Main store listing** (en-US): title, short and full description from [en.md](en.md); icon; feature graphic `feature-graphic-en.png`; screenshots from `screenshots/en/` for phone, 7" tablet and 10" tablet.
-- [ ] **Manage translations → Add your own translation text → Ukrainian**: texts from [uk.md](uk.md), feature graphic `feature-graphic-uk.png`, screenshots from `screenshots/uk/`.
+- [ ] **Main store listing** (en-US): title, short and full description from [en/listing.md](en/listing.md); icon; feature graphic `en/feature-graphic.png`; screenshots from `en/phone/`, `en/tablet-7/` and `en/tablet-10/`.
+- [ ] **Manage translations → Add your own translation text → Ukrainian**: texts from [uk/listing.md](uk/listing.md), feature graphic `uk/feature-graphic.png`, screenshots from `uk/phone/`, `uk/tablet-7/` and `uk/tablet-10/`.
 
 ## 3. Fill the forms
 
@@ -58,7 +58,7 @@ The Play API can't create an app's first release, so this one upload is manual.
 - [ ] Build a signed AAB. Either push the first tag (`git tag v1.0.0 && git push origin v1.0.0`) and download the AAB from the **Android release** workflow run's artifacts (`app-release-1.0.0`; it is attached before the Play upload, and that upload step is expected to fail this once), or build it locally with `npm run android:build` and the keystore from step 0.
 - [ ] **Test and release → Testing → Internal testing → Create new release**.
 - [ ] Keep **Play App Signing** on (Google manages the app signing key; yours is the upload key).
-- [ ] Upload the AAB; paste the release notes from [en.md](en.md#release-notes-245--500) and [uk.md](uk.md#release-notes-269--500).
+- [ ] Upload the AAB; paste the release notes from [en/listing.md](en/listing.md#release-notes-234--500) and [uk/listing.md](uk/listing.md#release-notes-259--500).
 - [ ] Add yourself (and anyone helping) to the internal testers list, roll out, install from the opt-in link and play one game on a real device.
 
 ## 5. Closed test: at least 12 testers for 14 continuous days
@@ -80,7 +80,7 @@ The Play API can't create an app's first release, so this one upload is manual.
 
 - [ ] **Production → Create new release → Add from library** (the tested AAB), or promote it from closed testing.
 - [ ] Countries: all, or the list you want.
-- [ ] Release notes from [en.md](en.md) and [uk.md](uk.md); start a full (100%) or staged rollout; send for review.
+- [ ] Release notes from [en/listing.md](en/listing.md) and [uk/listing.md](uk/listing.md); start a full (100%) or staged rollout; send for review.
 - [ ] Once live, open the listing on a phone in both languages and check the texts, screenshots, rating, "No data collected" label and privacy link.
 
 ## 8. Every later release is `npm run release`
