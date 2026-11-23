@@ -40,7 +40,7 @@
           <button
             type="button"
             :aria-current="caption === frame.caption ? 'step' : undefined"
-            class="flex min-h-11 w-full cursor-pointer items-start gap-2 rounded-lg border-2 px-2 py-1.5 text-left text-sm transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-accent motion-reduce:transition-none sm:min-h-0"
+            class="flex min-h-11 w-full cursor-pointer items-center gap-2 rounded-lg border-2 px-2 py-1.5 text-left text-sm transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-accent motion-reduce:transition-none sm:min-h-0"
             :class="
               caption === frame.caption
                 ? 'border-accent bg-accent-tint font-semibold text-ink'
