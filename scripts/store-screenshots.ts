@@ -3,7 +3,7 @@
  * images and commit what it writes to `docs/store/`. It is not part of the build or the tests.
  *
  * - screenshots: builds the app, serves the build with `vite preview` and captures 5 screens per
- *   language (en, uk) and device (phone, 7" and 10" tablet), seeding localStorage with fixed games
+ *   listed language and device (phone, 7" and 10" tablet), seeding localStorage with fixed games
  *   so every run gives the same images; no shot waits for a computer move
  * - feature graphics (1024×500, per language): the logo and the title on cream, from an HTML template
  * - icon-512.png: the logo on the cream tile, 32-bit PNG, in the store root
@@ -16,18 +16,26 @@ import { chromium, type Browser, type Page } from 'playwright'
 import sharp from 'sharp'
 import { build, preview } from 'vite'
 import { LOGO_COLORS, logoSvg } from '../src/shared/logo.ts'
-import en from '../src/i18n/locales/en.ts'
-import uk from '../src/i18n/locales/uk.ts'
+import { LANGUAGE_CODES, type AppLocale } from '../src/i18n/languages.ts'
+import { MESSAGES } from '../src/i18n/messages.ts'
 import { deviceDir, featureGraphicPath, screenshotPath, type StoreDevice } from './store-paths.ts'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
 const storeDir = `${root}docs/store/`
 
-type Lang = 'en' | 'uk'
-const LANGS: Lang[] = ['en', 'uk']
-const MESSAGES = { en, uk }
+type Lang = AppLocale
 
 // viewport × DPR = the store pixel size, portrait (Play: tablets ≥1080 px a side, ≤2:1)
+// the device language each language's screenshots run under
+const DEVICE_LOCALE: Record<Lang, string> = {
+  en: 'en-US',
+  uk: 'uk-UA',
+  de: 'de-DE',
+  fr: 'fr-FR',
+  it: 'it-IT',
+  es: 'es-ES',
+}
+
 const DEVICES = {
   phone: { width: 360, height: 640, scale: 3 }, // 1080×1920
   'tablet-7': { width: 600, height: 960, scale: 2 }, // 1200×1920
@@ -37,7 +45,14 @@ type Device = keyof typeof DEVICES
 
 // ---- fixture games, in the shape the game saves under CURRENT_GAME ----
 
-const PERSON = { en: 'Sofia', uk: 'Софія' }
+const PERSON: Record<Lang, string> = {
+  en: 'Sofia',
+  uk: 'Софія',
+  de: 'Sofia',
+  fr: 'Sofia',
+  it: 'Sofia',
+  es: 'Sofía',
+}
 const PERSON_COLOR = '#2a9d8f' // teal
 // computerColorFor(teal); a saved game keeps whatever color it holds
 const COMPUTER = { name: '__computer_player__', color: '#ee8a3c' } // tangerine
@@ -162,7 +177,7 @@ async function capture(browser: Browser, url: string, lang: Lang, device: Device
       deviceScaleFactor: scale,
       isMobile: true,
       hasTouch: true,
-      locale: lang === 'uk' ? 'uk-UA' : 'en-US',
+      locale: DEVICE_LOCALE[lang],
       colorScheme: screen.theme,
       reducedMotion: 'reduce', // no entrance animations half-way through
       serviceWorkers: 'block',
@@ -203,7 +218,7 @@ async function capture(browser: Browser, url: string, lang: Lang, device: Device
 async function fontFace() {
   const files = `${root}node_modules/@fontsource-variable/nunito/files/`
   const faces = await Promise.all(
-    ['latin', 'cyrillic'].map(async (subset) => {
+    ['latin', 'latin-ext', 'cyrillic'].map(async (subset) => {
       const font = await readFile(`${files}nunito-${subset}-wght-normal.woff2`)
       return `@font-face{font-family:Nunito;font-weight:200 1000;src:url(data:font/woff2;base64,${font.toString('base64')}) format('woff2')}`
     }),
@@ -250,7 +265,7 @@ if (!url) throw new Error('vite preview has no local URL')
 
 const browser = await chromium.launch()
 try {
-  for (const lang of LANGS) {
+  for (const lang of LANGUAGE_CODES) {
     for (const device of Object.keys(DEVICES) as Device[]) {
       await capture(browser, url, lang, device)
     }

@@ -1,0 +1,152 @@
+import type en from './en'
+
+// Typed as the English messages, so a missing or extra key fails type-check (I18N-1)
+const it: typeof en = {
+  app: {
+    title: 'Punti e quadrati',
+    shortName: 'Punti e quadrati',
+  },
+  language: {
+    current: 'Lingua: {name}',
+    list: 'Lingua',
+  },
+  theme: {
+    light: 'Tema chiaro',
+    dark: 'Tema scuro',
+  },
+  footer: {
+    privacy: 'Privacy',
+    contact: 'Contatti',
+  },
+  privacy: {
+    title: 'Informativa sulla privacy',
+    updated: 'Aggiornamento:',
+    version: 'Versione:',
+    noDataTitle: 'Nessun dato personale',
+    noData:
+      'L’app non raccoglie alcun dato personale. Non invia dati a nessun server, non li conserva in remoto e non li condivide con nessuno.',
+    onDeviceTitle: 'Cosa resta sul tuo dispositivo',
+    onDevice:
+      'Per farti continuare in seguito, l’app salva la partita in corso, la lingua, il tema, la modalità di gioco e la difficoltà solo sul tuo dispositivo. Rimuovendo l’app o cancellandone i dati, vengono eliminati.',
+    noAdsTitle: 'Niente pubblicità, statistiche, account o autorizzazioni',
+    noAds:
+      'L’app non mostra pubblicità, non usa statistiche né tracciamento, non richiede un account e non chiede autorizzazioni sul dispositivo.',
+    childrenTitle: 'Bambini',
+    children:
+      'L’app è adatta ai bambini. Poiché non raccoglie nulla, non raccoglie nulla neanche dai bambini.',
+    contactTitle: 'Contatti',
+    contactIntro: 'Domande su questa informativa o sull’app:',
+    email: 'E-mail:',
+    developerTitle: 'Sviluppatore',
+    createdBy: 'Creato da Denys Slobodianyk',
+    back: 'Torna al gioco',
+    openGame: 'Apri il gioco',
+  },
+  setup: {
+    title: 'Impostazioni',
+    player: 'Giocatore {number}',
+    playerName: 'Nome del giocatore {number}',
+    name: 'Nome',
+    color: 'Colore',
+    size: 'Dimensione',
+    sizeHint: 'Da {min} a {max}',
+    save: 'Salva',
+    mode: 'Modalità di gioco',
+    modeComputer: 'Contro il computer',
+    modeTwoPlayers: 'Due giocatori',
+    you: 'Tu',
+    opponent: 'Avversario',
+    difficulty: 'Difficoltà',
+    easy: 'Facile',
+    normal: 'Normale',
+    easyHint: 'Il computer sceglie una linea a caso.',
+    normalHint: 'Il computer prende i quadrati quando può e cerca di non lasciartene.',
+  },
+  colors: {
+    coral: 'Corallo',
+    teal: 'Turchese',
+    sunflower: 'Girasole',
+    sky: 'Cielo',
+    lavender: 'Lavanda',
+    leaf: 'Foglia',
+    berry: 'Bacca',
+    tangerine: 'Mandarino',
+    taken: 'Questo colore è già preso',
+  },
+  players: {
+    computer: 'Computer',
+  },
+  validation: {
+    invalid: 'Valore non valido: {field}.',
+    maxLength: '{field}: massimo {length} caratteri.',
+    computerName: 'Questo nome appartiene al computer',
+    differentNames: 'I nomi devono essere diversi',
+  },
+  game: {
+    hintFirstLine: 'Scegli un punto qualsiasi per iniziare la prima linea.',
+    hintSelected:
+      'Scegli un vicino evidenziato per tracciare la linea. Scegli di nuovo il punto selezionato per annullare.',
+    hintStart: 'Scegli un punto evidenziato per iniziare una linea.',
+    dotLabel: 'Punto riga {row}, colonna {col}',
+  },
+  status: {
+    turn: 'Turno',
+    yourTurn: 'Tocca a te',
+    thinking: 'Sta pensando…',
+    computerDrew: 'Il computer ha tracciato una linea',
+    computerClaimedOne: 'Il computer ha tracciato una linea e preso un quadrato',
+    computerClaimedTwo: 'Il computer ha tracciato una linea e preso due quadrati',
+    score: 'Punteggio',
+    stop: 'Ferma',
+    stopTitle: 'Fermare la partita?',
+    stopText: 'Vince chi ora ha più quadrati.',
+    cancel: 'Annulla',
+    stopGame: 'Ferma',
+  },
+  result: {
+    title: 'Risultato',
+    wins: 'Vince {name}',
+    youWon: 'Hai vinto!',
+    computerWon: 'Ha vinto il computer',
+    draw: 'Pareggio',
+    completed: 'Tutti i quadrati sono presi.',
+    stopped: 'La partita è stata fermata.',
+    score: 'Punteggio',
+    settings: 'Impostazioni',
+    rematch: 'Rivincita',
+  },
+  welcome: {
+    play: 'Gioca',
+    home: 'Home',
+    captions: {
+      drawLine: 'Tocca due punti vicini per tracciare una linea.',
+      startFromLine: 'Si gioca a turno. Ogni nuova linea parte da un punto che ha già una linea.',
+      claimSquare: 'Traccia il quarto lato di un quadrato ed è tuo.',
+      turnPasses: 'Dopo ogni linea, il turno passa all’altro giocatore.',
+      keepGoing: 'Continua finché tutti i quadrati non sono presi.',
+      mostSquaresWins: 'Griglia piena: vince chi ha più quadrati!',
+    },
+  },
+  rules: {
+    title: 'Come si gioca',
+    open: 'Regole',
+    close: 'Chiudi le regole',
+    goal: '{name}: vince chi ha più quadrati quando la griglia è piena.',
+    step1: 'A turno, traccia una linea tra due punti vicini: a sinistra, a destra, su o giù.',
+    step2: 'La prima linea può stare ovunque. Poi parti da un punto che ha già una linea.',
+    step3:
+      'Traccia il quarto lato di un quadrato per prenderlo. Una linea può prendere due quadrati.',
+    step4: 'Dopo ogni linea, il turno passa all’altro giocatore.',
+    step5:
+      'La partita finisce quando tutti i quadrati sono presi o qualcuno preme Ferma. Vince chi ha più quadrati; a punteggio uguale è pareggio.',
+    storyboard: {
+      title: 'Per immagini',
+      frame1: 'La prima linea può stare ovunque.',
+      frame2: 'Le linee successive partono da una già tracciata: un punto, poi un vicino.',
+      frame3: 'Traccia il quarto lato e il quadrato è tuo.',
+      frame4: 'Una linea può chiudere due quadrati.',
+    },
+  },
+}
+
+export default it

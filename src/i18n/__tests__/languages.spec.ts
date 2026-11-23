@@ -1,12 +1,28 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { firstPaintScript } from '@/i18n/first-paint'
 import { LANGUAGES, resolveLanguage } from '@/i18n/languages'
+import { MESSAGES } from '@/i18n/messages'
 
 describe('the language list', () => {
   it('lists each language with its key and own name, in menu order (LG-1, LG-2)', () => {
     expect(LANGUAGES.map(({ code, key, name }) => [code, key, name])).toEqual([
       ['en', 'EN', 'English'],
       ['uk', 'УК', 'Українська'],
+      ['de', 'DE', 'Deutsch'],
+      ['fr', 'FR', 'Français'],
+      ['it', 'IT', 'Italiano'],
+      ['es', 'ES', 'Español'],
+    ])
+  })
+
+  it('names the app in each language (LG-12)', () => {
+    expect(LANGUAGES.map(({ code }) => MESSAGES[code].app.title)).toEqual([
+      'Dots and Boxes',
+      'Крапки й квадрати',
+      'Käsekästchen',
+      'Pipopipette',
+      'Punti e quadrati',
+      'Puntos y cuadrados',
     ])
   })
 })
@@ -20,6 +36,11 @@ describe('resolving the language', () => {
     [['pl-PL', 'uk-UA', 'en-US'], 'uk'],
     [['en-US', 'uk-UA'], 'en'],
     [['UK_ua'], 'uk'],
+    [['de-AT'], 'de'],
+    [['fr-CA'], 'fr'],
+    [['it-IT'], 'it'],
+    [['es-419'], 'es'],
+    [['pl-PL', 'es-MX', 'de-DE'], 'es'],
   ])('device languages %j give %s (LG-6)', (device, expected) => {
     expect(resolveLanguage(null, device)).toBe(expected)
   })

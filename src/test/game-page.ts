@@ -1,3 +1,4 @@
+import { LANGUAGES, type AppLocale } from '@/i18n/languages'
 import { vi } from 'vitest'
 import { flushPromises, type DOMWrapper, type VueWrapper } from '@vue/test-utils'
 import { mountGamePage, type MountGamePageOptions } from './mount-game-page'
@@ -496,10 +497,10 @@ export class GamePage {
   }
 
   // ends in the given language, through the menu, only if it's not on already
-  async switchLanguage(locale: 'uk' | 'en') {
+  async switchLanguage(locale: AppLocale) {
     if (document.documentElement.lang === locale) return
     await this.clickLanguageButton()
-    await this.chooseLanguageRow(locale === 'uk' ? 'УК' : 'EN')
+    await this.chooseLanguageRow(LANGUAGES.find(({ code }) => code === locale)?.key ?? 'EN')
   }
 
   // the install manifest the page links to; it names the installed app (VR-50, VR-51)

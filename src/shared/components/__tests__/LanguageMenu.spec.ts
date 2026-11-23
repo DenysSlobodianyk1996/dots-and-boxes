@@ -30,6 +30,10 @@ describe('language menu', () => {
     expect(page.languageMenu()).toEqual([
       { key: 'EN', name: 'English', nameLang: 'en', checked: false, ticked: false },
       { key: 'УК', name: 'Українська', nameLang: 'uk', checked: true, ticked: true },
+      { key: 'DE', name: 'Deutsch', nameLang: 'de', checked: false, ticked: false },
+      { key: 'FR', name: 'Français', nameLang: 'fr', checked: false, ticked: false },
+      { key: 'IT', name: 'Italiano', nameLang: 'it', checked: false, ticked: false },
+      { key: 'ES', name: 'Español', nameLang: 'es', checked: false, ticked: false },
     ])
   })
 
@@ -86,6 +90,18 @@ describe('language menu', () => {
 
     await page.switchLanguage('en')
     expect(page.headerTitle()).toBe('Dots and Boxes')
+
+    await page.switchLanguage('de')
+    expect(page.headerTitle()).toBe('Käsekästchen')
+
+    await page.switchLanguage('fr')
+    expect(page.headerTitle()).toBe('Pipopipette')
+
+    await page.switchLanguage('it')
+    expect(page.headerTitle()).toBe('Punti e quadrati')
+
+    await page.switchLanguage('es')
+    expect(page.headerTitle()).toBe('Puntos y cuadrados')
   })
 
   it('keeps the running game when the language changes (LG-5)', async () => {
@@ -130,14 +146,16 @@ describe('language menu by keyboard (LG-4)', () => {
 
     await page.pressKey('ArrowDown')
     expect(page.languageFocus()).toBe('УК')
-    await page.pressKey('ArrowDown')
+    await page.pressKey('ArrowUp')
     expect(page.languageFocus()).toBe('EN')
     await page.pressKey('ArrowUp')
-    expect(page.languageFocus()).toBe('УК')
-    await page.pressKey('Home')
+    expect(page.languageFocus()).toBe('ES')
+    await page.pressKey('ArrowDown')
     expect(page.languageFocus()).toBe('EN')
     await page.pressKey('End')
-    expect(page.languageFocus()).toBe('УК')
+    expect(page.languageFocus()).toBe('ES')
+    await page.pressKey('Home')
+    expect(page.languageFocus()).toBe('EN')
   })
 
   it('Escape closes without a change and returns focus to the button', async () => {
