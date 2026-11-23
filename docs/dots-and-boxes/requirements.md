@@ -325,7 +325,7 @@ Rules, languages and phones:
 
 - **VC-23**: The "How to play" rules are the same in both game modes and worded neutrally (RL-1, RL-5, CM-35).
 - **VC-24**: Every new text is available in all six languages: the mode and difficulty labels, "You" and "Opponent", the computer player's name, "Thinking…", "Your turn", "You won!", "Computer won" and the name-clash message (I18N-1, CM-36).
-- **VC-25**: The game mode and difficulty switches are full width with equal-width options, at least 44 px tall below 640 px wide, and the selected option has the same corner radius as the switch around it, and the setup and thinking indicator fit from 320 px wide (MB-1, MB-8, CM-38).
+- **VC-25**: The game mode and difficulty switches are full width with equal-width options, at least 44 px tall below 640 px wide, and the selected option has the same corner radius as the switch around it. One highlight slides to the chosen option, left or right, and moves without animating under reduced motion. The switches, the setup and the thinking indicator fit from 320 px wide (MB-1, MB-8, CM-38).
 
 Acceptance (English UI):
 - Given a first visit, then setup shows "Versus computer" and "Normal" selected, a "You" fieldset and an "Opponent" fieldset with "Computer".

@@ -792,6 +792,14 @@ export class GamePage {
     await this.chooseOption('Game mode', MODE_LABELS[mode])
   }
 
+  // which option (0-based) the game mode switch's sliding highlight is on (VC-25)
+  modeHighlightPosition() {
+    const thumb = this.wrapper.get(
+      '[role="radiogroup"][aria-label="Game mode"] [data-switch-thumb]',
+    )
+    return Number(thumb.attributes('data-position'))
+  }
+
   // the checked game mode
   selectedMode(): TestGameMode | null {
     return this.selectedOption('Game mode', MODE_LABELS)
