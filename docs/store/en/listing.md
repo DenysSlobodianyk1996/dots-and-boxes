@@ -14,7 +14,7 @@ Dots and Boxes
 The classic dots and boxes game: draw lines, close squares, beat the computer.
 ```
 
-## Full description (1364 / 4000)
+## Full description (1435 / 4000)
 
 ```text
 Dots and Boxes is the classic pencil-and-paper game, made for a phone or tablet.
@@ -33,9 +33,9 @@ PLAY YOUR WAY
 • Stop a game at any time: the current score decides the result.
 
 MADE FOR FAMILIES
-• Clear "How to play" rules with pictures, one tap away.
+• A short animated demo at launch, and clear rules with pictures one tap away.
 • Light and dark themes.
-• English and Ukrainian.
+• Six languages: English, Ukrainian, German, French, Italian and Spanish.
 • Works fully offline, from the first launch.
 • Your game is saved on the device, so you can pick up where you left off.
 
