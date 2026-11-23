@@ -122,7 +122,8 @@ Welcome ships first, so its text is translated once and the store images are gen
 
 ### Delivery
 
-- **One PR (#97)** for everything, merged once, after the Play Console step (#94) and the release notes (#95). The merge releases to Play closed testing.
+- **One PR (#97)** for the app, store files and docs, merged once. The merge releases to Play closed testing.
+- **Deferred**: the four new Play listings (#94) are added later by hand from the saved `docs/store/<lang>/` files. Their release notes (#95) follow only after that, so until then release notes stay in English and Ukrainian.
 
 ## Testing Decisions
 
