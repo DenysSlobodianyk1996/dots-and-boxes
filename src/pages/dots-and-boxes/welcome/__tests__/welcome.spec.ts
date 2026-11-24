@@ -103,6 +103,50 @@ describe('Welcome screen', () => {
     expect(page.input('size').element.value).toBe('7')
   })
 
+  it('Settings shows Back to the left of Play (SP-5)', async () => {
+    const page = await openGamePage({ onWelcome: true })
+    await page.clickStart()
+
+    expect(page.setupButtons()).toEqual(['Back', 'Play'])
+  })
+
+  it('Back goes from Settings to Welcome without starting a game (SP-5, SP-6)', async () => {
+    const page = await openGamePage({ onWelcome: true })
+    await page.clickStart()
+
+    await page.clickSetupBack()
+
+    expect(page.isWelcomeShown).toBe(true)
+    expect(page.isSetupShown).toBe(false)
+    expect(localStorage.getItem('CURRENT_GAME')).toBeNull()
+  })
+
+  it('keeps what was filled in on Settings across Back and Start (SP-6)', async () => {
+    const page = await openGamePage({ onWelcome: true })
+    await page.clickStart()
+    await page.chooseMode('twoPlayers')
+    await page.input('player1.name').setValue('Anna')
+    await page.input('player2.name').setValue('Bohdan')
+    await page.input('size').setValue('7')
+
+    await page.clickSetupBack()
+    await page.clickStart()
+
+    expect(page.selectedMode()).toBe('twoPlayers')
+    expect(page.input('player1.name').element.value).toBe('Anna')
+    expect(page.input('player2.name').element.value).toBe('Bohdan')
+    expect(page.input('size').element.value).toBe('7')
+  })
+
+  it('moves focus to the Welcome heading on Back (SP-6)', async () => {
+    const page = await openGamePage({ onWelcome: true })
+    await page.clickStart()
+
+    await page.clickSetupBack()
+
+    expect(page.focusedHeading()).toBe('Welcome to Dots and Boxes')
+  })
+
   it('keeps the difficulty chosen on Settings across Home and Start (WL-12)', async () => {
     const page = await openGamePage({ onWelcome: true })
     await page.clickStart()
@@ -346,6 +390,20 @@ describe('Welcome screen', () => {
 
     expect(page.welcomeSteps()[0]).toBe('Торкніться двох сусідніх крапок, щоб провести лінію.')
     expect(page.button('Почати').exists()).toBe(true)
+  })
+
+  it.each([
+    ['en', 'Back'],
+    ['uk', 'Назад'],
+    ['de', 'Zurück'],
+    ['fr', 'Retour'],
+    ['it', 'Indietro'],
+    ['es', 'Atrás'],
+  ])('in %s names the Settings Back button %s (SP-5)', async (locale, back) => {
+    const page = new GamePage(await mountGamePage({ storage: { LOCALE: locale }, onWelcome: true }))
+    await page.clickStart()
+
+    expect(page.setupButtons()[0]).toBe(back)
   })
 
   // Start leads to Settings, and Settings' Play starts the game (SP-3, SP-4)

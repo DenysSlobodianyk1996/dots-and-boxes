@@ -58,6 +58,7 @@ const en = {
     size: 'Size',
     sizeHint: 'From {min} to {max}',
     play: 'Play',
+    back: 'Back',
     mode: 'Game mode',
     modeComputer: 'Versus computer',
     modeTwoPlayers: 'Two players',
