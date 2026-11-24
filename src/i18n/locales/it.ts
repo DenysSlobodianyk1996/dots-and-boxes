@@ -51,7 +51,7 @@ const it: typeof en = {
     color: 'Colore',
     size: 'Dimensione',
     sizeHint: 'Da {min} a {max}',
-    save: 'Salva',
+    play: 'Gioca',
     mode: 'Modalità di gioco',
     modeComputer: 'Contro il computer',
     modeTwoPlayers: 'Due giocatori',
@@ -119,7 +119,7 @@ const it: typeof en = {
   welcome: {
     title: 'Benvenuti in {name}',
     goal: 'Vince chi ha più quadrati quando la griglia è piena.',
-    play: 'Gioca',
+    start: 'Inizia',
     home: 'Home',
     captions: {
       drawLine: 'Tocca due punti vicini per tracciare una linea.',

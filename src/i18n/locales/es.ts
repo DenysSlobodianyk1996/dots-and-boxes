@@ -51,7 +51,7 @@ const es: typeof en = {
     color: 'Color',
     size: 'Tamaño',
     sizeHint: 'De {min} a {max}',
-    save: 'Guardar',
+    play: 'Jugar',
     mode: 'Modo de juego',
     modeComputer: 'Contra el ordenador',
     modeTwoPlayers: 'Dos jugadores',
@@ -119,7 +119,7 @@ const es: typeof en = {
   welcome: {
     title: 'Bienvenidos a {name}',
     goal: 'Gana quien tiene más cuadrados cuando el tablero está lleno.',
-    play: 'Jugar',
+    start: 'Empezar',
     home: 'Inicio',
     captions: {
       drawLine: 'Toca dos puntos vecinos para trazar una línea.',

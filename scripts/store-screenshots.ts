@@ -148,14 +148,14 @@ const SCREEN_SETUP: Record<StoreScreen, Screen> = {
   welcome: {
     theme: 'light',
     prepare: async (page) => {
-      await page.locator('[data-welcome-play]').waitFor()
+      await page.locator('[data-welcome-start]').waitFor()
     },
   },
   setup: {
     theme: 'light',
     prepare: async (page, lang) => {
       // a launch without a saved game opens on Welcome (WL-1)
-      await page.locator('[data-welcome-play]').click()
+      await page.locator('[data-welcome-start]').click()
       const name = page.locator('input[name="player1.name"]')
       await name.fill(PERSON[lang])
       await name.blur()

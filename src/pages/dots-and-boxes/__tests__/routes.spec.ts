@@ -26,10 +26,10 @@ describe('Screen addresses', () => {
     expect(page.path).toBe('/settings')
   })
 
-  it('moves the address with Play and Home', async () => {
+  it('moves the address with Start and Home', async () => {
     const page = await openGamePage({ path: '/' })
 
-    await page.clickPlay()
+    await page.clickStart()
     expect(page.path).toBe('/settings')
 
     await page.clickHome()

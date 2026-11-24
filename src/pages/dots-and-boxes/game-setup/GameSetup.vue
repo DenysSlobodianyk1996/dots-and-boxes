@@ -2,7 +2,7 @@
   <!-- centered horizontally, top-aligned (MB-9) -->
   <div class="mx-auto max-w-130">
     <!-- only about settings: how to play is on Welcome and in the rules panel (WL-13) -->
-    <!-- takes focus when Play opens this screen; a ring only for keyboard use -->
+    <!-- takes focus when Start opens this screen; a ring only for keyboard use -->
     <h3
       data-setup-title
       data-screen-heading
@@ -83,7 +83,7 @@
         </div>
       </Field>
 
-      <BaseButton color="primary" type="submit">{{ t('setup.save') }}</BaseButton>
+      <BaseButton color="primary" type="submit">{{ t('setup.play') }}</BaseButton>
     </Form>
   </div>
 </template>
