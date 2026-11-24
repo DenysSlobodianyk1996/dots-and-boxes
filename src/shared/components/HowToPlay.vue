@@ -2,9 +2,14 @@
   <!-- Welcome: the demo on the left, the steps on the right; phones stack them, and the steps
        scroll inside their own area so Start stays on screen (WL-10, WL-19). The rules panel is the
        same block, stacked and smaller (RL-1) -->
+  <!-- wheel and touch scrolling anywhere on the block pause the following, so the screen or the
+       panel can be read when it scrolls instead of the list (SP-10) -->
   <div
+    ref="root"
     data-how-to-play
     class="flex min-h-0 flex-1 flex-col gap-3"
+    @touchmove.passive="pauseFollowing"
+    @wheel.passive="pauseFollowing"
     :class="compact ? '' : 'sm:flex-row sm:items-center sm:justify-center sm:gap-5'"
   >
     <div
@@ -20,7 +25,7 @@
     <div
       class="flex flex-col gap-1"
       :class="
-        compact ? 'min-h-32 flex-1' : 'min-h-0 flex-[1_1_58%] sm:max-h-full sm:min-w-0 sm:flex-1'
+        compact ? 'min-h-32 flex-1' : 'min-h-28 flex-[1_1_58%] sm:max-h-full sm:min-w-0 sm:flex-1'
       "
     >
       <!-- the rules panel has this heading already -->
@@ -31,9 +36,7 @@
         ref="stepList"
         data-demo-steps
         class="relative flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto"
-        @pointerdown="pauseFollowing"
-        @touchmove.passive="pauseFollowing"
-        @wheel.passive="pauseFollowing"
+        @pointerdown.self="pauseFollowing"
       >
         <li v-for="(caption, index) in DEMO_CAPTIONS" :key="caption" class="shrink-0">
           <!-- choosing a step shows that moment of the demo (WL-10) -->
@@ -76,7 +79,7 @@ import {
   type DemoCaption,
 } from '@/shared/demo-script'
 
-// how long the list leaves a player's own scrolling alone before following the demo again
+// how long the player's own scrolling pauses the following of the demo (SP-10)
 const FOLLOW_PAUSE_MS = 5000
 
 defineProps<{
@@ -98,24 +101,40 @@ const frame = computed(() => {
   return stillCaption.value ? frameAt(demoStepStill(stillCaption.value)) : FINISHED_FRAME
 })
 
+const root = useTemplateRef<HTMLDivElement>('root')
 const stepList = useTemplateRef<HTMLOListElement>('stepList')
-let followsAgainAt = 0
+// set while the player's own scrolling pauses the following (SP-10)
+let pauseTimer: ReturnType<typeof setTimeout> | undefined
 
+// the player's own scrolling (wheel, touch, a drag of the scrollbar) pauses the following; a tap
+// or click on a step doesn't. When the pause ends, the view catches up at once (SP-10)
 function pauseFollowing() {
-  followsAgainAt = performance.now() + FOLLOW_PAUSE_MS
+  clearTimeout(pauseTimer)
+  pauseTimer = setTimeout(() => {
+    pauseTimer = undefined
+    followStep()
+  }, FOLLOW_PAUSE_MS)
 }
 
-// where the steps scroll (phones), the highlighted one stays in view unless the player is reading
-// another one (WL-10)
+// brings the highlighted step into view in every scroll area around it (the list, Welcome's
+// <main>, the rules panel's content), with the least scrolling and only if it isn't fully in view
+// already (SP-8, SP-9). The footer and Start sit outside those areas, so "in view" is clear of them
 function followStep() {
-  const list = stepList.value
-  if (!list || list.scrollHeight <= list.clientHeight) return
-  if (performance.now() < followsAgainAt) return
-  const step = list.querySelector<HTMLElement>('[aria-current="step"]')
-  if (step) list.scrollTop = step.offsetTop - (list.clientHeight - step.offsetHeight) / 2
+  if (pauseTimer) return
+  const step = stepList.value?.querySelector<HTMLElement>('[aria-current="step"]')
+  step?.scrollIntoView({
+    block: 'nearest',
+    inline: 'nearest',
+    behavior: isMotionReduced.value ? 'auto' : 'smooth',
+  })
 }
 
 watch(() => frame.value.caption, followStep, { flush: 'post' })
+
+// follows again once the layout settles: a ResizeObserver reports after the first layout (on
+// mount, the rules panel opening and the reduced-motion still frame included) and whenever the
+// block's size changes, e.g. when the screen turns (SP-10)
+let resizeObserver: ResizeObserver | undefined
 
 let frameId = 0
 let startedAt = 0
@@ -152,11 +171,18 @@ function onMotionChange({ matches }: MediaQueryListEvent) {
 onMounted(() => {
   motionQuery.addEventListener('change', onMotionChange)
   followStep()
+  // jsdom has no ResizeObserver
+  if (typeof ResizeObserver !== 'undefined' && root.value) {
+    resizeObserver = new ResizeObserver(() => followStep())
+    resizeObserver.observe(root.value)
+  }
   if (!isMotionReduced.value) play()
 })
 
 onBeforeUnmount(() => {
   motionQuery.removeEventListener('change', onMotionChange)
   cancelAnimationFrame(frameId)
+  clearTimeout(pauseTimer)
+  resizeObserver?.disconnect()
 })
 </script>
