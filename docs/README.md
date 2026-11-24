@@ -22,7 +22,7 @@ docs/
 2. **Spec**: `/to-spec` writes `docs/<feature>/spec.md` and publishes the same spec as a GitHub issue. User stories carry stable IDs (for example `CM-3`).
 3. **Tickets**: `/to-tickets` splits the spec into GitHub sub-issues with blocking links. Tickets are the task list; there is no `tasks.md`.
 4. **Build**: `/implement` per ticket (test-first with `/tdd`, then `/code-review`), and `/pr` for the pull request.
-5. **Design and store images**: at the end of an issue's scope, if anything visible changed, update the design canvas (local `design-canvas/*.dc.html` and the remote canvas) to match the shipped UI, run `npm run store:screenshots`, then review and commit the images.
+5. **Design and store images (last step, before the PR is marked ready)**: at the end of a feature or issue's scope, if anything visible changed, update the design canvas (local `design-canvas/*.dc.html` and the remote canvas) to match the shipped UI, run `npm run store:screenshots`, then review and commit the images.
 
 Rules:
 - If behavior needs to change, update the spec first, then the code. Shipped behavior is described in the feature's `requirements.md`.

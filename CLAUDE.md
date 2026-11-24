@@ -70,7 +70,7 @@ Android: Capacitor (`capacitor.config.ts`, app id `app.dotsandboxes`) wraps the 
 - TS is strict with `noUncheckedIndexedAccess` enabled, so indexed access returns `T | undefined`.
 - Linting: oxlint `correctness` category is set to error, and ESLint uses `vue/flat/essential` plus the vue-ts recommended config. Prettier owns formatting (`eslint-config-prettier`).
 - Node `^22.18.0 || >=24.12.0`.
-- **Design and store images**: at the end of an issue's scope, if anything visible changed (UI updates or a new visible feature), update the design canvas, both the local boards in `docs/dots-and-boxes/design-canvas/*.dc.html` and the remote Claude Design canvas linked in `docs/dots-and-boxes/design.md`, to match the shipped UI. Then run `npm run store:screenshots`, review and commit the images (`docs/README.md` workflow step 5).
+- **Design and store images (last step of every feature)**: when a feature or spec's work is done and anything visible changed (UI updates or a new visible feature), sync three things before the PR is marked ready, on the feature's branch: (1) the local boards in `docs/dots-and-boxes/design-canvas/*.dc.html` (plus the matching text in `design.md`), (2) the remote canvas linked in `docs/dots-and-boxes/design.md`, and (3) the store images (`npm run store:screenshots`, then review and commit them). The remote canvas is a claude.ai artifact that embeds every board: its `<script id="appifact-doc">` JSON holds `content.files` (`<name>.dc.html` and `canvas.json`), so read it with the Artifact tool, replace that record with the local files and republish to the same URL. This is `docs/README.md` workflow step 5; `/implement-spec` and similar flows don't do it on their own.
 
 ## Agent skills
 
