@@ -112,7 +112,7 @@ The panel with the "How to play" rules, opened from the info button in the heade
 _Avoid_: rules drawer, rules modal, rules toggle
 
 **Welcome**:
-The screen that opens on every launch unless a saved game is restored: the How-to-play demo, its caption and Play, which leads to Setup.
+The screen that opens on every launch unless a saved game is restored: the How-to-play demo, its caption and Start, which leads to Setup.
 _Avoid_: onboarding, intro, landing page
 
 **How-to-play demo**:
@@ -120,8 +120,17 @@ The short, watch-only game that loops on Welcome, drawn live by the app. It isn'
 _Avoid_: tutorial, video, GIF
 
 **Home button**:
-The header button on Setup that goes back to Welcome.
-_Avoid_: back button
+The round header button on Setup that goes back to Welcome.
+
+**Back button**:
+The secondary button beside Play on Setup that goes back to Welcome, the same as the Home button.
+
+**Start** (Welcome button):
+The button on Welcome that leads to Setup. It doesn't start a game.
+
+**Play** (Setup button):
+The button on Setup that starts the game with the chosen settings.
+_Avoid_: Save
 
 **Language menu**:
 The list of the six languages (EN, УК, DE, FR, IT, ES) that the header's language button opens.

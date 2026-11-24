@@ -20,9 +20,9 @@ docs/
 
 1. **Shape the idea**: `/grill-with-docs` interviews the idea and updates `GLOSSARY.md` and `docs/adr/` as terms and decisions settle.
 2. **Spec**: `/to-spec` writes `docs/<feature>/spec.md` and publishes the same spec as a GitHub issue. User stories carry stable IDs (for example `CM-3`).
-3. **Design**: update the design canvas (local files and the remote canvas) and get it reviewed before implementation starts.
-4. **Tickets**: `/to-tickets` splits the spec into GitHub sub-issues with blocking links. Tickets are the task list; there is no `tasks.md`.
-5. **Build**: `/implement` per ticket (test-first with `/tdd`, then `/code-review`), and `/pr` for the pull request.
+3. **Tickets**: `/to-tickets` splits the spec into GitHub sub-issues with blocking links. Tickets are the task list; there is no `tasks.md`.
+4. **Build**: `/implement` per ticket (test-first with `/tdd`, then `/code-review`), and `/pr` for the pull request.
+5. **Design and store images**: at the end of an issue's scope, if anything visible changed, update the design canvas (local `design-canvas/*.dc.html` and the remote canvas) to match the shipped UI, run `npm run store:screenshots`, then review and commit the images.
 
 Rules:
 - If behavior needs to change, update the spec first, then the code. Shipped behavior is described in the feature's `requirements.md`.
@@ -38,4 +38,5 @@ Rules:
 | UI polish and rename to Dots and Boxes: Connected | Spec agreed | [spec](ui-polish/spec.md) |
 | Android release on Google Play | Spec agreed (blocked by UI polish) | [spec](android-release/spec.md) |
 | Short name, game goal and a lighter header | Shipped (#67) | [spec](short-name-and-goal/spec.md) · [requirements HD, RL, I18N](dots-and-boxes/requirements.md) · [design](dots-and-boxes/design.md#short-name-goal-and-lighter-header-2026-11-19-67) |
+| Screen polish (Start, Play and Back buttons, rules panel header, step following) | Spec agreed (#109) | [spec](screen-polish/spec.md) |
 | Welcome screen and six languages | Shipped (#97); Play listings and their release notes still open (#94, #95) | [spec](welcome-and-languages/spec.md) · [requirements WL, LG](dots-and-boxes/requirements.md#wl-welcome) · [design](dots-and-boxes/design.md#welcome-2026-11-23-89) |
