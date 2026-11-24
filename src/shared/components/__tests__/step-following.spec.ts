@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { fakeDemoClock, openGamePage, watchFollowedSteps } from '@/test/game-page'
+import { fakeDemoClock, openGamePage, watchFollowedSteps, type GamePage } from '@/test/game-page'
 
 const STEPS = [
   'Tap two neighboring dots to draw a line.',
@@ -47,5 +47,38 @@ describe('following the steps', () => {
     await page.openRules()
 
     expect(followed[followed.length - 1]).toBe(page.rulesCurrentStep())
+  })
+
+  // the screen scrolls, not only the list: scrolling it anywhere pauses the following (SP-10)
+  it.each([
+    ['the wheel on the goal', (page: GamePage) => page.wheelWelcomeGoal()],
+    ['a touch drag on the goal', (page: GamePage) => page.touchMoveWelcomeGoal()],
+    ['the arrow keys', (page: GamePage) => page.pressKey('ArrowDown')],
+    ['Page Down', (page: GamePage) => page.pressKey('PageDown')],
+    ["a drag of the screen's scrollbar", (page: GamePage) => page.pointerDownWelcomeScrollArea()],
+  ])('pauses while the player scrolls the screen with %s (SP-10)', async (_how, scroll) => {
+    fakeDemoClock()
+    const followed = watchFollowedSteps()
+    const page = await openGamePage({ onWelcome: true })
+
+    await scroll(page)
+    followed.length = 0
+    await page.playWelcomeDemoTo(2)
+
+    expect(followed).toEqual([])
+  })
+
+  it("doesn't scroll Welcome behind the open rules panel, and catches up once it closes (SP-8)", async () => {
+    fakeDemoClock()
+    const followed = watchFollowedSteps({ only: 'welcome' })
+    const page = await openGamePage({ onWelcome: true })
+    await page.openRules()
+
+    followed.length = 0
+    await page.playWelcomeDemoTo(2)
+    expect(followed).toEqual([])
+
+    await page.closeRules('button')
+    expect(followed[followed.length - 1]).toBe(page.welcomeCaption())
   })
 })

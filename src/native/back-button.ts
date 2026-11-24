@@ -1,5 +1,5 @@
 import { App } from '@capacitor/app'
-import router, { leavePrivacy } from '@/router'
+import router, { backToWelcome, leavePrivacy } from '@/router'
 import { useLanguageMenu } from '@/shared/composables/useLanguageMenu'
 import { useRulesPanel } from '@/shared/composables/useRulesPanel'
 import { useStopDialog } from '@/shared/composables/useStopDialog'
@@ -17,7 +17,7 @@ export async function listenToBackButton() {
     if (stopDialog.isOpen.value) return stopDialog.close()
     const route = router.currentRoute.value.name
     if (route === 'privacy') return leavePrivacy()
-    if (route === 'settings') return void router.push({ name: 'welcome' })
+    if (route === 'settings') return backToWelcome()
     void App.exitApp()
   })
 }

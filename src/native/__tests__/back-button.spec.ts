@@ -96,7 +96,8 @@ describe('Android back button (AR-3)', () => {
     await page.input('player1.name').setValue('Anna')
     await startNative()
 
-    await pressBack()
+    // a step back in the browser history, which jsdom delivers some tasks later (SP-6)
+    await page.afterNavigation(pressBack)
 
     expect(page.isWelcomeShown).toBe(true)
     expect(page.focusedHeading()).toBe('Welcome to Dots and Boxes')

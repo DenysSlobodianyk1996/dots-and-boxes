@@ -9,7 +9,7 @@
         v-if="route.name === 'settings'"
         data-home-button
         :aria-label="t('welcome.home')"
-        @click="router.push({ name: 'welcome' })"
+        @click="backToWelcome"
       >
         <HomeIcon :size="20" />
       </BaseIconButton>
@@ -34,7 +34,8 @@
 <script setup lang="ts">
 import { useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
+import { backToWelcome } from '@/router'
 import AppHeader from '@/shared/components/AppHeader.vue'
 import BaseIconButton from '@/shared/components/BaseIconButton.vue'
 import LanguageMenu from '@/shared/components/LanguageMenu.vue'
@@ -47,6 +48,5 @@ import InfoIcon from '@/shared/icons/InfoIcon.vue'
 const { t } = useI18n()
 const rulesPanel = useRulesPanel()
 const route = useRoute()
-const router = useRouter()
 const rulesButton = useTemplateRef('rulesButton')
 </script>
