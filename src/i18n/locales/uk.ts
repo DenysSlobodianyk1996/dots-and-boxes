@@ -55,6 +55,7 @@ const uk: typeof en = {
     size: 'Розмір поля',
     sizeHint: 'Від {min} до {max}',
     play: 'Грати',
+    back: 'Назад',
     mode: 'Режим гри',
     modeComputer: 'Проти комп’ютера',
     modeTwoPlayers: 'Двоє гравців',

@@ -90,6 +90,31 @@ describe('Android back button (AR-3)', () => {
     expect(app.exitApp).not.toHaveBeenCalled()
   })
 
+  it('goes from Settings to Welcome instead of leaving, keeping the draft (SP-7)', async () => {
+    const page = await openGamePage({ onWelcome: true })
+    await page.clickStart()
+    await page.input('player1.name').setValue('Anna')
+    await startNative()
+
+    await pressBack()
+
+    expect(page.isWelcomeShown).toBe(true)
+    expect(page.focusedHeading()).toBe('Welcome to Dots and Boxes')
+    expect(app.exitApp).not.toHaveBeenCalled()
+    await page.clickStart()
+    expect(page.input('player1.name').element.value).toBe('Anna')
+  })
+
+  it('leaves the app from Welcome (SP-7)', async () => {
+    const page = await openGamePage({ onWelcome: true })
+    await startNative()
+
+    await pressBack()
+
+    expect(page.isWelcomeShown).toBe(true)
+    expect(app.exitApp).toHaveBeenCalledOnce()
+  })
+
   it('leaves the app when neither is open', async () => {
     const page = await startGame()
     await startNative()

@@ -53,6 +53,7 @@ const fr: typeof en = {
     size: 'Taille',
     sizeHint: 'De {min} à {max}',
     play: 'Jouer',
+    back: 'Retour',
     mode: 'Mode de jeu',
     modeComputer: 'Contre l’ordinateur',
     modeTwoPlayers: 'Deux joueurs',

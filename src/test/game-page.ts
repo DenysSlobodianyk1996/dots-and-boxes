@@ -765,6 +765,19 @@ export class GamePage {
     return this.wrapper.get('form button[type="submit"]').text().trim()
   }
 
+  // the setup form's buttons in the order they show, by their text (SP-5)
+  setupButtons() {
+    return this.wrapper
+      .findAll('form [data-setup-actions] button')
+      .map((button) => button.text().trim())
+  }
+
+  // Settings' Back, which returns to Welcome like Home (SP-5, SP-6)
+  async clickSetupBack() {
+    await this.wrapper.get('form button[data-setup-back]').trigger('click')
+    await flushPromises()
+  }
+
   // submits the setup form as it is filled in
   async submitSetupForm() {
     await this.wrapper.get('form').trigger('submit')
