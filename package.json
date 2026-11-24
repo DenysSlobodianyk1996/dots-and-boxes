@@ -24,7 +24,8 @@
     "android:apk": "bash scripts/android-debug-apk.sh",
     "android:install": "bash scripts/android-debug-apk.sh --install",
     "android:open": "cap open android",
-    "android:assets": "capacitor-assets generate --android"
+    "android:assets": "capacitor-assets generate --android",
+    "check:step-following": "node scripts/check-step-following.ts"
   },
   "dependencies": {
     "@capacitor/android": "^8.6.2",

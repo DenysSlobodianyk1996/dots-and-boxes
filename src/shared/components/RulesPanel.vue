@@ -28,23 +28,29 @@
       aria-modal="true"
       :aria-labelledby="titleId"
       tabindex="-1"
-      class="fixed inset-y-0 right-0 z-30 flex w-full flex-col gap-4 overflow-y-auto bg-surface p-safe-5 shadow-2xl outline-none sm:w-96 sm:rounded-l-3xl"
+      class="fixed inset-y-0 right-0 z-30 flex w-full flex-col gap-3 bg-surface p-safe-5 shadow-2xl outline-none sm:w-96 sm:rounded-l-3xl"
       @keydown.esc="close"
       @keydown.tab="trapFocus"
     >
-      <div class="flex justify-end">
+      <!-- the heading and ✕ share one row that stays put; only the content below scrolls (SP-1, SP-2) -->
+      <div data-rules-header class="flex shrink-0 items-center justify-between gap-3">
+        <h2 :id="titleId" class="min-w-0 text-lg font-bold text-ink">{{ t('rules.title') }}</h2>
         <button
           ref="closeButton"
           type="button"
           data-rules-close
           :aria-label="t('rules.close')"
-          class="flex size-11 cursor-pointer items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-accent"
+          class="-mr-2 flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-accent"
           @click="close"
         >
           <CloseIcon />
         </button>
       </div>
-      <GameRules :title-id="titleId" />
+      <!-- the panel's one scroll area: a block, so the steps take their full height and the list
+           doesn't scroll on its own inside it (SP-2) -->
+      <div data-rules-scroll class="min-h-0 flex-1 overflow-y-auto">
+        <GameRules />
+      </div>
     </aside>
   </Transition>
 </template>

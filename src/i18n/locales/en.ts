@@ -57,7 +57,8 @@ const en = {
     color: 'Color',
     size: 'Size',
     sizeHint: 'From {min} to {max}',
-    save: 'Save',
+    play: 'Play',
+    back: 'Back',
     mode: 'Game mode',
     modeComputer: 'Versus computer',
     modeTwoPlayers: 'Two players',
@@ -128,7 +129,7 @@ const en = {
   welcome: {
     title: 'Welcome to {name}',
     goal: 'Whoever owns more squares when the board is full wins.',
-    play: 'Play',
+    start: 'Start',
     home: 'Home',
     captions: {
       drawLine: 'Tap two neighboring dots to draw a line.',

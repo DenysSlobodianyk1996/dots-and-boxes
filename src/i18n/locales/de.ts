@@ -52,7 +52,8 @@ const de: typeof en = {
     color: 'Farbe',
     size: 'Größe',
     sizeHint: 'Von {min} bis {max}',
-    save: 'Speichern',
+    play: 'Spielen',
+    back: 'Zurück',
     mode: 'Spielmodus',
     modeComputer: 'Gegen Computer',
     modeTwoPlayers: 'Zwei Spieler',
@@ -121,7 +122,7 @@ const de: typeof en = {
   welcome: {
     title: 'Willkommen bei {name}',
     goal: 'Wer die meisten Kästchen hat, wenn das Feld voll ist, gewinnt.',
-    play: 'Spielen',
+    start: "Los geht's",
     home: 'Start',
     captions: {
       drawLine: 'Tippe auf zwei benachbarte Punkte, um eine Linie zu ziehen.',

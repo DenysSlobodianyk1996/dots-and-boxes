@@ -100,6 +100,33 @@ export function stubReducedMotion() {
   )
 }
 
+// Fakes the clock the demo runs on (animation frames, performance.now and timers) before the
+// page opens, so a spec can play the demo on with playDemo().
+export function fakeDemoClock() {
+  vi.useFakeTimers({
+    toFake: [
+      'requestAnimationFrame',
+      'cancelAnimationFrame',
+      'performance',
+      'setTimeout',
+      'clearTimeout',
+    ],
+  })
+}
+
+// Records every step brought into view (SP-8..SP-10), by its text without the number, in order.
+// jsdom has no layout, so a step counts as followed when the page asks the browser to scroll it
+// into view; the real layout is checked by `npm run check:step-following`.
+// `only: 'welcome'` leaves out the rules panel's copy of the steps.
+export function watchFollowedSteps({ only }: { only?: 'welcome' } = {}) {
+  const followed: string[] = []
+  vi.spyOn(Element.prototype, 'scrollIntoView').mockImplementation(function (this: Element) {
+    if (only === 'welcome' && !this.closest('[data-welcome]')) return
+    followed.push(this.querySelector('span:last-child')?.textContent?.trim() ?? '')
+  })
+  return followed
+}
+
 // Opens the page, fills in the setup form and submits it.
 export async function startGame({
   mode = 'twoPlayers',
@@ -247,6 +274,55 @@ export class GamePage {
     await flushPromises()
   }
 
+  // taps a step (1-6) in Welcome's list as a finger does: pointer down, then click (SP-10)
+  async tapWelcomeStep(number: number) {
+    const step = this.welcome.findAll('[data-demo-steps] button')[number - 1]!
+    await step.trigger('pointerdown')
+    await step.trigger('click')
+    await flushPromises()
+  }
+
+  // scrolls Welcome's steps with the mouse wheel (SP-10)
+  async wheelWelcomeSteps() {
+    await this.welcome.get('[data-demo-steps]').trigger('wheel', { deltaY: 100 })
+    await flushPromises()
+  }
+
+  // scrolls Welcome's screen with the mouse wheel over the goal, outside the steps (SP-10)
+  async wheelWelcomeGoal() {
+    await this.welcome.get('[data-welcome-goal]').trigger('wheel', { deltaY: 100 })
+    await flushPromises()
+  }
+
+  // scrolls Welcome's screen with a finger on the goal, outside the steps (SP-10)
+  async touchMoveWelcomeGoal() {
+    await this.welcome.get('[data-welcome-goal]').trigger('touchmove')
+    await flushPromises()
+  }
+
+  // presses on the scroll area around Welcome itself, as a drag of its scrollbar starts (SP-10)
+  async pointerDownWelcomeScrollArea() {
+    await this.wrapper.get('main').trigger('pointerdown')
+    await flushPromises()
+  }
+
+  // lets the demo play on for a while, a frame at a time; needs fakeDemoClock()
+  async playDemo(ms: number) {
+    for (let played = 0; played < ms; played += 50) {
+      vi.advanceTimersByTime(50)
+      await flushPromises()
+    }
+  }
+
+  // lets Welcome's demo play on until it shows the given step (1-6); needs fakeDemoClock()
+  async playWelcomeDemoTo(number: number) {
+    const step = this.welcomeSteps()[number - 1]
+    for (let waited = 0; this.welcomeCaption() !== step; waited += 50) {
+      if (waited > 30_000) throw new Error(`The demo never reached step ${number}`)
+      await this.playDemo(50)
+    }
+  }
+
   // the goal under Welcome's title (WL-10)
   welcomeGoal() {
     return this.welcome.get('[data-welcome-goal]').text()
@@ -286,8 +362,13 @@ export class GamePage {
     }
   }
 
-  async clickPlay() {
-    await this.welcome.get('button[data-welcome-play]').trigger('click')
+  // the Welcome button that leads to Settings, as it is shown (SP-3)
+  get startButtonLabel() {
+    return this.welcome.get('button[data-welcome-start]').text().trim()
+  }
+
+  async clickStart() {
+    await this.welcome.get('button[data-welcome-start]').trigger('click')
     await flushPromises()
   }
 
@@ -303,9 +384,9 @@ export class GamePage {
     return this.homeButton.attributes('aria-label')
   }
 
+  // Home may step back in the browser history, so wait for that navigation (SP-6)
   async clickHome() {
-    await this.homeButton.trigger('click')
-    await flushPromises()
+    await this.afterNavigation(() => this.homeButton.trigger('click'))
   }
 
   // the screen heading holding keyboard focus, by its text, or null
@@ -452,6 +533,15 @@ export class GamePage {
     await action()
     await navigated
     await flushPromises()
+  }
+
+  // how many entries the browser history holds, and whether browser Back stays in the app
+  get historyLength() {
+    return window.history.length
+  }
+
+  get canGoBack() {
+    return !!(window.history.state as { back?: unknown } | null)?.back
   }
 
   // the address the app shows, e.g. '/settings' (WL-1)
@@ -609,6 +699,32 @@ export class GamePage {
     return id ? document.getElementById(id)?.textContent?.trim() : undefined
   }
 
+  // The open panel's header row and what scrolls (SP-1, SP-2): the heading that labels the panel
+  // when it sits in the row, whether ✕ shares the row, whether the row stays put outside the
+  // scroll area, and whether the goal and steps scroll below it.
+  rulesHeader() {
+    const panel = this.rulesPanel.element
+    const row = panel.querySelector<HTMLElement>('[data-rules-header]')
+    const scrollArea = panel.querySelector<HTMLElement>('[data-rules-scroll]')
+    const id = panel.getAttribute('aria-labelledby')
+    const heading = id ? document.getElementById(id) : null
+    const close = panel.querySelector('button[data-rules-close]')
+    return {
+      title: row && heading && row.contains(heading) ? heading.textContent?.trim() : undefined,
+      hasClose: !!row && !!close && row.contains(close),
+      staysPut: !!row && !!scrollArea && !scrollArea.contains(row) && !row.contains(scrollArea),
+      contentScrolls:
+        !!scrollArea &&
+        !!scrollArea.querySelector('[data-rules-goal]') &&
+        !!scrollArea.querySelector('ol[data-demo-steps]'),
+    }
+  }
+
+  // how many headings the open panel shows (the steps add none of their own in the panel)
+  rulesHeadingCount() {
+    return this.rulesPanel.findAll('h1, h2, h3, h4').length
+  }
+
   // the steps, joined, as the open panel shows them
   rulesText() {
     return this.rulesPanel.get('ol[data-demo-steps]').text()
@@ -727,6 +843,25 @@ export class GamePage {
     }
     await this.input('size').setValue(String(size))
     await this.withFirstPlayer(first, () => this.submitSetupForm())
+  }
+
+  // the Settings button that starts the game, as it is shown (SP-4)
+  get setupPlayLabel() {
+    return this.wrapper.get('form button[type="submit"]').text().trim()
+  }
+
+  // the setup form's buttons in the order they show, by their text (SP-5)
+  setupButtons() {
+    return this.wrapper
+      .findAll('form [data-setup-actions] button')
+      .map((button) => button.text().trim())
+  }
+
+  // Settings' Back, which returns to Welcome like Home (SP-5, SP-6)
+  async clickSetupBack() {
+    await this.afterNavigation(() =>
+      this.wrapper.get('form button[data-setup-back]').trigger('click'),
+    )
   }
 
   // submits the setup form as it is filled in

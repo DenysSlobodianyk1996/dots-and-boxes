@@ -2,7 +2,7 @@
   <!-- centered horizontally, top-aligned (MB-9) -->
   <div class="mx-auto max-w-130">
     <!-- only about settings: how to play is on Welcome and in the rules panel (WL-13) -->
-    <!-- takes focus when Play opens this screen; a ring only for keyboard use -->
+    <!-- takes focus when Start opens this screen; a ring only for keyboard use -->
     <h3
       data-setup-title
       data-screen-heading
@@ -83,7 +83,21 @@
         </div>
       </Field>
 
-      <BaseButton color="primary" type="submit">{{ t('setup.save') }}</BaseButton>
+      <!-- Back to the left of Play, equal width (SP-5); part of the form, not the footer (FT-1) -->
+      <div data-setup-actions class="flex gap-3">
+        <BaseButton
+          color="secondary"
+          type="button"
+          data-setup-back
+          class="min-w-0 flex-1"
+          @click="emit('back')"
+        >
+          {{ t('setup.back') }}
+        </BaseButton>
+        <BaseButton color="primary" type="submit" data-setup-play class="min-w-0 flex-1">
+          {{ t('setup.play') }}
+        </BaseButton>
+      </div>
     </Form>
   </div>
 </template>
@@ -181,6 +195,8 @@ onBeforeUnmount(() => {
 
 const emit = defineEmits<{
   gameSetup: [GameSetupForm]
+  // back to Welcome, like Home: the draft is kept on unmount (SP-6)
+  back: []
 }>()
 
 // In Versus computer mode the second player is the computer player; values typed for a second

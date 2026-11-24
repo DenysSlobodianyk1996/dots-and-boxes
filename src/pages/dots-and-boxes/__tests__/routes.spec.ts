@@ -26,10 +26,10 @@ describe('Screen addresses', () => {
     expect(page.path).toBe('/settings')
   })
 
-  it('moves the address with Play and Home', async () => {
+  it('moves the address with Start and Home', async () => {
     const page = await openGamePage({ path: '/' })
 
-    await page.clickPlay()
+    await page.clickStart()
     expect(page.path).toBe('/settings')
 
     await page.clickHome()
@@ -59,5 +59,33 @@ describe('Screen addresses', () => {
 
     expect(page.path).toBe('/')
     expect(page.isWelcomeShown).toBe(true)
+  })
+
+  // Start adds Settings to the browser history; going back to Welcome steps back instead of
+  // adding Welcome again, so browser Back from Welcome doesn't reopen Settings (SP-6)
+  it.each(['Home', 'Back'] as const)(
+    '%s returns to Welcome without a new history entry',
+    async (how) => {
+      const page = await openGamePage({ path: '/' })
+      await page.clickStart()
+      const length = page.historyLength
+
+      if (how === 'Home') await page.clickHome()
+      else await page.clickSetupBack()
+
+      expect(page.path).toBe('/')
+      expect(page.historyLength).toBe(length)
+      expect(page.canGoBack).toBe(false)
+    },
+  )
+
+  it('replaces the address when Settings was opened directly and Home leads to Welcome', async () => {
+    const page = await openGamePage({ path: '/settings' })
+    const length = page.historyLength
+
+    await page.clickHome()
+
+    expect(page.path).toBe('/')
+    expect(page.historyLength).toBe(length)
   })
 })

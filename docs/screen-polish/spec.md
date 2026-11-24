@@ -63,6 +63,7 @@ A few rough edges remain after Welcome shipped:
 - Back is a secondary `BaseButton` on the same row as Play. Back is on the left, Play on the right, both equal width on phones. It is part of the form, not the footer, so FT-1 is unchanged.
 - Back goes to Welcome exactly as Home does: the in-memory Settings draft is kept, and focus moves to Welcome's heading with a ring only for keyboard use (WL-12).
 - The header's Home button (HD-1, HD-5) stays as it is.
+- Back, Home and Android back step back in the browser history when Start opened Settings, and replace the address otherwise, so browser Back from Welcome never reopens Settings.
 - Android back order (AR-3): language menu, rules panel, Stop dialog, privacy screen, then **Settings to Welcome**, then exit.
 
 ### Following the steps (SP-8..SP-10)
@@ -70,7 +71,7 @@ A few rough edges remain after Welcome shipped:
 - This replaces WL-10's last sentence ("Where the list scrolls, it keeps the highlighted step in view, unless the player has just scrolled it").
 - When the highlighted step changes, bring it into view inside every scroll area around it (the step list, the screen's main area on Welcome, the rules panel's content). Scroll the least distance needed, and don't move if it's already fully visible.
 - A step counts as visible only if it's clear of the pinned footer and the Start button.
-- Taps and clicks on a step don't pause following. Wheel, touch and drag scrolling of the steps still pauses it for a short while. When the pause ends, follow the current step at once, without waiting for the next change.
+- Taps and clicks on a step don't pause following. Wheel, touch, scroll-key and scrollbar-drag scrolling of the steps or of the area around them (the screen's main area, the rules panel's content) still pauses it for a short while. Welcome's copy doesn't follow while the rules panel covers it, and catches up when the panel closes. When the pause ends, follow the current step at once, without waiting for the next change.
 - Follow again once layout settles on mount, including when the rules panel opens and in the reduced-motion still frame.
 
 ## Testing Decisions
