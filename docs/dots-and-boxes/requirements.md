@@ -11,7 +11,7 @@ Domain terms (Dot, Line, Square, Owned square, Dot1/Dot2, Turn, Swatch, Rules pa
 - **GS-3**: Submitting a valid form starts the game in the chosen game mode (VC-1). The first player is chosen at random (see TR-2).
 - **GS-4**: A player's color is one of 8 round **swatches**: coral, teal, sunflower, sky, lavender, leaf, berry and tangerine, the same in the light and the dark theme. They form a radio group labelled "Колір" / "Color", and each swatch is announced by its name in the current language ("Кораловий" / "Coral", …). The picked swatch has a ring and is slightly larger (VR-32..VR-34, VR-38).
 - **GS-5**: Setup opens with two different random swatches for Player 1 and Player 2. In Two players mode a player can't keep the other player's swatch: the form shows "Цей колір уже зайнятий" / "This color is already taken" and the game doesn't start. In Versus computer mode the computer player's color follows VC-6 (VR-35..VR-37).
-- **GS-6**: A player name's error goes away as soon as typing makes the name valid, without leaving the field. Typing doesn't raise a new error on a name that shows none: that still waits for leaving the field or Start.
+- **GS-6**: A player name's error goes away as soon as typing makes the name valid, without leaving the field. Typing doesn't raise a new error on a name that shows none: that still waits for leaving the field or Play.
 
 Acceptance:
 - Given the language is English and both names are "Ann" and "ann", when I submit, then I see "Values must be different" and the game doesn't start.
@@ -153,26 +153,26 @@ Spec: [Welcome and languages](../welcome-and-languages/spec.md), issue #89.
 - **WL-3**: A saved game, finished or not, always opens at `/game`: `/` and `/settings` lead there while a game exists.
 - **WL-4..WL-9**: The **How-to-play demo** is a watch-only, looping 2 × 2 game of 12 legal lines played on a real game: two dots are picked, the line grows, later lines start from a drawn dot, a fourth side claims a square, the turn passes even after a claim (TR-1), and Coral wins 3 : 1 on a full board with the winner marked.
 - **WL-10**: Welcome is titled "Welcome to" plus the game's name, in the current language, with the game's **goal** directly under it ("Whoever owns more squares when the board is full wins."). From 640 px wide the demo is on the left and, under a "How to play" heading, a numbered list of all six steps on the right; below that width the list sits under the demo. The step the demo is showing is highlighted, and every step stays readable at any time. Each step holds about 2 seconds longer, and the finished board about 6 seconds, so it can be read. Tapping or pressing a step shows that moment of the demo, which plays on from there. Where the list scrolls, it keeps the highlighted step in view, unless the player has just scrolled it.
-- **WL-11, WL-12**: Play leads to Settings. On Settings only, a round Home button in the header (HD-5) returns to Welcome. What's filled in on Settings (game mode, difficulty, names, colors, size) is still there on coming back, including through the privacy screen. This draft is in memory only: a new launch starts fresh, and starting a game clears it. Play and Home move focus to the new screen's heading, with a focus ring only for keyboard use.
+- **WL-11, WL-12**: Start leads to Settings. On Settings only, a round Home button in the header (HD-5) returns to Welcome. What's filled in on Settings (game mode, difficulty, names, colors, size) is still there on coming back, including through the privacy screen. This draft is in memory only: a new launch starts fresh, and starting a game clears it. Start and Home move focus to the new screen's heading, with a focus ring only for keyboard use.
 - **WL-13, WL-14**: Settings has no goal sentence or "How to play" link. The rules panel repeats Welcome's demo and steps (RL-1).
 - **WL-15, WL-16**: Coming back from the privacy screen returns to the screen it was opened from. Leaving a finished game through Settings doesn't reopen Welcome.
 - **WL-17**: With reduced motion, the demo is the still finished board with the winning step highlighted. Choosing a step shows that step as a still picture.
 - **WL-18**: The picture is hidden from assistive technology. The six steps are a normal ordered list, and the highlighted one is marked as the current step.
-- **WL-19**: Welcome fits a 320 × 568 screen with Play visible and no page scrolling; the demo and the list share the space and the list scrolls inside its area.
+- **WL-19**: Welcome fits a 320 × 568 screen with Start visible and no page scrolling; the demo and the list share the space and the list scrolls inside its area.
 - **WL-20, WL-21**: The demo is inline SVG in theme tokens, so it follows theme and language at once and needs no media files. Its only letters are the players' A and B, on the score chips and inside each claimed square. Its animation stops when the block closes.
 - The Android back button follows AR-3: language menu, then rules panel, then Stop dialog, then exit. Home is the way from Settings to Welcome.
 
 Acceptance:
-- Given a launch with no saved game, then Welcome shows the demo, a caption, Play and the footer, and no Home button.
+- Given a launch with no saved game, then Welcome shows the demo, a caption, Start and the footer, and no Home button.
 - Given a saved game, finished or not, when the app opens, then the game shows and Welcome doesn't.
-- Given Welcome, when I press Play, then Settings opens with Home; when I press Home, then Welcome opens.
+- Given Welcome, when I press Start, then Settings opens with Home; when I press Home, then Welcome opens.
 - Given I open Privacy from Welcome or Settings, when I go back, then the same screen shows.
 - Given the device asks for reduced motion, then the demo is still, on the finished board, with "Board full: most squares wins!".
-- Given a 320 × 568 phone in either theme, then Play is visible without scrolling.
+- Given a 320 × 568 phone in either theme, then Start is visible without scrolling.
 
 ## TH: Look and theme
 
-- **TH-1**: The app uses the **Warm cream** look: a cream "paper" background, cocoa-brown text, coral for the primary actions (Start, Rematch, Stop game) and teal as the secondary accent, the rounded Nunito font (Latin and Cyrillic, shipped with the app), rounded corners and soft shadows on buttons, fields, panels, dialogs and the board. The board sits on a lighter surface with clearly visible idle dots, and the start, selected and target dot highlights use the accent colors. Lines and owned squares keep their owner's color (GB-2, GB-3) (VR-1..VR-8).
+- **TH-1**: The app uses the **Warm cream** look: a cream "paper" background, cocoa-brown text, coral for the primary actions (Start, Play, Rematch, Stop game) and teal as the secondary accent, the rounded Nunito font (Latin and Cyrillic, shipped with the app), rounded corners and soft shadows on buttons, fields, panels, dialogs and the board. The board sits on a lighter surface with clearly visible idle dots, and the start, selected and target dot highlights use the accent colors. Lines and owned squares keep their owner's color (GB-2, GB-3) (VR-1..VR-8).
 - **TH-2**: The refresh changes the look, not the layout: the game screen keeps the board with the side panel, and every MB rule still holds (VR-9, VR-10).
 - **TH-3**: There is a light and a dark **theme**. The dark theme has a warm cocoa background and light cream text. Text, dots and player colors stay readable in both (VR-12, VR-17).
 - **TH-4**: Until the player presses the theme button, the theme follows the device's light or dark setting, also when that setting changes while the app is open (VR-11, VR-15).
