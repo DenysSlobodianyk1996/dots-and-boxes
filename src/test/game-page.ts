@@ -342,8 +342,13 @@ export class GamePage {
     }
   }
 
-  async clickPlay() {
-    await this.welcome.get('button[data-welcome-play]').trigger('click')
+  // the Welcome button that leads to Settings, as it is shown (SP-3)
+  get startButtonLabel() {
+    return this.welcome.get('button[data-welcome-start]').text().trim()
+  }
+
+  async clickStart() {
+    await this.welcome.get('button[data-welcome-start]').trigger('click')
     await flushPromises()
   }
 
@@ -809,6 +814,24 @@ export class GamePage {
     }
     await this.input('size').setValue(String(size))
     await this.withFirstPlayer(first, () => this.submitSetupForm())
+  }
+
+  // the Settings button that starts the game, as it is shown (SP-4)
+  get setupPlayLabel() {
+    return this.wrapper.get('form button[type="submit"]').text().trim()
+  }
+
+  // the setup form's buttons in the order they show, by their text (SP-5)
+  setupButtons() {
+    return this.wrapper
+      .findAll('form [data-setup-actions] button')
+      .map((button) => button.text().trim())
+  }
+
+  // Settings' Back, which returns to Welcome like Home (SP-5, SP-6)
+  async clickSetupBack() {
+    await this.wrapper.get('form button[data-setup-back]').trigger('click')
+    await flushPromises()
   }
 
   // submits the setup form as it is filled in

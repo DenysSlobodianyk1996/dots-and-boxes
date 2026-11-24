@@ -7,7 +7,7 @@ describe('game page', () => {
 
     expect(page.text()).toContain('Налаштування')
     expect(page.find('form').exists()).toBe(true)
-    expect(page.find('button[type="submit"]').text()).toBe('Зберегти')
+    expect(page.find('button[type="submit"]').text()).toBe('Грати')
     expect(document.documentElement.lang).toBe('uk')
   })
 })

@@ -1,6 +1,6 @@
 <template>
   <!-- Welcome: the demo on the left, the steps on the right; phones stack them, and the steps
-       scroll inside their own area so Play stays on screen (WL-10, WL-19). The rules panel is the
+       scroll inside their own area so Start stays on screen (WL-10, WL-19). The rules panel is the
        same block, stacked and smaller (RL-1) -->
   <!-- wheel and touch scrolling anywhere on the block pause the following, so the screen or the
        panel can be read when it scrolls instead of the list (SP-10) -->

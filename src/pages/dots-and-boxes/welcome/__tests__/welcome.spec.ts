@@ -2,11 +2,13 @@ import { describe, expect, it, vi } from 'vitest'
 import {
   ANNA,
   BOHDAN,
+  GamePage,
   openGamePage,
   savedPlayer,
   startGame,
   stubReducedMotion,
 } from '@/test/game-page'
+import { mountGamePage } from '@/test/mount-game-page'
 
 const savedGame = (status: 'playing' | 'finished') => ({
   player1: savedPlayer(ANNA),
@@ -38,7 +40,7 @@ describe('Welcome screen', () => {
 
   it('opens again on the next launch (WL-2)', async () => {
     const page = await openGamePage({ onWelcome: true })
-    await page.clickPlay()
+    await page.clickStart()
 
     const next = await page.reload({ onWelcome: true })
 
@@ -59,10 +61,10 @@ describe('Welcome screen', () => {
     },
   )
 
-  it('Play leads to Settings, where the footer and Home show (WL-11, WL-12)', async () => {
+  it('Start leads to Settings, where the footer and Home show (WL-11, WL-12)', async () => {
     const page = await openGamePage({ onWelcome: true })
 
-    await page.clickPlay()
+    await page.clickStart()
 
     expect(page.isWelcomeShown).toBe(false)
     expect(page.isSetupShown).toBe(true)
@@ -72,7 +74,7 @@ describe('Welcome screen', () => {
 
   it('Home goes from Settings back to Welcome (WL-12)', async () => {
     const page = await openGamePage({ onWelcome: true })
-    await page.clickPlay()
+    await page.clickStart()
 
     await page.clickHome()
 
@@ -80,9 +82,9 @@ describe('Welcome screen', () => {
     expect(page.hasHomeButton).toBe(false)
   })
 
-  it('keeps what was filled in on Settings across Home and Play (WL-11, WL-12)', async () => {
+  it('keeps what was filled in on Settings across Home and Start (WL-11, WL-12)', async () => {
     const page = await openGamePage({ onWelcome: true })
-    await page.clickPlay()
+    await page.clickStart()
     await page.chooseMode('twoPlayers')
     await page.input('player1.name').setValue('Anna')
     await page.input('player2.name').setValue('Bohdan')
@@ -91,7 +93,7 @@ describe('Welcome screen', () => {
     await page.input('size').setValue('7')
 
     await page.clickHome()
-    await page.clickPlay()
+    await page.clickStart()
 
     expect(page.selectedMode()).toBe('twoPlayers')
     expect(page.input('player1.name').element.value).toBe('Anna')
@@ -101,13 +103,57 @@ describe('Welcome screen', () => {
     expect(page.input('size').element.value).toBe('7')
   })
 
-  it('keeps the difficulty chosen on Settings across Home and Play (WL-12)', async () => {
+  it('Settings shows Back to the left of Play (SP-5)', async () => {
     const page = await openGamePage({ onWelcome: true })
-    await page.clickPlay()
+    await page.clickStart()
+
+    expect(page.setupButtons()).toEqual(['Back', 'Play'])
+  })
+
+  it('Back goes from Settings to Welcome without starting a game (SP-5, SP-6)', async () => {
+    const page = await openGamePage({ onWelcome: true })
+    await page.clickStart()
+
+    await page.clickSetupBack()
+
+    expect(page.isWelcomeShown).toBe(true)
+    expect(page.isSetupShown).toBe(false)
+    expect(localStorage.getItem('CURRENT_GAME')).toBeNull()
+  })
+
+  it('keeps what was filled in on Settings across Back and Start (SP-6)', async () => {
+    const page = await openGamePage({ onWelcome: true })
+    await page.clickStart()
+    await page.chooseMode('twoPlayers')
+    await page.input('player1.name').setValue('Anna')
+    await page.input('player2.name').setValue('Bohdan')
+    await page.input('size').setValue('7')
+
+    await page.clickSetupBack()
+    await page.clickStart()
+
+    expect(page.selectedMode()).toBe('twoPlayers')
+    expect(page.input('player1.name').element.value).toBe('Anna')
+    expect(page.input('player2.name').element.value).toBe('Bohdan')
+    expect(page.input('size').element.value).toBe('7')
+  })
+
+  it('moves focus to the Welcome heading on Back (SP-6)', async () => {
+    const page = await openGamePage({ onWelcome: true })
+    await page.clickStart()
+
+    await page.clickSetupBack()
+
+    expect(page.focusedHeading()).toBe('Welcome to Dots and Boxes')
+  })
+
+  it('keeps the difficulty chosen on Settings across Home and Start (WL-12)', async () => {
+    const page = await openGamePage({ onWelcome: true })
+    await page.clickStart()
     await page.chooseDifficulty('easy')
 
     await page.clickHome()
-    await page.clickPlay()
+    await page.clickStart()
 
     expect(page.selectedDifficulty()).toBe('easy')
     expect(localStorage.getItem('DIFFICULTY')).toBeNull()
@@ -115,7 +161,7 @@ describe('Welcome screen', () => {
 
   it('keeps the Settings draft through the privacy screen (WL-12, WL-15)', async () => {
     const page = await openGamePage({ onWelcome: true })
-    await page.clickPlay()
+    await page.clickStart()
     await page.input('player1.name').setValue('Anna')
 
     await page.openPrivacy()
@@ -126,21 +172,21 @@ describe('Welcome screen', () => {
 
   it('forgets the Settings draft on a new launch (WL-2)', async () => {
     const page = await openGamePage({ onWelcome: true })
-    await page.clickPlay()
+    await page.clickStart()
     await page.input('player1.name').setValue('Anna')
     await page.clickHome()
 
     const next = await page.reload({ onWelcome: true })
-    await next.clickPlay()
+    await next.clickStart()
 
     expect(next.input('player1.name').element.value).toBe('')
   })
 
   it('opens Settings blank after a started game has used the draft (WL-12)', async () => {
     const page = await openGamePage({ onWelcome: true })
-    await page.clickPlay()
+    await page.clickStart()
     await page.clickHome()
-    await page.clickPlay()
+    await page.clickStart()
     await page.input('player1.name').setValue('Anna')
     await page.submitSetupForm()
     await page.stopGame()
@@ -149,17 +195,17 @@ describe('Welcome screen', () => {
     expect(page.input('player1.name').element.value).toBe('')
   })
 
-  it('moves focus to the Settings heading on Play (WL-11)', async () => {
+  it('moves focus to the Settings heading on Start (WL-11)', async () => {
     const page = await openGamePage({ onWelcome: true })
 
-    await page.clickPlay()
+    await page.clickStart()
 
     expect(page.focusedHeading()).toBe('Settings')
   })
 
   it('moves focus to the Welcome heading on Home (WL-12)', async () => {
     const page = await openGamePage({ onWelcome: true })
-    await page.clickPlay()
+    await page.clickStart()
 
     await page.clickHome()
 
@@ -200,7 +246,7 @@ describe('Welcome screen', () => {
   it('welcomes the player by the game name (WL-10)', async () => {
     const page = await openGamePage({ onWelcome: true })
 
-    await page.clickPlay()
+    await page.clickStart()
     await page.clickHome()
 
     expect(page.focusedHeading()).toBe('Welcome to Dots and Boxes')
@@ -232,7 +278,7 @@ describe('Welcome screen', () => {
   it('titles Welcome in the current language (WL-10)', async () => {
     const page = await openGamePage({ onWelcome: true, storage: { LOCALE: 'de' } })
 
-    await page.clickPlay()
+    await page.clickStart()
     await page.clickHome()
 
     expect(page.focusedHeading()).toBe('Willkommen bei Käsekästchen')
@@ -289,7 +335,7 @@ describe('Welcome screen', () => {
 
   it('returns to Settings from the privacy screen when it was left from there (WL-15)', async () => {
     const page = await openGamePage({ onWelcome: true })
-    await page.clickPlay()
+    await page.clickStart()
 
     await page.openPrivacy()
     expect(page.hasHomeButton).toBe(false)
@@ -327,7 +373,7 @@ describe('Welcome screen', () => {
     const cancel = vi.spyOn(window, 'cancelAnimationFrame')
     const page = await openGamePage({ onWelcome: true })
 
-    await page.clickPlay()
+    await page.clickStart()
 
     expect(cancel).toHaveBeenCalled()
   })
@@ -343,6 +389,41 @@ describe('Welcome screen', () => {
     const page = await openGamePage({ onWelcome: true, storage: { LOCALE: 'uk' } })
 
     expect(page.welcomeSteps()[0]).toBe('Торкніться двох сусідніх крапок, щоб провести лінію.')
-    expect(page.button('Грати').exists()).toBe(true)
+    expect(page.button('Почати').exists()).toBe(true)
   })
+
+  it.each([
+    ['en', 'Back'],
+    ['uk', 'Назад'],
+    ['de', 'Zurück'],
+    ['fr', 'Retour'],
+    ['it', 'Indietro'],
+    ['es', 'Atrás'],
+  ])('in %s names the Settings Back button %s (SP-5)', async (locale, back) => {
+    const page = new GamePage(await mountGamePage({ storage: { LOCALE: locale }, onWelcome: true }))
+    await page.clickStart()
+
+    expect(page.setupButtons()[0]).toBe(back)
+  })
+
+  // Start leads to Settings, and Settings' Play starts the game (SP-3, SP-4)
+  it.each([
+    ['en', 'Start', 'Play'],
+    ['uk', 'Почати', 'Грати'],
+    ['de', "Los geht's", 'Spielen'],
+    ['fr', 'Commencer', 'Jouer'],
+    ['it', 'Inizia', 'Gioca'],
+    ['es', 'Empezar', 'Jugar'],
+  ])(
+    'in %s names the Welcome button %s and the Settings button %s (SP-3, SP-4)',
+    async (locale, start, play) => {
+      const page = new GamePage(
+        await mountGamePage({ storage: { LOCALE: locale }, onWelcome: true }),
+      )
+
+      expect(page.startButtonLabel).toBe(start)
+      await page.clickStart()
+      expect(page.setupPlayLabel).toBe(play)
+    },
+  )
 })

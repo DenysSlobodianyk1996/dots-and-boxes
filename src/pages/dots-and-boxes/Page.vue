@@ -68,8 +68,8 @@ watch(
   { immediate: true },
 )
 
-// Play and Home remove the button that had focus, so it moves to the new screen's heading
-// (WL-11, WL-12)
+// Start, Home and Back remove the button that had focus, so it moves to the new screen's heading
+// (WL-11, WL-12, SP-6)
 watch(
   screen,
   (now, before) => {
@@ -103,6 +103,8 @@ const componentConfig = computed(() => {
     props: {},
     listeners: {
       gameSetup,
+      // Back goes to Welcome as the header's Home does (SP-5, SP-6)
+      back: () => router.push({ name: 'welcome' }),
     },
   }
 })

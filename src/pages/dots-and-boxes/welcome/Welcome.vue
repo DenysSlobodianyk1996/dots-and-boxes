@@ -1,5 +1,5 @@
 <template>
-  <!-- fills the space between the header and the footer, so Play stays on screen on a 320 x 568
+  <!-- fills the space between the header and the footer, so Start stays on screen on a 320 x 568
        phone (WL-19) -->
   <div data-welcome class="mx-auto flex h-full max-w-4xl flex-col gap-3">
     <!-- takes focus when Home opens this screen; a ring only for keyboard use -->
@@ -16,13 +16,13 @@
     </div>
     <HowToPlay />
     <BaseButton
-      data-welcome-play
+      data-welcome-start
       type="button"
       color="primary"
       class="mx-auto w-full shrink-0 py-3! text-base! sm:max-w-sm"
       @click="emit('play')"
     >
-      {{ t('welcome.play') }}
+      {{ t('welcome.start') }}
     </BaseButton>
   </div>
 </template>
