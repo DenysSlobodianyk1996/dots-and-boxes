@@ -275,7 +275,7 @@ Acceptance (checked on a build with `BASE_PATH=/dots-and-boxes/` and by hand, no
 - **LG-18**: `npm run store:screenshots` regenerates every language's screenshots and feature graphic.
 - **LG-19**: Each language has a Play listing, a 1024×500 feature graphic with its app name, and six screenshots per device (phone, 7" and 10" tablet): Welcome in its reduced-motion finished frame, Settings, a game, a result, the rules and the dark theme.
 - **LG-20**: Every listing fits Play's limits of 30 (title), 80 (short description) and 4000 (full description) characters, and states its real counts; a test checks both.
-- **LG-21**: Not shipped yet (#95): testers will get release notes in their language once its listing exists in Play Console. Until then, release notes are in English and Ukrainian only.
+- **LG-21**: Every Android release carries Play's "What's new" in all six listing languages (en-US, uk, de-DE, fr-FR, it-IT, es-ES), a short generic note in each (#94, #95).
 - **LG-22**: `docs/store/review-list.md` lists what a native speaker should check first per language: app names, game terms, listings and privacy text.
 
 Acceptance criteria elsewhere in this document quote the English text; the Ukrainian UI shows the matching translations from `src/i18n/locales/uk.ts`.
