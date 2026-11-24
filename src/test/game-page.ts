@@ -609,6 +609,32 @@ export class GamePage {
     return id ? document.getElementById(id)?.textContent?.trim() : undefined
   }
 
+  // The open panel's header row and what scrolls (SP-1, SP-2): the heading that labels the panel
+  // when it sits in the row, whether ✕ shares the row, whether the row stays put outside the
+  // scroll area, and whether the goal and steps scroll below it.
+  rulesHeader() {
+    const panel = this.rulesPanel.element
+    const row = panel.querySelector<HTMLElement>('[data-rules-header]')
+    const scrollArea = panel.querySelector<HTMLElement>('[data-rules-scroll]')
+    const id = panel.getAttribute('aria-labelledby')
+    const heading = id ? document.getElementById(id) : null
+    const close = panel.querySelector('button[data-rules-close]')
+    return {
+      title: row && heading && row.contains(heading) ? heading.textContent?.trim() : undefined,
+      hasClose: !!row && !!close && row.contains(close),
+      staysPut: !!row && !!scrollArea && !scrollArea.contains(row) && !row.contains(scrollArea),
+      contentScrolls:
+        !!scrollArea &&
+        !!scrollArea.querySelector('[data-rules-goal]') &&
+        !!scrollArea.querySelector('ol[data-demo-steps]'),
+    }
+  }
+
+  // how many headings the open panel shows (the steps add none of their own in the panel)
+  rulesHeadingCount() {
+    return this.rulesPanel.findAll('h1, h2, h3, h4').length
+  }
+
   // the steps, joined, as the open panel shows them
   rulesText() {
     return this.rulesPanel.get('ol[data-demo-steps]').text()

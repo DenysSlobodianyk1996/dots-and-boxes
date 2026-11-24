@@ -97,6 +97,32 @@ describe('rules panel', () => {
   })
 })
 
+describe('rules panel header (SP-1, SP-2)', () => {
+  it('puts the heading and ✕ on one row that stays put while the content scrolls', async () => {
+    const page = await openGamePage()
+
+    await page.openRules()
+
+    expect(page.rulesHeader()).toEqual({
+      title: 'How to play',
+      hasClose: true,
+      staysPut: true,
+      contentScrolls: true,
+    })
+    expect(page.rulesPanelName()).toBe('How to play')
+    expect(page.focus()).toBe('rules panel')
+  })
+
+  it('shows its heading once: the steps add no heading of their own (SP-1)', async () => {
+    const page = await openGamePage({ storage: { LOCALE: 'uk' } })
+
+    await page.openRules()
+
+    expect(page.rulesHeader().title).toBe('Як грати')
+    expect(page.rulesHeadingCount()).toBe(1)
+  })
+})
+
 describe('rules panel for keyboard and screen reader (VR-29)', () => {
   it('the info button reports whether the panel is open', async () => {
     const page = await openGamePage()
