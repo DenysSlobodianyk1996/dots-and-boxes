@@ -2,7 +2,7 @@
 
 Terms follow [GLOSSARY.md](../../GLOSSARY.md). User stories carry IDs **SP-n** for commits. Shipped rules this changes: RL-1, RL-3, RL-4, WL-10, WL-11, WL-12, WL-19, GS-6, TH-1, HD-1 and FT-1 in [requirements](../dots-and-boxes/requirements.md), and AR-3 in the [Android release spec](../android-release/spec.md).
 
-**Status**: agreed in a grilling session on 2026-11-24. Not implemented. When it ships, fold SP-n into [requirements](../dots-and-boxes/requirements.md); where they differ from this spec, they win.
+**Status**: agreed in a grilling session on 2026-11-24. Not implemented. Parent issue #109, tasks #110–#113. When it ships, fold SP-n into [requirements](../dots-and-boxes/requirements.md); where they differ from this spec, they win.
 
 ## Problem Statement
 
