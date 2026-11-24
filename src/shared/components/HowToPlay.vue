@@ -2,14 +2,10 @@
   <!-- Welcome: the demo on the left, the steps on the right; phones stack them, and the steps
        scroll inside their own area so Start stays on screen (WL-10, WL-19). The rules panel is the
        same block, stacked and smaller (RL-1) -->
-  <!-- wheel and touch scrolling anywhere on the block pause the following, so the screen or the
-       panel can be read when it scrolls instead of the list (SP-10) -->
   <div
     ref="root"
     data-how-to-play
     class="flex min-h-0 flex-1 flex-col gap-3"
-    @touchmove.passive="pauseFollowing"
-    @wheel.passive="pauseFollowing"
     :class="compact ? '' : 'sm:flex-row sm:items-center sm:justify-center sm:gap-5'"
   >
     <div
@@ -70,6 +66,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import DemoBoard from './DemoBoard.vue'
+import { useRulesPanel } from '@/shared/composables/useRulesPanel'
 import {
   DEMO_CAPTIONS,
   demoStepStart,
@@ -81,13 +78,18 @@ import {
 
 // how long the player's own scrolling pauses the following of the demo (SP-10)
 const FOLLOW_PAUSE_MS = 5000
+// the screen's scroll area around the block: Welcome's <main> or the rules panel's content
+const SCROLL_AREA = 'main, [data-rules-scroll]'
+// the keys that scroll the area holding focus (SP-10)
+const SCROLL_KEYS = new Set(['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '])
 
-defineProps<{
+const props = defineProps<{
   // the smaller, always stacked version for the rules panel (RL-1)
   compact?: boolean
 }>()
 
 const { t } = useI18n()
+const rulesPanel = useRulesPanel()
 
 // reduced motion shows the finished game, still (WL-17)
 const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -106,8 +108,9 @@ const stepList = useTemplateRef<HTMLOListElement>('stepList')
 // set while the player's own scrolling pauses the following (SP-10)
 let pauseTimer: ReturnType<typeof setTimeout> | undefined
 
-// the player's own scrolling (wheel, touch, a drag of the scrollbar) pauses the following; a tap
-// or click on a step doesn't. When the pause ends, the view catches up at once (SP-10)
+// the player's own scrolling (wheel, touch, keys, a drag of a scrollbar) of the list or the screen
+// around it pauses the following; a tap or click on a step doesn't. When the pause ends, the view
+// catches up at once (SP-10)
 function pauseFollowing() {
   clearTimeout(pauseTimer)
   pauseTimer = setTimeout(() => {
@@ -120,7 +123,7 @@ function pauseFollowing() {
 // <main>, the rules panel's content), with the least scrolling and only if it isn't fully in view
 // already (SP-8, SP-9). The footer and Start sit outside those areas, so "in view" is clear of them
 function followStep() {
-  if (pauseTimer) return
+  if (pauseTimer || isCovered.value) return
   const step = stepList.value?.querySelector<HTMLElement>('[aria-current="step"]')
   step?.scrollIntoView({
     block: 'nearest',
@@ -129,7 +132,30 @@ function followStep() {
   })
 }
 
+// Welcome's block sits behind the open rules panel: it doesn't scroll there unseen, and catches
+// up once the panel closes (SP-8)
+const isCovered = computed(() => !props.compact && rulesPanel.isOpen.value)
+
 watch(() => frame.value.caption, followStep, { flush: 'post' })
+watch(isCovered, followStep, { flush: 'post' })
+
+// the scroll area around the block, where the player's own scrolling is listened for (SP-10)
+let scrollArea: HTMLElement | null = null
+
+function onScrollAreaPointerDown(event: PointerEvent) {
+  // on the area itself, not on what it holds: a drag of its scrollbar
+  if (event.target === scrollArea) pauseFollowing()
+}
+
+function onKeyDown(event: KeyboardEvent) {
+  if (!SCROLL_KEYS.has(event.key) || !scrollArea) return
+  const target = event.target
+  // keys scroll the area holding focus, or the page when nothing has it
+  if (target !== document.body && !(target instanceof Node && scrollArea.contains(target))) return
+  // Space presses a focused button or link instead of scrolling
+  if (event.key === ' ' && target instanceof Element && target.closest('button, a, input')) return
+  pauseFollowing()
+}
 
 // follows again once the layout settles: a ResizeObserver reports after the first layout (on
 // mount, the rules panel opening and the reduced-motion still frame included) and whenever the
@@ -170,6 +196,11 @@ function onMotionChange({ matches }: MediaQueryListEvent) {
 
 onMounted(() => {
   motionQuery.addEventListener('change', onMotionChange)
+  scrollArea = root.value?.closest<HTMLElement>(SCROLL_AREA) ?? root.value
+  scrollArea?.addEventListener('wheel', pauseFollowing, { passive: true })
+  scrollArea?.addEventListener('touchmove', pauseFollowing, { passive: true })
+  scrollArea?.addEventListener('pointerdown', onScrollAreaPointerDown)
+  document.addEventListener('keydown', onKeyDown)
   followStep()
   // jsdom has no ResizeObserver
   if (typeof ResizeObserver !== 'undefined' && root.value) {
@@ -181,6 +212,10 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   motionQuery.removeEventListener('change', onMotionChange)
+  scrollArea?.removeEventListener('wheel', pauseFollowing)
+  scrollArea?.removeEventListener('touchmove', pauseFollowing)
+  scrollArea?.removeEventListener('pointerdown', onScrollAreaPointerDown)
+  document.removeEventListener('keydown', onKeyDown)
   cancelAnimationFrame(frameId)
   clearTimeout(pauseTimer)
   resizeObserver?.disconnect()
