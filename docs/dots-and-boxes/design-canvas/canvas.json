@@ -460,7 +460,7 @@
       "x": 1740,
       "y": 4300,
       "w": 320,
-      "text": "Welcome on phones (WL-10, WL-19)\n• Demo above the steps; Play always stays on screen\n• On short screens the steps scroll in their own area and follow the highlighted step\n• Each step row is at least 44 px tall, with its number and text centered\n• Rules panel: same goal, demo and steps, smaller (RL-1)"
+      "text": "Welcome on phones (WL-10, WL-19)\n• Demo above the steps; Start always stays on screen\n• On short screens the steps scroll in their own area and follow the highlighted step\n• Each step row is at least 44 px tall, with its number and text centered\n• Rules panel: same goal, demo and steps, smaller (RL-1)"
     }
   ],
   "launch": {

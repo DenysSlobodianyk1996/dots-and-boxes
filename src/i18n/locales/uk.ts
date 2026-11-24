@@ -54,7 +54,7 @@ const uk: typeof en = {
     color: 'Колір',
     size: 'Розмір поля',
     sizeHint: 'Від {min} до {max}',
-    save: 'Зберегти',
+    play: 'Грати',
     mode: 'Режим гри',
     modeComputer: 'Проти комп’ютера',
     modeTwoPlayers: 'Двоє гравців',
@@ -122,7 +122,7 @@ const uk: typeof en = {
   welcome: {
     title: 'Вітаємо у грі «{name}»',
     goal: 'Перемагає той, у кого більше квадратів, коли поле заповниться.',
-    play: 'Грати',
+    start: 'Почати',
     home: 'Головна',
     captions: {
       drawLine: 'Торкніться двох сусідніх крапок, щоб провести лінію.',

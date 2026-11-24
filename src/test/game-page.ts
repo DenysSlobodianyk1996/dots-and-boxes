@@ -286,8 +286,13 @@ export class GamePage {
     }
   }
 
-  async clickPlay() {
-    await this.welcome.get('button[data-welcome-play]').trigger('click')
+  // the Welcome button that leads to Settings, as it is shown (SP-3)
+  get startButtonLabel() {
+    return this.welcome.get('button[data-welcome-start]').text().trim()
+  }
+
+  async clickStart() {
+    await this.welcome.get('button[data-welcome-start]').trigger('click')
     await flushPromises()
   }
 
@@ -753,6 +758,11 @@ export class GamePage {
     }
     await this.input('size').setValue(String(size))
     await this.withFirstPlayer(first, () => this.submitSetupForm())
+  }
+
+  // the Settings button that starts the game, as it is shown (SP-4)
+  get setupPlayLabel() {
+    return this.wrapper.get('form button[type="submit"]').text().trim()
   }
 
   // submits the setup form as it is filled in

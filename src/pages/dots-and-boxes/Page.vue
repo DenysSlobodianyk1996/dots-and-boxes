@@ -68,7 +68,7 @@ watch(
   { immediate: true },
 )
 
-// Play and Home remove the button that had focus, so it moves to the new screen's heading
+// Start and Home remove the button that had focus, so it moves to the new screen's heading
 // (WL-11, WL-12)
 watch(
   screen,

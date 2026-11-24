@@ -52,7 +52,7 @@ const fr: typeof en = {
     color: 'Couleur',
     size: 'Taille',
     sizeHint: 'De {min} à {max}',
-    save: 'Enregistrer',
+    play: 'Jouer',
     mode: 'Mode de jeu',
     modeComputer: 'Contre l’ordinateur',
     modeTwoPlayers: 'Deux joueurs',
@@ -121,7 +121,7 @@ const fr: typeof en = {
   welcome: {
     title: 'Bienvenue dans {name}',
     goal: 'Celui qui a le plus de carrés quand la grille est pleine gagne.',
-    play: 'Jouer',
+    start: 'Commencer',
     home: 'Accueil',
     captions: {
       drawLine: 'Touchez deux points voisins pour tracer une ligne.',
