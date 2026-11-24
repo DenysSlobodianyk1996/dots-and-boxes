@@ -100,6 +100,31 @@ export function stubReducedMotion() {
   )
 }
 
+// Fakes the clock the demo runs on (animation frames, performance.now and timers) before the
+// page opens, so a spec can play the demo on with playDemo().
+export function fakeDemoClock() {
+  vi.useFakeTimers({
+    toFake: [
+      'requestAnimationFrame',
+      'cancelAnimationFrame',
+      'performance',
+      'setTimeout',
+      'clearTimeout',
+    ],
+  })
+}
+
+// Records every step brought into view (SP-8..SP-10), by its text without the number, in order.
+// jsdom has no layout, so a step counts as followed when the page asks the browser to scroll it
+// into view; the real layout is checked by `npm run check:step-following`.
+export function watchFollowedSteps() {
+  const followed: string[] = []
+  vi.spyOn(Element.prototype, 'scrollIntoView').mockImplementation(function (this: Element) {
+    followed.push(this.querySelector('span:last-child')?.textContent?.trim() ?? '')
+  })
+  return followed
+}
+
 // Opens the page, fills in the setup form and submits it.
 export async function startGame({
   mode = 'twoPlayers',
@@ -245,6 +270,37 @@ export class GamePage {
   async chooseWelcomeStep(number: number) {
     await this.welcome.findAll('[data-demo-steps] button')[number - 1]!.trigger('click')
     await flushPromises()
+  }
+
+  // taps a step (1-6) in Welcome's list as a finger does: pointer down, then click (SP-10)
+  async tapWelcomeStep(number: number) {
+    const step = this.welcome.findAll('[data-demo-steps] button')[number - 1]!
+    await step.trigger('pointerdown')
+    await step.trigger('click')
+    await flushPromises()
+  }
+
+  // scrolls Welcome's steps with the mouse wheel (SP-10)
+  async wheelWelcomeSteps() {
+    await this.welcome.get('[data-demo-steps]').trigger('wheel', { deltaY: 100 })
+    await flushPromises()
+  }
+
+  // lets the demo play on for a while, a frame at a time; needs fakeDemoClock()
+  async playDemo(ms: number) {
+    for (let played = 0; played < ms; played += 50) {
+      vi.advanceTimersByTime(50)
+      await flushPromises()
+    }
+  }
+
+  // lets Welcome's demo play on until it shows the given step (1-6); needs fakeDemoClock()
+  async playWelcomeDemoTo(number: number) {
+    const step = this.welcomeSteps()[number - 1]
+    for (let waited = 0; this.welcomeCaption() !== step; waited += 50) {
+      if (waited > 30_000) throw new Error(`The demo never reached step ${number}`)
+      await this.playDemo(50)
+    }
   }
 
   // the goal under Welcome's title (WL-10)

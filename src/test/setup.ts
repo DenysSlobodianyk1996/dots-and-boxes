@@ -18,6 +18,9 @@ if (!window.matchMedia) {
     }) as unknown as MediaQueryList
 }
 
+// jsdom has no layout and no scrollIntoView; the steps call it to follow the demo (SP-8)
+if (!Element.prototype.scrollIntoView) Element.prototype.scrollIntoView = () => {}
+
 // each test starts with an empty localStorage and nothing left mounted
 enableAutoUnmount(afterEach)
 
