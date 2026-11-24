@@ -117,9 +117,11 @@ export function fakeDemoClock() {
 // Records every step brought into view (SP-8..SP-10), by its text without the number, in order.
 // jsdom has no layout, so a step counts as followed when the page asks the browser to scroll it
 // into view; the real layout is checked by `npm run check:step-following`.
-export function watchFollowedSteps() {
+// `only: 'welcome'` leaves out the rules panel's copy of the steps.
+export function watchFollowedSteps({ only }: { only?: 'welcome' } = {}) {
   const followed: string[] = []
   vi.spyOn(Element.prototype, 'scrollIntoView').mockImplementation(function (this: Element) {
+    if (only === 'welcome' && !this.closest('[data-welcome]')) return
     followed.push(this.querySelector('span:last-child')?.textContent?.trim() ?? '')
   })
   return followed
@@ -286,6 +288,24 @@ export class GamePage {
     await flushPromises()
   }
 
+  // scrolls Welcome's screen with the mouse wheel over the goal, outside the steps (SP-10)
+  async wheelWelcomeGoal() {
+    await this.welcome.get('[data-welcome-goal]').trigger('wheel', { deltaY: 100 })
+    await flushPromises()
+  }
+
+  // scrolls Welcome's screen with a finger on the goal, outside the steps (SP-10)
+  async touchMoveWelcomeGoal() {
+    await this.welcome.get('[data-welcome-goal]').trigger('touchmove')
+    await flushPromises()
+  }
+
+  // presses on the scroll area around Welcome itself, as a drag of its scrollbar starts (SP-10)
+  async pointerDownWelcomeScrollArea() {
+    await this.wrapper.get('main').trigger('pointerdown')
+    await flushPromises()
+  }
+
   // lets the demo play on for a while, a frame at a time; needs fakeDemoClock()
   async playDemo(ms: number) {
     for (let played = 0; played < ms; played += 50) {
@@ -364,9 +384,9 @@ export class GamePage {
     return this.homeButton.attributes('aria-label')
   }
 
+  // Home may step back in the browser history, so wait for that navigation (SP-6)
   async clickHome() {
-    await this.homeButton.trigger('click')
-    await flushPromises()
+    await this.afterNavigation(() => this.homeButton.trigger('click'))
   }
 
   // the screen heading holding keyboard focus, by its text, or null
@@ -513,6 +533,15 @@ export class GamePage {
     await action()
     await navigated
     await flushPromises()
+  }
+
+  // how many entries the browser history holds, and whether browser Back stays in the app
+  get historyLength() {
+    return window.history.length
+  }
+
+  get canGoBack() {
+    return !!(window.history.state as { back?: unknown } | null)?.back
   }
 
   // the address the app shows, e.g. '/settings' (WL-1)
@@ -830,8 +859,9 @@ export class GamePage {
 
   // Settings' Back, which returns to Welcome like Home (SP-5, SP-6)
   async clickSetupBack() {
-    await this.wrapper.get('form button[data-setup-back]').trigger('click')
-    await flushPromises()
+    await this.afterNavigation(() =>
+      this.wrapper.get('form button[data-setup-back]').trigger('click'),
+    )
   }
 
   // submits the setup form as it is filled in

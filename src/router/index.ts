@@ -30,4 +30,13 @@ export function leavePrivacy() {
   else void router.push({ name: 'welcome' })
 }
 
+// Settings back to Welcome (Home, Back and Android back; WL-12, SP-6, SP-7): a step back in the
+// browser history when Start opened Settings from Welcome, otherwise in place of Settings, so
+// browser Back from Welcome never reopens Settings
+export function backToWelcome() {
+  const welcome = router.resolve({ name: 'welcome' }).fullPath
+  if (window.history.state?.back === welcome) router.back()
+  else void router.replace({ name: 'welcome' })
+}
+
 export default router

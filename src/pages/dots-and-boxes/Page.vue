@@ -16,6 +16,7 @@
 import { DotsAndBoxesGame, type GameSetupForm } from '@/models'
 import { computed, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { backToWelcome } from '@/router'
 import GameSetup from './game-setup/GameSetup.vue'
 import Game from './Game.vue'
 import Welcome from './welcome/Welcome.vue'
@@ -104,7 +105,7 @@ const componentConfig = computed(() => {
     listeners: {
       gameSetup,
       // Back goes to Welcome as the header's Home does (SP-5, SP-6)
-      back: () => router.push({ name: 'welcome' }),
+      back: backToWelcome,
     },
   }
 })
