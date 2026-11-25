@@ -133,6 +133,7 @@ const en = {
     title: 'Welcome to {name}',
     goal: 'Whoever owns more squares when the board is full wins.',
     start: 'Start',
+    googlePlay: 'Get it on Google Play',
     home: 'Home',
     captions: {
       drawLine: 'Tap two neighboring dots to draw a line.',

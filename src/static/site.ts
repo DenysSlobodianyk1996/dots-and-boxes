@@ -13,3 +13,53 @@ export function siteUrl(base: string): string {
 
 /** The link preview image: the English Play feature graphic, copied to `public/`. */
 export const PREVIEW_IMAGE = { file: 'og-image.png', width: 1024, height: 500 } as const
+
+export interface StructuredDataInput {
+  /** The root page's absolute URL (`siteUrl(base)`). */
+  site: string
+  title: string
+  description: string
+  /** Every language the game speaks, as codes. */
+  languages: readonly string[]
+  /** The Play listing while the Android app is in production (SV-9), else null. */
+  googlePlayUrl: string | null
+}
+
+/**
+ * The root page's JSON-LD (SV-4): the web game as a free WebApplication in every language and,
+ * once the Android app is in production, that app as a MobileApplication on Google Play (SV-9).
+ */
+export function structuredData({
+  site,
+  title,
+  description,
+  languages,
+  googlePlayUrl,
+}: StructuredDataInput): object {
+  const context = { '@context': 'https://schema.org' }
+  const shared = {
+    name: title,
+    description,
+    applicationCategory: 'GameApplication',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    inLanguage: 'en',
+    availableLanguage: [...languages],
+  }
+  const webApplication = {
+    ...context,
+    '@type': 'WebApplication',
+    ...shared,
+    url: site,
+    operatingSystem: 'Web, Android',
+  }
+  if (!googlePlayUrl) return webApplication
+  const androidApp = {
+    ...context,
+    '@type': 'MobileApplication',
+    ...shared,
+    url: googlePlayUrl,
+    installUrl: googlePlayUrl,
+    operatingSystem: 'Android',
+  }
+  return [webApplication, androidApp]
+}

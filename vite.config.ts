@@ -11,7 +11,8 @@ import { lowerForOldWebView } from './scripts/css-floor'
 import { manifestFile } from './src/static/manifests'
 import { OLDEST_CHROME } from './src/static/oldest-chrome'
 import { NOT_THE_APP_PAGES } from './src/static/service-worker'
-import { PREVIEW_IMAGE, siteUrl } from './src/static/site'
+import { GOOGLE_PLAY_LIVE, GOOGLE_PLAY_URL } from './src/static/google-play'
+import { PREVIEW_IMAGE, siteUrl, structuredData } from './src/static/site'
 import { firstPaintScript } from './src/i18n/first-paint'
 import { LANGUAGE_CODES, type AppLocale } from './src/i18n/languages'
 import { MESSAGES } from './src/i18n/messages'
@@ -238,7 +239,8 @@ function pageDescription(): Plugin {
 }
 
 // Search engines and link previews (SV-4, SV-5): the canonical address, Open Graph and Twitter tags
-// and a JSON-LD WebApplication, in English from the English locale so they can't drift. Pages
+// and a JSON-LD WebApplication (plus the Android app once it's live on Google Play, SV-9), in
+// English from the English locale so they can't drift. Pages
 // build only (see the plugin list); absolute URLs come from the site constant and Vite's base.
 function searchHeadTags(): Plugin {
   let site = ''
@@ -255,18 +257,13 @@ function searchHeadTags(): Plugin {
     },
     transformIndexHtml() {
       const { title, description } = MESSAGES.en.app
-      const webApplication = {
-        '@context': 'https://schema.org',
-        '@type': 'WebApplication',
-        name: title,
+      const jsonLd = structuredData({
+        site,
+        title,
         description,
-        url: site,
-        applicationCategory: 'GameApplication',
-        operatingSystem: 'Web, Android',
-        offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-        inLanguage: 'en',
-        availableLanguage: LANGUAGE_CODES,
-      }
+        languages: LANGUAGE_CODES,
+        googlePlayUrl: GOOGLE_PLAY_LIVE ? GOOGLE_PLAY_URL : null,
+      })
       return [
         { tag: 'link', attrs: { rel: 'canonical', href: site }, injectTo: 'head' },
         property('og:type', 'website'),
@@ -287,7 +284,7 @@ function searchHeadTags(): Plugin {
           tag: 'script',
           attrs: { type: 'application/ld+json' },
           // "<" escaped, so no text can close the script element
-          children: JSON.stringify(webApplication).replace(/</g, '\\u003c'),
+          children: JSON.stringify(jsonLd).replace(/</g, '\\u003c'),
           injectTo: 'head',
         },
       ]

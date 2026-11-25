@@ -122,6 +122,7 @@ const es: typeof en = {
     title: 'Bienvenidos a {name}',
     goal: 'Gana quien tiene más cuadrados cuando el tablero está lleno.',
     start: 'Empezar',
+    googlePlay: 'Disponible en Google Play',
     home: 'Inicio',
     captions: {
       drawLine: 'Toca dos puntos vecinos para trazar una línea.',
