@@ -7,6 +7,7 @@ const fr: typeof en = {
     title: 'Pipopipette',
     shortName: 'Pipopipette',
     headerName: 'Pipopipette',
+    description: 'Le jeu des points et des carrés : tracez des lignes, battez l’ordinateur.',
   },
   language: {
     current: 'Langue : {name}',

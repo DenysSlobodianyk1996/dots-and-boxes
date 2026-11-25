@@ -41,12 +41,14 @@ const [PLUGIN_MANIFEST_LANGUAGE, ...EXTRA_MANIFEST_LANGUAGES] = LANGUAGE_CODES a
 // short_name is the shorter launcher label, because launchers truncate the full name (UP-15).
 // Icon paths are relative to the manifest, which sits at the base, so they work under any base.
 function manifestFor(lang: AppLocale): Partial<ManifestOptions> {
-  const { title, shortName } = MESSAGES[lang].app
+  const { title, shortName, description } = MESSAGES[lang].app
   return {
     id: base,
     lang,
     name: title,
     short_name: shortName,
+    // the install prompt describes the game in that language (SV-7)
+    description,
     start_url: base,
     scope: base,
     display: 'standalone',
@@ -219,6 +221,21 @@ function oldWebViewCss(): Plugin {
   }
 }
 
+// The page's description for search results, in English from the English locale so it can't drift
+// from app.description (SV-1); setLocale() swaps it for people who switch language
+function pageDescription(): Plugin {
+  return {
+    name: 'dots-and-boxes:page-description',
+    transformIndexHtml: () => [
+      {
+        tag: 'meta',
+        attrs: { name: 'description', content: MESSAGES.en.app.description },
+        injectTo: 'head',
+      },
+    ],
+  }
+}
+
 // The right language and tab title before the first paint (LG-8), in every build and in dev.
 // Injected at the end of <head>, after <title>, so it updates that element.
 function firstPaintLanguage(): Plugin {
@@ -270,6 +287,7 @@ export default defineConfig(({ mode }) => {
       vueDevTools(),
       tailwindcss(),
       firstPaintLanguage(),
+      pageDescription(),
       oldWebViewCss(),
       // after oldWebViewCss: the page links the final stylesheet
       privacyPage(),

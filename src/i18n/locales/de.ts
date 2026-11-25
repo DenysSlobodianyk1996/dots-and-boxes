@@ -6,6 +6,7 @@ const de: typeof en = {
     title: 'Käsekästchen',
     shortName: 'Käsekästchen',
     headerName: 'Käse\u00adkästchen',
+    description: 'Das Spiel Käsekästchen: Linien ziehen, Kästchen schließen, Computer schlagen.',
   },
   language: {
     current: 'Sprache: {name}',

@@ -31,9 +31,22 @@ function linkManifest(locale: AppLocale) {
   link.setAttribute('href', `${import.meta.env.BASE_URL}${manifestFile(locale)}`)
 }
 
+// The built page carries the English description for crawlers; people who switch language get
+// theirs (SV-1)
+function describePage() {
+  let meta = document.head.querySelector<HTMLMetaElement>('meta[name="description"]')
+  if (!meta) {
+    meta = document.createElement('meta')
+    meta.name = 'description'
+    document.head.append(meta)
+  }
+  meta.content = i18n.global.t('app.description')
+}
+
 function applyDocumentLocale(locale: AppLocale) {
   document.documentElement.lang = locale
   document.title = i18n.global.t('app.title')
+  describePage()
   linkManifest(locale)
 }
 
