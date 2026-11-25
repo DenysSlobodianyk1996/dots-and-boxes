@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import { fileURLToPath, URL } from 'node:url'
 
 import postcss from 'postcss'
-import { createServer, defineConfig, type Plugin } from 'vite'
+import { createServer, defineConfig, type Plugin, type ResolvedConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import tailwindcss from '@tailwindcss/vite'
@@ -13,6 +13,7 @@ import { OLDEST_CHROME } from './src/static/oldest-chrome'
 import { NOT_THE_APP_PAGES } from './src/static/service-worker'
 import { GOOGLE_PLAY_LIVE, GOOGLE_PLAY_URL } from './src/static/google-play'
 import { PREVIEW_IMAGE, siteUrl, structuredData } from './src/static/site'
+import { PRERENDER_HIDDEN_CSS, prerenderedWelcomeScript } from './src/static/prerendered-welcome'
 import { firstPaintScript } from './src/i18n/first-paint'
 import { LANGUAGE_CODES, type AppLocale } from './src/i18n/languages'
 import { MESSAGES } from './src/i18n/messages'
@@ -27,6 +28,20 @@ const CAPACITOR_MODE = 'capacitor'
 
 // GitHub Pages serves the app under /<repo>/; the deploy workflow sets BASE_PATH
 const base = process.env.BASE_PATH ?? '/'
+
+// The web game's absolute address for search engines and link previews (SV-4, SV-5), or null
+// where there is none to give: dev, the Android app, and a Pages build without BASE_PATH, whose
+// base '/' would name the owner's user site rather than this game (that build warns instead)
+function siteFor(config: ResolvedConfig): string | null {
+  if (config.command !== 'build' || config.mode === CAPACITOR_MODE) return null
+  return config.base === '/' ? null : siteUrl(config.base)
+}
+
+// The link preview image (SV-5): the English Play feature graphic, emitted only in the Pages build,
+// so the Android app doesn't carry it
+const PREVIEW_IMAGE_SOURCE = fileURLToPath(
+  new URL('./docs/store/en/feature-graphic.png', import.meta.url),
+)
 
 // splash and status bar: the light --wc-paper from styles.css; index.html's theme-color metas
 // add the dark (cocoa) one (VR-46)
@@ -180,8 +195,8 @@ function privacyPage(): Plugin {
     name: 'dots-and-boxes:privacy-page',
     enforce: 'post',
     configResolved(config) {
-      const onPages = config.command === 'build' && config.mode !== CAPACITOR_MODE
-      canonical = onPages ? `${siteUrl(config.base)}privacy/` : undefined
+      const site = siteFor(config)
+      canonical = site ? `${site}privacy/` : undefined
     },
     async generateBundle(_options, bundle) {
       const css = Object.values(bundle).find(
@@ -227,12 +242,18 @@ function privacyPage(): Plugin {
 
 // The English Welcome in index.html's #app, for search engines that run no JavaScript (SV-2,
 // SV-3): src/welcome-static.ts rendered to HTML. The app mounts over it (no hydration) in the
-// player's language (SV-6). Only the Pages build: nobody crawls the Android app, and dev needn't.
+// player's language (SV-6). A pre-paint script hides it where the app won't open Welcome (a saved
+// game, any other address, 404.html), so it doesn't flash up there (src/static/prerendered-
+// welcome.ts). Only the Pages build: nobody crawls the Android app, and dev needn't.
 const APP_MOUNT = '<div id="app"></div>'
 function prerenderedWelcome(): Plugin {
+  let appBase = '/'
   return {
     name: 'dots-and-boxes:prerendered-welcome',
     apply: 'build',
+    configResolved(config) {
+      appBase = config.base
+    },
     transformIndexHtml: {
       order: 'post',
       async handler(html) {
@@ -240,7 +261,13 @@ function prerenderedWelcome(): Plugin {
         const welcome = await withSsrModule<WelcomeStatic, string>(WELCOME_ENTRY, (page) =>
           page.renderWelcome(),
         )
-        return html.replace(APP_MOUNT, `<div id="app">${welcome}</div>`)
+        return {
+          html: html.replace(APP_MOUNT, `<div id="app">${welcome}</div>`),
+          tags: [
+            { tag: 'style', children: PRERENDER_HIDDEN_CSS, injectTo: 'head' },
+            { tag: 'script', children: prerenderedWelcomeScript(appBase), injectTo: 'head' },
+          ],
+        }
       },
     },
   }
@@ -282,10 +309,11 @@ function pageDescription(): Plugin {
 
 // Search engines and link previews (SV-4, SV-5): the canonical address, Open Graph and Twitter tags
 // and a JSON-LD WebApplication (plus the Android app once it's live on Google Play, SV-9), in
-// English from the English locale so they can't drift. Pages
-// build only (see the plugin list); absolute URLs come from the site constant and Vite's base.
+// English from the English locale so they can't drift, and the preview image they name. Pages
+// build only (see the plugin list); absolute URLs come from the site constant and Vite's base, and
+// a build whose base is '/' gets none of them rather than wrong ones (siteFor).
 function searchHeadTags(): Plugin {
-  let site = ''
+  let site: string | null = null
   const property = (name: string, content: string | number) => ({
     tag: 'meta',
     attrs: { property: name, content: String(content) },
@@ -295,9 +323,24 @@ function searchHeadTags(): Plugin {
     name: 'dots-and-boxes:search-head-tags',
     apply: 'build',
     configResolved(config) {
-      site = siteUrl(config.base)
+      site = siteFor(config)
+      if (!site) {
+        config.logger.warn(
+          "Base '/': no canonical, link preview tags, structured data or crawl files, as their " +
+            'absolute URLs would name the user site. Set BASE_PATH for a Pages build.',
+        )
+      }
+    },
+    generateBundle() {
+      if (!site) return
+      this.emitFile({
+        type: 'asset',
+        fileName: PREVIEW_IMAGE.file,
+        source: readFileSync(PREVIEW_IMAGE_SOURCE),
+      })
     },
     transformIndexHtml() {
+      if (!site) return []
       const { title, description } = MESSAGES.en.app
       const jsonLd = structuredData({
         site,
@@ -339,14 +382,16 @@ function searchHeadTags(): Plugin {
 // only from the host root, which a project site doesn't own, so it is advisory; the sitemap is
 // submitted in Search Console (SV-8). Workbox's globPatterns leave both out of the precache.
 function crawlFiles(): Plugin {
-  let site = ''
+  let site: string | null = null
   return {
     name: 'dots-and-boxes:crawl-files',
     apply: 'build',
     configResolved(config) {
-      site = siteUrl(config.base)
+      site = siteFor(config)
     },
     generateBundle() {
+      // base '/': no address to list (searchHeadTags warns)
+      if (!site) return
       const urls = [site, `${site}privacy/`].map((url) => `  <url><loc>${url}</loc></url>`)
       this.emitFile({
         type: 'asset',

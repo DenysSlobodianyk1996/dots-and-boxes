@@ -40,4 +40,4 @@ Rules:
 | Short name, game goal and a lighter header | Shipped (#67) | [spec](short-name-and-goal/spec.md) · [requirements HD, RL, I18N](dots-and-boxes/requirements.md) · [design](dots-and-boxes/design.md#short-name-goal-and-lighter-header-2026-11-19-67) |
 | Screen polish (Start, Play and Back buttons, rules panel header, step following) | Spec agreed (#109) | [spec](screen-polish/spec.md) |
 | Welcome screen and six languages | Shipped (#97); Play listings and their release notes still open (#94, #95) | [spec](welcome-and-languages/spec.md) · [requirements WL, LG](dots-and-boxes/requirements.md#wl-welcome) · [design](dots-and-boxes/design.md#welcome-2026-11-23-89) |
-| Search visibility (SEO: prerendered English Welcome, head tags, sitemap, Search Console) | Spec agreed (#117) | [spec](search-visibility/spec.md) |
+| Search visibility (SEO: prerendered English Welcome, head tags, sitemap, Search Console) | Shipped (#117); Search Console verification (SV-8) and the Play link (SV-9, off until production) still open | [spec](search-visibility/spec.md) · [requirements SV](dots-and-boxes/requirements.md#sv-search-visibility) |

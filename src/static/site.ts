@@ -11,7 +11,7 @@ export function siteUrl(base: string): string {
   return new URL(base, SITE_ORIGIN).href
 }
 
-/** The link preview image: the English Play feature graphic, copied to `public/`. */
+/** The link preview image: the English Play feature graphic, which the Pages build emits. */
 export const PREVIEW_IMAGE = { file: 'og-image.png', width: 1024, height: 500 } as const
 
 export interface StructuredDataInput {
@@ -50,7 +50,7 @@ export function structuredData({
     '@type': 'WebApplication',
     ...shared,
     url: site,
-    operatingSystem: 'Web, Android',
+    operatingSystem: 'Web',
   }
   if (!googlePlayUrl) return webApplication
   const androidApp = {

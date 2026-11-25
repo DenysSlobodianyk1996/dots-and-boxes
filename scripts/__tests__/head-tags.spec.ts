@@ -1,7 +1,7 @@
 /**
  * The built page's head tags for search engines and link previews (SV-4, SV-5): canonical, Open
  * Graph, Twitter and a JSON-LD WebApplication, all from the English locale, on the Pages build
- * only. The Android app's build carries none of them.
+ * only. The Android app's build carries none of them, nor the preview image.
  */
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -72,7 +72,7 @@ describe('the Pages build', () => {
       description: DESCRIPTION,
       url: SITE,
       applicationCategory: 'GameApplication',
-      operatingSystem: 'Web, Android',
+      operatingSystem: 'Web',
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
       inLanguage: 'en',
       availableLanguage: ['en', 'uk', 'de', 'fr', 'it', 'es'],
@@ -95,5 +95,41 @@ describe("the Android app's build", () => {
     expect(doc.querySelector('link[rel="canonical"]')).toBeNull()
     expect(doc.querySelector('meta[property^="og:"], meta[name^="twitter:"]')).toBeNull()
     expect(doc.querySelector('script[type="application/ld+json"]')).toBeNull()
+  })
+
+  it('carries no preview image', () => {
+    expect(existsSync(join(outDir, 'og-image.png'))).toBe(false)
+  })
+})
+
+// A web build without BASE_PATH: its base '/' would make every absolute URL name the owner's user
+// site, so it gives none rather than wrong ones
+describe("a web build at base '/'", () => {
+  let outDir = ''
+  let doc: Document
+
+  beforeAll(async () => {
+    outDir = await buildInto('production', '/')
+    doc = parse(readFileSync(join(outDir, 'index.html'), 'utf8'))
+  }, 180_000)
+
+  afterAll(() => rmSync(outDir, { recursive: true, force: true }))
+
+  it('has no canonical, link preview tags, structured data or preview image', () => {
+    expect(doc.querySelector('link[rel="canonical"]')).toBeNull()
+    expect(doc.querySelector('meta[property^="og:"], meta[name^="twitter:"]')).toBeNull()
+    expect(doc.querySelector('script[type="application/ld+json"]')).toBeNull()
+    expect(existsSync(join(outDir, 'og-image.png'))).toBe(false)
+  })
+
+  it('has no crawl files and no privacy canonical', () => {
+    expect(existsSync(join(outDir, 'sitemap.xml'))).toBe(false)
+    expect(existsSync(join(outDir, 'robots.txt'))).toBe(false)
+    const privacy = parse(readFileSync(join(outDir, 'privacy/index.html'), 'utf8'))
+    expect(privacy.querySelector('link[rel="canonical"]')).toBeNull()
+  })
+
+  it('still describes the page', () => {
+    expect(meta(doc, 'description')).toBe(DESCRIPTION)
   })
 })

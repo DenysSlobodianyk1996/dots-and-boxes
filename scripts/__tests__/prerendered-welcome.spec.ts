@@ -21,14 +21,24 @@ const STEPS = [
   'Board full: most squares wins!',
 ]
 
-/** Builds the app in `mode` and returns the built root page's mount point. */
-async function builtMountPoint(mode: string, outDirs: string[]): Promise<HTMLElement> {
+/** Builds the app in `mode` and returns the built root page. */
+async function builtPage(mode: string, outDirs: string[]): Promise<Document> {
   const outDir = mkdtempSync(join(tmpdir(), 'prerendered-welcome-'))
   outDirs.push(outDir)
-  await build({ root, mode, logLevel: 'silent', build: { outDir, emptyOutDir: true } })
+  await build({
+    root,
+    mode,
+    base: '/dots-and-boxes/',
+    logLevel: 'silent',
+    build: { outDir, emptyOutDir: true },
+  })
   const html = readFileSync(join(outDir, 'index.html'), 'utf8')
-  const app = new DOMParser().parseFromString(html, 'text/html').getElementById('app')
-  if (!app) throw new Error(`The ${mode} build's index.html has no #app`)
+  return new DOMParser().parseFromString(html, 'text/html')
+}
+
+function mountPoint(page: Document): HTMLElement {
+  const app = page.getElementById('app')
+  if (!app) throw new Error("The build's index.html has no #app")
   return app
 }
 
@@ -37,12 +47,14 @@ const text = (element: Element | null | undefined) =>
 
 describe('the prerendered Welcome', () => {
   const outDirs: string[] = []
+  let pagesDoc: Document
   let pages: HTMLElement
   let android: HTMLElement
 
   beforeAll(async () => {
-    pages = await builtMountPoint('production', outDirs)
-    android = await builtMountPoint('capacitor', outDirs)
+    pagesDoc = await builtPage('production', outDirs)
+    pages = mountPoint(pagesDoc)
+    android = mountPoint(await builtPage('capacitor', outDirs))
   }, 240_000)
 
   afterAll(() => {
@@ -64,6 +76,30 @@ describe('the prerendered Welcome', () => {
     expect([...pages.querySelectorAll('ol > li')].map(text)).toEqual(
       STEPS.map((step, index) => `${index + 1}${step}`),
     )
+  })
+
+  it('is marked as English, whatever language the page gets', () => {
+    expect(pages.firstElementChild?.getAttribute('lang')).toBe('en')
+  })
+
+  it("keeps room for the header's three round buttons", () => {
+    expect(pages.querySelectorAll('header > span[aria-hidden="true"]:empty')).toHaveLength(3)
+  })
+
+  it('has the finished demo for reduced motion beside the first moment (WL-17)', () => {
+    const boards = [...pages.querySelectorAll('[data-demo-board]')]
+    expect(boards.map((board) => board.getAttribute('class'))).toEqual([
+      expect.stringContaining('motion-reduce:hidden'),
+      expect.stringContaining('motion-reduce:block'),
+    ])
+  })
+
+  it('is hidden before the first paint where the app opens another screen (SV-6)', () => {
+    // the rule and the script that applies it (src/static/prerendered-welcome.ts), with the base
+    const head = pagesDoc.head.innerHTML
+    expect(head).toContain('[data-prerender-hidden] [data-prerendered]')
+    expect(head).toContain('"/dots-and-boxes/"')
+    expect(pages.firstElementChild?.hasAttribute('data-prerendered')).toBe(true)
   })
 
   it('is not in the Android build', () => {

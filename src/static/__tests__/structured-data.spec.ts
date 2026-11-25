@@ -21,7 +21,7 @@ const WEB_APPLICATION = {
   description: 'Draw lines, close squares.',
   url: SITE,
   applicationCategory: 'GameApplication',
-  operatingSystem: 'Web, Android',
+  operatingSystem: 'Web',
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
   inLanguage: 'en',
   availableLanguage: ['en', 'uk'],
