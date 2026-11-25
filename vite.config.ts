@@ -121,7 +121,11 @@ const STYLES = `${SRC}/assets/styles.css`
 const PRIVACY_ENTRY = '/src/privacy-static.ts'
 // what src/privacy-static.ts exports (declared here: the Node tsconfig has no @/ alias for it)
 type PrivacyStatic = {
-  renderPrivacyPage(options: { stylesheet: string; darkVars: string }): Promise<string>
+  renderPrivacyPage(options: {
+    stylesheet: string
+    darkVars: string
+    canonical?: string
+  }): Promise<string>
 }
 
 // the dark theme's custom properties from styles.css, for the static page's media query
@@ -142,11 +146,17 @@ function darkThemeVars(): string {
 // The static privacy page, privacy/index.html: Google Play's privacy policy URL, which must work
 // without JavaScript (AR-15, PV-4). It is the in-app screen's PrivacyContent rendered to HTML
 // (src/privacy-static.ts) with the app's stylesheet. Both builds get it (Workbox precaches it on
-// Pages); the dev server renders it at the same addresses.
+// Pages); the dev server renders it at the same addresses. The Pages build also names its
+// canonical address (SV-4); the Android app's copy isn't on the web, so it has none.
 function privacyPage(): Plugin {
+  let canonical: string | undefined
   return {
     name: 'dots-and-boxes:privacy-page',
     enforce: 'post',
+    configResolved(config) {
+      const onPages = config.command === 'build' && config.mode !== CAPACITOR_MODE
+      canonical = onPages ? `${siteUrl(config.base)}privacy/` : undefined
+    },
     async generateBundle(_options, bundle) {
       const css = Object.values(bundle).find(
         (file) => file.type === 'asset' && /^assets\/index-.*\.css$/.test(file.fileName),
@@ -169,6 +179,7 @@ function privacyPage(): Plugin {
         const source = await renderPrivacyPage({
           stylesheet: `../${css.fileName}`,
           darkVars: darkThemeVars(),
+          canonical,
         })
         this.emitFile({ type: 'asset', fileName: 'privacy/index.html', source })
       } finally {
@@ -295,6 +306,40 @@ function searchHeadTags(): Plugin {
   }
 }
 
+// The crawl files (SV-4), Pages build only: sitemap.xml lists the two indexable pages, the root and
+// the static privacy page, and robots.txt allows everything and names it. Crawlers read robots.txt
+// only from the host root, which a project site doesn't own, so it is advisory; the sitemap is
+// submitted in Search Console (SV-8). Workbox's globPatterns leave both out of the precache.
+function crawlFiles(): Plugin {
+  let site = ''
+  return {
+    name: 'dots-and-boxes:crawl-files',
+    apply: 'build',
+    configResolved(config) {
+      site = siteUrl(config.base)
+    },
+    generateBundle() {
+      const urls = [site, `${site}privacy/`].map((url) => `  <url><loc>${url}</loc></url>`)
+      this.emitFile({
+        type: 'asset',
+        fileName: 'sitemap.xml',
+        source: [
+          '<?xml version="1.0" encoding="UTF-8"?>',
+          '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+          ...urls,
+          '</urlset>',
+          '',
+        ].join('\n'),
+      })
+      this.emitFile({
+        type: 'asset',
+        fileName: 'robots.txt',
+        source: ['User-agent: *', 'Allow: /', '', `Sitemap: ${site}sitemap.xml`, ''].join('\n'),
+      })
+    },
+  }
+}
+
 // The right language and tab title before the first paint (LG-8), in every build and in dev.
 // Injected at the end of <head>, after <title>, so it updates that element.
 function firstPaintLanguage(): Plugin {
@@ -353,7 +398,7 @@ export default defineConfig(({ mode }) => {
       oldWebViewCss(),
       // after oldWebViewCss: the page links the final stylesheet
       privacyPage(),
-      ...(isCapacitor ? [] : [searchHeadTags(), ...pwaPlugins()]),
+      ...(isCapacitor ? [] : [searchHeadTags(), crawlFiles(), ...pwaPlugins()]),
     ],
     resolve: {
       alias: {
