@@ -6,6 +6,7 @@ const it: typeof en = {
     title: 'Punti e quadrati',
     shortName: 'Punti e quadrati',
     headerName: 'Punti e quadrati',
+    description: 'Il classico carta e penna: traccia linee, chiudi quadrati, batti il computer.',
   },
   language: {
     current: 'Lingua: {name}',

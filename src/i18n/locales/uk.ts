@@ -6,6 +6,7 @@ const uk: typeof en = {
     title: 'Крапки й квадрати',
     shortName: 'Крапки й квадрати',
     headerName: 'Крапки й квадрати',
+    description: 'Класична гра в крапки й квадрати: проводьте лінії, займайте квадрати.',
   },
   language: {
     current: 'Мова: {name}',

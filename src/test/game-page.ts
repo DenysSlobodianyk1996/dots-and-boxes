@@ -647,6 +647,11 @@ export class GamePage {
     return document.head.querySelector('link[rel="manifest"]')?.getAttribute('href') ?? null
   }
 
+  // the page's <meta name="description"> (SV-1)
+  metaDescription() {
+    return document.head.querySelector('meta[name="description"]')?.getAttribute('content') ?? null
+  }
+
   // ---- rules panel (VR-23..VR-31) ----
 
   private get rulesButton() {

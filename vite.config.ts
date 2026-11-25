@@ -11,6 +11,7 @@ import { lowerForOldWebView } from './scripts/css-floor'
 import { manifestFile } from './src/static/manifests'
 import { OLDEST_CHROME } from './src/static/oldest-chrome'
 import { NOT_THE_APP_PAGES } from './src/static/service-worker'
+import { PREVIEW_IMAGE, siteUrl } from './src/static/site'
 import { firstPaintScript } from './src/i18n/first-paint'
 import { LANGUAGE_CODES, type AppLocale } from './src/i18n/languages'
 import { MESSAGES } from './src/i18n/messages'
@@ -41,12 +42,14 @@ const [PLUGIN_MANIFEST_LANGUAGE, ...EXTRA_MANIFEST_LANGUAGES] = LANGUAGE_CODES a
 // short_name is the shorter launcher label, because launchers truncate the full name (UP-15).
 // Icon paths are relative to the manifest, which sits at the base, so they work under any base.
 function manifestFor(lang: AppLocale): Partial<ManifestOptions> {
-  const { title, shortName } = MESSAGES[lang].app
+  const { title, shortName, description } = MESSAGES[lang].app
   return {
     id: base,
     lang,
     name: title,
     short_name: shortName,
+    // the install prompt describes the game in that language (SV-7)
+    description,
     start_url: base,
     scope: base,
     display: 'standalone',
@@ -118,7 +121,11 @@ const STYLES = `${SRC}/assets/styles.css`
 const PRIVACY_ENTRY = '/src/privacy-static.ts'
 // what src/privacy-static.ts exports (declared here: the Node tsconfig has no @/ alias for it)
 type PrivacyStatic = {
-  renderPrivacyPage(options: { stylesheet: string; darkVars: string }): Promise<string>
+  renderPrivacyPage(options: {
+    stylesheet: string
+    darkVars: string
+    canonical?: string
+  }): Promise<string>
 }
 
 const WELCOME_ENTRY = '/src/welcome-static.ts'
@@ -164,18 +171,28 @@ function darkThemeVars(): string {
 // The static privacy page, privacy/index.html: Google Play's privacy policy URL, which must work
 // without JavaScript (AR-15, PV-4). It is the in-app screen's PrivacyContent rendered to HTML
 // (src/privacy-static.ts) with the app's stylesheet. Both builds get it (Workbox precaches it on
-// Pages); the dev server renders it at the same addresses.
+// Pages); the dev server renders it at the same addresses. The Pages build also names its
+// canonical address (SV-4); the Android app's copy isn't on the web, so it has none.
 function privacyPage(): Plugin {
+  let canonical: string | undefined
   return {
     name: 'dots-and-boxes:privacy-page',
     enforce: 'post',
+    configResolved(config) {
+      const onPages = config.command === 'build' && config.mode !== CAPACITOR_MODE
+      canonical = onPages ? `${siteUrl(config.base)}privacy/` : undefined
+    },
     async generateBundle(_options, bundle) {
       const css = Object.values(bundle).find(
         (file) => file.type === 'asset' && /^assets\/index-.*\.css$/.test(file.fileName),
       )
       if (!css) throw new Error('No app stylesheet for the privacy page')
       const source = await withSsrModule<PrivacyStatic, string>(PRIVACY_ENTRY, (page) =>
-        page.renderPrivacyPage({ stylesheet: `../${css.fileName}`, darkVars: darkThemeVars() }),
+        page.renderPrivacyPage({
+          stylesheet: `../${css.fileName}`,
+          darkVars: darkThemeVars(),
+          canonical,
+        }),
       )
       this.emitFile({ type: 'asset', fileName: 'privacy/index.html', source })
     },
@@ -247,6 +264,113 @@ function oldWebViewCss(): Plugin {
   }
 }
 
+// The page's description for search results, in English from the English locale so it can't drift
+// from app.description (SV-1); setLocale() swaps it for people who switch language
+function pageDescription(): Plugin {
+  return {
+    name: 'dots-and-boxes:page-description',
+    transformIndexHtml: () => [
+      {
+        tag: 'meta',
+        attrs: { name: 'description', content: MESSAGES.en.app.description },
+        injectTo: 'head',
+      },
+    ],
+  }
+}
+
+// Search engines and link previews (SV-4, SV-5): the canonical address, Open Graph and Twitter tags
+// and a JSON-LD WebApplication, in English from the English locale so they can't drift. Pages
+// build only (see the plugin list); absolute URLs come from the site constant and Vite's base.
+function searchHeadTags(): Plugin {
+  let site = ''
+  const property = (name: string, content: string | number) => ({
+    tag: 'meta',
+    attrs: { property: name, content: String(content) },
+    injectTo: 'head' as const,
+  })
+  return {
+    name: 'dots-and-boxes:search-head-tags',
+    apply: 'build',
+    configResolved(config) {
+      site = siteUrl(config.base)
+    },
+    transformIndexHtml() {
+      const { title, description } = MESSAGES.en.app
+      const webApplication = {
+        '@context': 'https://schema.org',
+        '@type': 'WebApplication',
+        name: title,
+        description,
+        url: site,
+        applicationCategory: 'GameApplication',
+        operatingSystem: 'Web, Android',
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+        inLanguage: 'en',
+        availableLanguage: LANGUAGE_CODES,
+      }
+      return [
+        { tag: 'link', attrs: { rel: 'canonical', href: site }, injectTo: 'head' },
+        property('og:type', 'website'),
+        property('og:title', title),
+        property('og:description', description),
+        property('og:url', site),
+        property('og:image', `${site}${PREVIEW_IMAGE.file}`),
+        property('og:image:width', PREVIEW_IMAGE.width),
+        property('og:image:height', PREVIEW_IMAGE.height),
+        property('og:locale', 'en_US'),
+        property('og:site_name', title),
+        {
+          tag: 'meta',
+          attrs: { name: 'twitter:card', content: 'summary_large_image' },
+          injectTo: 'head',
+        },
+        {
+          tag: 'script',
+          attrs: { type: 'application/ld+json' },
+          // "<" escaped, so no text can close the script element
+          children: JSON.stringify(webApplication).replace(/</g, '\\u003c'),
+          injectTo: 'head',
+        },
+      ]
+    },
+  }
+}
+
+// The crawl files (SV-4), Pages build only: sitemap.xml lists the two indexable pages, the root and
+// the static privacy page, and robots.txt allows everything and names it. Crawlers read robots.txt
+// only from the host root, which a project site doesn't own, so it is advisory; the sitemap is
+// submitted in Search Console (SV-8). Workbox's globPatterns leave both out of the precache.
+function crawlFiles(): Plugin {
+  let site = ''
+  return {
+    name: 'dots-and-boxes:crawl-files',
+    apply: 'build',
+    configResolved(config) {
+      site = siteUrl(config.base)
+    },
+    generateBundle() {
+      const urls = [site, `${site}privacy/`].map((url) => `  <url><loc>${url}</loc></url>`)
+      this.emitFile({
+        type: 'asset',
+        fileName: 'sitemap.xml',
+        source: [
+          '<?xml version="1.0" encoding="UTF-8"?>',
+          '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+          ...urls,
+          '</urlset>',
+          '',
+        ].join('\n'),
+      })
+      this.emitFile({
+        type: 'asset',
+        fileName: 'robots.txt',
+        source: ['User-agent: *', 'Allow: /', '', `Sitemap: ${site}sitemap.xml`, ''].join('\n'),
+      })
+    },
+  }
+}
+
 // The right language and tab title before the first paint (LG-8), in every build and in dev.
 // Injected at the end of <head>, after <title>, so it updates that element.
 function firstPaintLanguage(): Plugin {
@@ -272,6 +396,9 @@ function pwaPlugins() {
           '**/*.{js,css,html,ico,png,svg,woff2}',
           ...EXTRA_MANIFEST_LANGUAGES.map(manifestFile),
         ],
+        // the link preview image (SV-5) is for crawlers and chat apps and never shown in the app,
+        // so it stays out of the offline precache
+        globIgnores: [PREVIEW_IMAGE.file],
         navigateFallback: 'index.html',
         // the privacy policy is its own page (precached through privacy/index.html), not the app (AR-15)
         navigateFallbackDenylist: NOT_THE_APP_PAGES,
@@ -298,10 +425,13 @@ export default defineConfig(({ mode }) => {
       vueDevTools(),
       tailwindcss(),
       firstPaintLanguage(),
+      pageDescription(),
       oldWebViewCss(),
       // after oldWebViewCss: the page links the final stylesheet
       privacyPage(),
-      ...(isCapacitor ? [] : [prerenderedWelcome(), ...pwaPlugins()]),
+      ...(isCapacitor
+        ? []
+        : [prerenderedWelcome(), searchHeadTags(), crawlFiles(), ...pwaPlugins()]),
     ],
     resolve: {
       alias: {

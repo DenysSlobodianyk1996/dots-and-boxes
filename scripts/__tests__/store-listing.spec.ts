@@ -40,6 +40,10 @@ describe.each(LANGUAGE_CODES)('the %s store listing', (lang) => {
     expect(listing.title?.text).toBe(MESSAGES[lang].app.title)
   })
 
+  it("has the app's description in that language as its short description (SV-1, SV-7)", () => {
+    expect(MESSAGES[lang].app.description).toBe(listing.short?.text)
+  })
+
   it('names all six languages in the full description', () => {
     // each language's own word for the six, so a listing can't keep the old two-language line
     const names: Record<string, string[]> = {
