@@ -12,7 +12,7 @@ import { manifestFile } from './src/static/manifests'
 import { OLDEST_CHROME } from './src/static/oldest-chrome'
 import { NOT_THE_APP_PAGES } from './src/static/service-worker'
 import { GOOGLE_PLAY_LIVE, GOOGLE_PLAY_URL } from './src/static/google-play'
-import { PREVIEW_IMAGE, siteUrl, structuredData } from './src/static/site'
+import { GOOGLE_SITE_VERIFICATION, PREVIEW_IMAGE, siteUrl, structuredData } from './src/static/site'
 import { PRERENDER_HIDDEN_CSS, prerenderedWelcomeScript } from './src/static/prerendered-welcome'
 import { firstPaintScript } from './src/i18n/first-paint'
 import { LANGUAGE_CODES, type AppLocale } from './src/i18n/languages'
@@ -351,6 +351,11 @@ function searchHeadTags(): Plugin {
       })
       return [
         { tag: 'link', attrs: { rel: 'canonical', href: site }, injectTo: 'head' },
+        {
+          tag: 'meta',
+          attrs: { name: 'google-site-verification', content: GOOGLE_SITE_VERIFICATION },
+          injectTo: 'head',
+        },
         property('og:type', 'website'),
         property('og:title', title),
         property('og:description', description),

@@ -11,6 +11,12 @@ export function siteUrl(base: string): string {
   return new URL(base, SITE_ORIGIN).href
 }
 
+/**
+ * Google Search Console's HTML-tag verification token for the URL-prefix property of the root page
+ * (SV-8). Public by design: Google reads it from the page. Removing it unverifies the property.
+ */
+export const GOOGLE_SITE_VERIFICATION = 'jFybgwwGyr9yepRC53WaJmZYPZGWPFwLZD000UJpGIg'
+
 /** The link preview image: the English Play feature graphic, which the Pages build emits. */
 export const PREVIEW_IMAGE = { file: 'og-image.png', width: 1024, height: 500 } as const
 
