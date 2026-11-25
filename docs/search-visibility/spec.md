@@ -2,7 +2,7 @@
 
 Terms follow [GLOSSARY.md](../../GLOSSARY.md). User stories carry IDs **SV-n** for commits. Shipped rules this touches: WL-1..WL-21 (Welcome's heading level only) and LG-8 (first paint) in [requirements](../dots-and-boxes/requirements.md), PWA manifests, and the static privacy page (PV-1..PV-4).
 
-**Status**: agreed in a grilling session on 2026-11-25. Not implemented. When it ships, fold SV-n into [requirements](../dots-and-boxes/requirements.md); where they differ from this spec, they win.
+**Status**: agreed in a grilling session on 2026-11-25. Not implemented. Parent issue #117. When it ships, fold SV-n into [requirements](../dots-and-boxes/requirements.md); where they differ from this spec, they win.
 
 ## Problem Statement
 
