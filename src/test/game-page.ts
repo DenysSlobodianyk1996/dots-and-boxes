@@ -328,6 +328,11 @@ export class GamePage {
     return this.welcome.get('[data-welcome-goal]').text()
   }
 
+  // the texts of the page's <h1> headings (SV-3)
+  pageHeadings() {
+    return this.wrapper.findAll('h1').map((h) => h.text())
+  }
+
   // the heading above Welcome's list of steps (WL-10)
   welcomeStepsTitle() {
     return this.welcome.get('[data-demo-steps-title]').text()
