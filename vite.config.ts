@@ -109,7 +109,7 @@ const I18N_FLAGS = {
   __INTLIFY_PROD_DEVTOOLS__: false,
   __VUE_PROD_DEVTOOLS__: false,
 }
-// Rendering the privacy page in Node: Vite bundles vue-i18n (with the flags above) rather than
+// Rendering the static pages in Node: Vite bundles vue-i18n (with the flags above) rather than
 // letting Node load its bundler build, which expects the flags to be defined
 const SSR_BUNDLED = ['vue-i18n', /^@intlify\//]
 
@@ -119,6 +119,31 @@ const PRIVACY_ENTRY = '/src/privacy-static.ts'
 // what src/privacy-static.ts exports (declared here: the Node tsconfig has no @/ alias for it)
 type PrivacyStatic = {
   renderPrivacyPage(options: { stylesheet: string; darkVars: string }): Promise<string>
+}
+
+const WELCOME_ENTRY = '/src/welcome-static.ts'
+// what src/welcome-static.ts exports
+type WelcomeStatic = { renderWelcome(): Promise<string> }
+
+// Loads a server-side entry (the static pages' Vue components) through a throwaway Vite server,
+// hands it to `use` and closes the server: the build's own server can't load modules
+async function withSsrModule<M, R>(entry: string, use: (module: M) => Promise<R>): Promise<R> {
+  const server = await createServer({
+    configFile: false,
+    root: fileURLToPath(new URL('.', import.meta.url)),
+    logLevel: 'silent',
+    appType: 'custom',
+    server: { middlewareMode: true, hmr: false, ws: false },
+    plugins: [vue()],
+    resolve: { alias: { '@': SRC } },
+    define: I18N_FLAGS,
+    ssr: { noExternal: SSR_BUNDLED },
+  })
+  try {
+    return await use((await server.ssrLoadModule(entry)) as M)
+  } finally {
+    await server.close()
+  }
 }
 
 // the dark theme's custom properties from styles.css, for the static page's media query
@@ -149,28 +174,10 @@ function privacyPage(): Plugin {
         (file) => file.type === 'asset' && /^assets\/index-.*\.css$/.test(file.fileName),
       )
       if (!css) throw new Error('No app stylesheet for the privacy page')
-      // a throwaway Vite server, only to load the Vue components on the server side
-      const server = await createServer({
-        configFile: false,
-        root: fileURLToPath(new URL('.', import.meta.url)),
-        logLevel: 'silent',
-        appType: 'custom',
-        server: { middlewareMode: true, hmr: false, ws: false },
-        plugins: [vue()],
-        resolve: { alias: { '@': SRC } },
-        define: I18N_FLAGS,
-        ssr: { noExternal: SSR_BUNDLED },
-      })
-      try {
-        const { renderPrivacyPage } = (await server.ssrLoadModule(PRIVACY_ENTRY)) as PrivacyStatic
-        const source = await renderPrivacyPage({
-          stylesheet: `../${css.fileName}`,
-          darkVars: darkThemeVars(),
-        })
-        this.emitFile({ type: 'asset', fileName: 'privacy/index.html', source })
-      } finally {
-        await server.close()
-      }
+      const source = await withSsrModule<PrivacyStatic, string>(PRIVACY_ENTRY, (page) =>
+        page.renderPrivacyPage({ stylesheet: `../${css.fileName}`, darkVars: darkThemeVars() }),
+      )
+      this.emitFile({ type: 'asset', fileName: 'privacy/index.html', source })
     },
     // dev: the same addresses the service worker leaves to the page (NOT_THE_APP_PAGES)
     configureServer(server) {
@@ -196,6 +203,27 @@ function privacyPage(): Plugin {
           })
           .catch(next)
       })
+    },
+  }
+}
+
+// The English Welcome in index.html's #app, for search engines that run no JavaScript (SV-2,
+// SV-3): src/welcome-static.ts rendered to HTML. The app mounts over it (no hydration) in the
+// player's language (SV-6). Only the Pages build: nobody crawls the Android app, and dev needn't.
+const APP_MOUNT = '<div id="app"></div>'
+function prerenderedWelcome(): Plugin {
+  return {
+    name: 'dots-and-boxes:prerendered-welcome',
+    apply: 'build',
+    transformIndexHtml: {
+      order: 'post',
+      async handler(html) {
+        if (!html.includes(APP_MOUNT)) throw new Error(`index.html has no ${APP_MOUNT}`)
+        const welcome = await withSsrModule<WelcomeStatic, string>(WELCOME_ENTRY, (page) =>
+          page.renderWelcome(),
+        )
+        return html.replace(APP_MOUNT, `<div id="app">${welcome}</div>`)
+      },
     },
   }
 }
@@ -273,7 +301,7 @@ export default defineConfig(({ mode }) => {
       oldWebViewCss(),
       // after oldWebViewCss: the page links the final stylesheet
       privacyPage(),
-      ...(isCapacitor ? [] : pwaPlugins()),
+      ...(isCapacitor ? [] : [prerenderedWelcome(), ...pwaPlugins()]),
     ],
     resolve: {
       alias: {
