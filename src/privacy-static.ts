@@ -19,18 +19,31 @@ function darkThemeStyle(darkVars: string): string {
   return `@media (prefers-color-scheme: dark) { :root { color-scheme: dark !important; ${darkVars} } }`
 }
 
-/** The whole page. `stylesheet` is the app's CSS file, relative to the page. */
+/** Escapes text for a double-quoted HTML attribute value. */
+function attr(text: string): string {
+  return text.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')
+}
+
+/**
+ * The whole page. `stylesheet` is the app's CSS file, relative to the page. `canonical` is the
+ * page's absolute address for search engines (SV-4), given only by the Pages build.
+ */
 export async function renderPrivacyPage({
   stylesheet,
   darkVars,
+  canonical,
 }: {
   stylesheet: string
   darkVars: string
+  canonical?: string
 }): Promise<string> {
   // its own i18n: the app's (src/i18n) reads the device and localStorage, which a build has not
   const i18n = createI18n({ legacy: false, locale: 'en', fallbackLocale: 'en', messages: MESSAGES })
   const body = await renderToString(createSSRApp(PrivacyStaticPage).use(i18n))
   const title = `${MESSAGES.en.privacy.title} · ${MESSAGES.en.app.title}`
+  // the search result's snippet: the policy's first point, in English like the page (SV-4)
+  const description = MESSAGES.en.privacy.noData
+  const canonicalLink = canonical ? `\n    <link rel="canonical" href="${attr(canonical)}" />` : ''
   return `<!doctype html>
 <html lang="en">
   <head>
@@ -38,6 +51,7 @@ export async function renderPrivacyPage({
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
     <title>${title}</title>
+    <meta name="description" content="${attr(description)}" />${canonicalLink}
     <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="${stylesheet}" />
     <style>${darkThemeStyle(darkVars)}</style>
