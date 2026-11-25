@@ -37,7 +37,7 @@ describe('language menu', () => {
     ])
   })
 
-  it('applies a choice at once and closes (LG-3, APP-1, UP-15)', async () => {
+  it('applies a choice at once and closes (LG-3, APP-1, UP-15, SV-1)', async () => {
     const page = await openOn('uk-UA')
 
     await page.clickLanguageButton()
@@ -47,6 +47,9 @@ describe('language menu', () => {
     expect(page.text()).toContain('Settings')
     expect(document.documentElement.lang).toBe('en')
     expect(document.title).toBe('Dots and Boxes')
+    expect(page.metaDescription()).toBe(
+      'The classic dots and boxes game: draw lines, close squares, beat the computer.',
+    )
     expect(page.manifestHref()).toBe('/manifest.en.webmanifest')
     expect(page.languageButtonState().text).toBe('EN')
     expect(page.languageFocus()).toBe('button')
@@ -217,12 +220,15 @@ describe('language menu by keyboard (LG-4)', () => {
 })
 
 describe('first launch follows the device language', () => {
-  it('picks Ukrainian on a uk-UA device (LG-6, AR-6)', async () => {
+  it('picks Ukrainian on a uk-UA device (LG-6, AR-6, SV-1)', async () => {
     const page = await openOn('uk-UA')
 
     expect(page.languageButtonState().text).toBe('УК')
     expect(document.documentElement.lang).toBe('uk')
     expect(document.title).toBe('Крапки й квадрати')
+    expect(page.metaDescription()).toBe(
+      'Класична гра в крапки й квадрати: проводьте лінії, займайте квадрати.',
+    )
     expect(page.manifestHref()).toBe('/manifest.uk.webmanifest')
   })
 

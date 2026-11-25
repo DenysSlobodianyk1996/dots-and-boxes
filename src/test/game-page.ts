@@ -261,6 +261,13 @@ export class GamePage {
     return this.welcome.exists()
   }
 
+  // Welcome's "Get it on Google Play" link, or null while it's hidden (SV-9)
+  googlePlayLink() {
+    const link = this.welcome.find('a[data-google-play]')
+    if (!link.exists()) return null
+    return { text: link.text(), href: link.attributes('href') }
+  }
+
   // the highlighted step, the one the demo is showing (WL-10)
   welcomeCaption() {
     return this.welcome
@@ -326,6 +333,11 @@ export class GamePage {
   // the goal under Welcome's title (WL-10)
   welcomeGoal() {
     return this.welcome.get('[data-welcome-goal]').text()
+  }
+
+  // the texts of the page's <h1> headings (SV-3)
+  pageHeadings() {
+    return this.wrapper.findAll('h1').map((h) => h.text())
   }
 
   // the heading above Welcome's list of steps (WL-10)
@@ -640,6 +652,11 @@ export class GamePage {
   // the install manifest the page links to; it names the installed app (VR-50, VR-51)
   manifestHref() {
     return document.head.querySelector('link[rel="manifest"]')?.getAttribute('href') ?? null
+  }
+
+  // the page's <meta name="description"> (SV-1)
+  metaDescription() {
+    return document.head.querySelector('meta[name="description"]')?.getAttribute('content') ?? null
   }
 
   // ---- rules panel (VR-23..VR-31) ----

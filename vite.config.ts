@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import { fileURLToPath, URL } from 'node:url'
 
 import postcss from 'postcss'
-import { createServer, defineConfig, type Plugin } from 'vite'
+import { createServer, defineConfig, type Plugin, type ResolvedConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import tailwindcss from '@tailwindcss/vite'
@@ -11,6 +11,9 @@ import { lowerForOldWebView } from './scripts/css-floor'
 import { manifestFile } from './src/static/manifests'
 import { OLDEST_CHROME } from './src/static/oldest-chrome'
 import { NOT_THE_APP_PAGES } from './src/static/service-worker'
+import { GOOGLE_PLAY_LIVE, GOOGLE_PLAY_URL } from './src/static/google-play'
+import { PREVIEW_IMAGE, siteUrl, structuredData } from './src/static/site'
+import { PRERENDER_HIDDEN_CSS, prerenderedWelcomeScript } from './src/static/prerendered-welcome'
 import { firstPaintScript } from './src/i18n/first-paint'
 import { LANGUAGE_CODES, type AppLocale } from './src/i18n/languages'
 import { MESSAGES } from './src/i18n/messages'
@@ -25,6 +28,20 @@ const CAPACITOR_MODE = 'capacitor'
 
 // GitHub Pages serves the app under /<repo>/; the deploy workflow sets BASE_PATH
 const base = process.env.BASE_PATH ?? '/'
+
+// The web game's absolute address for search engines and link previews (SV-4, SV-5), or null
+// where there is none to give: dev, the Android app, and a Pages build without BASE_PATH, whose
+// base '/' would name the owner's user site rather than this game (that build warns instead)
+function siteFor(config: ResolvedConfig): string | null {
+  if (config.command !== 'build' || config.mode === CAPACITOR_MODE) return null
+  return config.base === '/' ? null : siteUrl(config.base)
+}
+
+// The link preview image (SV-5): the English Play feature graphic, emitted only in the Pages build,
+// so the Android app doesn't carry it
+const PREVIEW_IMAGE_SOURCE = fileURLToPath(
+  new URL('./docs/store/en/feature-graphic.png', import.meta.url),
+)
 
 // splash and status bar: the light --wc-paper from styles.css; index.html's theme-color metas
 // add the dark (cocoa) one (VR-46)
@@ -41,12 +58,14 @@ const [PLUGIN_MANIFEST_LANGUAGE, ...EXTRA_MANIFEST_LANGUAGES] = LANGUAGE_CODES a
 // short_name is the shorter launcher label, because launchers truncate the full name (UP-15).
 // Icon paths are relative to the manifest, which sits at the base, so they work under any base.
 function manifestFor(lang: AppLocale): Partial<ManifestOptions> {
-  const { title, shortName } = MESSAGES[lang].app
+  const { title, shortName, description } = MESSAGES[lang].app
   return {
     id: base,
     lang,
     name: title,
     short_name: shortName,
+    // the install prompt describes the game in that language (SV-7)
+    description,
     start_url: base,
     scope: base,
     display: 'standalone',
@@ -109,7 +128,7 @@ const I18N_FLAGS = {
   __INTLIFY_PROD_DEVTOOLS__: false,
   __VUE_PROD_DEVTOOLS__: false,
 }
-// Rendering the privacy page in Node: Vite bundles vue-i18n (with the flags above) rather than
+// Rendering the static pages in Node: Vite bundles vue-i18n (with the flags above) rather than
 // letting Node load its bundler build, which expects the flags to be defined
 const SSR_BUNDLED = ['vue-i18n', /^@intlify\//]
 
@@ -118,7 +137,36 @@ const STYLES = `${SRC}/assets/styles.css`
 const PRIVACY_ENTRY = '/src/privacy-static.ts'
 // what src/privacy-static.ts exports (declared here: the Node tsconfig has no @/ alias for it)
 type PrivacyStatic = {
-  renderPrivacyPage(options: { stylesheet: string; darkVars: string }): Promise<string>
+  renderPrivacyPage(options: {
+    stylesheet: string
+    darkVars: string
+    canonical?: string
+  }): Promise<string>
+}
+
+const WELCOME_ENTRY = '/src/welcome-static.ts'
+// what src/welcome-static.ts exports
+type WelcomeStatic = { renderWelcome(): Promise<string> }
+
+// Loads a server-side entry (the static pages' Vue components) through a throwaway Vite server,
+// hands it to `use` and closes the server: the build's own server can't load modules
+async function withSsrModule<M, R>(entry: string, use: (module: M) => Promise<R>): Promise<R> {
+  const server = await createServer({
+    configFile: false,
+    root: fileURLToPath(new URL('.', import.meta.url)),
+    logLevel: 'silent',
+    appType: 'custom',
+    server: { middlewareMode: true, hmr: false, ws: false },
+    plugins: [vue()],
+    resolve: { alias: { '@': SRC } },
+    define: I18N_FLAGS,
+    ssr: { noExternal: SSR_BUNDLED },
+  })
+  try {
+    return await use((await server.ssrLoadModule(entry)) as M)
+  } finally {
+    await server.close()
+  }
 }
 
 // the dark theme's custom properties from styles.css, for the static page's media query
@@ -139,38 +187,30 @@ function darkThemeVars(): string {
 // The static privacy page, privacy/index.html: Google Play's privacy policy URL, which must work
 // without JavaScript (AR-15, PV-4). It is the in-app screen's PrivacyContent rendered to HTML
 // (src/privacy-static.ts) with the app's stylesheet. Both builds get it (Workbox precaches it on
-// Pages); the dev server renders it at the same addresses.
+// Pages); the dev server renders it at the same addresses. The Pages build also names its
+// canonical address (SV-4); the Android app's copy isn't on the web, so it has none.
 function privacyPage(): Plugin {
+  let canonical: string | undefined
   return {
     name: 'dots-and-boxes:privacy-page',
     enforce: 'post',
+    configResolved(config) {
+      const site = siteFor(config)
+      canonical = site ? `${site}privacy/` : undefined
+    },
     async generateBundle(_options, bundle) {
       const css = Object.values(bundle).find(
         (file) => file.type === 'asset' && /^assets\/index-.*\.css$/.test(file.fileName),
       )
       if (!css) throw new Error('No app stylesheet for the privacy page')
-      // a throwaway Vite server, only to load the Vue components on the server side
-      const server = await createServer({
-        configFile: false,
-        root: fileURLToPath(new URL('.', import.meta.url)),
-        logLevel: 'silent',
-        appType: 'custom',
-        server: { middlewareMode: true, hmr: false, ws: false },
-        plugins: [vue()],
-        resolve: { alias: { '@': SRC } },
-        define: I18N_FLAGS,
-        ssr: { noExternal: SSR_BUNDLED },
-      })
-      try {
-        const { renderPrivacyPage } = (await server.ssrLoadModule(PRIVACY_ENTRY)) as PrivacyStatic
-        const source = await renderPrivacyPage({
+      const source = await withSsrModule<PrivacyStatic, string>(PRIVACY_ENTRY, (page) =>
+        page.renderPrivacyPage({
           stylesheet: `../${css.fileName}`,
           darkVars: darkThemeVars(),
-        })
-        this.emitFile({ type: 'asset', fileName: 'privacy/index.html', source })
-      } finally {
-        await server.close()
-      }
+          canonical,
+        }),
+      )
+      this.emitFile({ type: 'asset', fileName: 'privacy/index.html', source })
     },
     // dev: the same addresses the service worker leaves to the page (NOT_THE_APP_PAGES)
     configureServer(server) {
@@ -200,6 +240,39 @@ function privacyPage(): Plugin {
   }
 }
 
+// The English Welcome in index.html's #app, for search engines that run no JavaScript (SV-2,
+// SV-3): src/welcome-static.ts rendered to HTML. The app mounts over it (no hydration) in the
+// player's language (SV-6). A pre-paint script hides it where the app won't open Welcome (a saved
+// game, any other address, 404.html), so it doesn't flash up there (src/static/prerendered-
+// welcome.ts). Only the Pages build: nobody crawls the Android app, and dev needn't.
+const APP_MOUNT = '<div id="app"></div>'
+function prerenderedWelcome(): Plugin {
+  let appBase = '/'
+  return {
+    name: 'dots-and-boxes:prerendered-welcome',
+    apply: 'build',
+    configResolved(config) {
+      appBase = config.base
+    },
+    transformIndexHtml: {
+      order: 'post',
+      async handler(html) {
+        if (!html.includes(APP_MOUNT)) throw new Error(`index.html has no ${APP_MOUNT}`)
+        const welcome = await withSsrModule<WelcomeStatic, string>(WELCOME_ENTRY, (page) =>
+          page.renderWelcome(),
+        )
+        return {
+          html: html.replace(APP_MOUNT, `<div id="app">${welcome}</div>`),
+          tags: [
+            { tag: 'style', children: PRERENDER_HIDDEN_CSS, injectTo: 'head' },
+            { tag: 'script', children: prerenderedWelcomeScript(appBase), injectTo: 'head' },
+          ],
+        }
+      },
+    },
+  }
+}
+
 // An old system WebView, such as a never-updated Samsung S8's (AR-21). Tailwind v4 puts its CSS in
 // @layer (Chrome 99), which an older browser drops whole, leaving the app unstyled; and its
 // var(--x,) empty fallbacks void the ring before Chrome ~105. This runs on the final, minified CSS
@@ -215,6 +288,127 @@ function oldWebViewCss(): Plugin {
           file.source = await lowerForOldWebView(String(file.source))
         }
       }
+    },
+  }
+}
+
+// The page's description for search results, in English from the English locale so it can't drift
+// from app.description (SV-1); setLocale() swaps it for people who switch language
+function pageDescription(): Plugin {
+  return {
+    name: 'dots-and-boxes:page-description',
+    transformIndexHtml: () => [
+      {
+        tag: 'meta',
+        attrs: { name: 'description', content: MESSAGES.en.app.description },
+        injectTo: 'head',
+      },
+    ],
+  }
+}
+
+// Search engines and link previews (SV-4, SV-5): the canonical address, Open Graph and Twitter tags
+// and a JSON-LD WebApplication (plus the Android app once it's live on Google Play, SV-9), in
+// English from the English locale so they can't drift, and the preview image they name. Pages
+// build only (see the plugin list); absolute URLs come from the site constant and Vite's base, and
+// a build whose base is '/' gets none of them rather than wrong ones (siteFor).
+function searchHeadTags(): Plugin {
+  let site: string | null = null
+  const property = (name: string, content: string | number) => ({
+    tag: 'meta',
+    attrs: { property: name, content: String(content) },
+    injectTo: 'head' as const,
+  })
+  return {
+    name: 'dots-and-boxes:search-head-tags',
+    apply: 'build',
+    configResolved(config) {
+      site = siteFor(config)
+      if (!site) {
+        config.logger.warn(
+          "Base '/': no canonical, link preview tags, structured data or crawl files, as their " +
+            'absolute URLs would name the user site. Set BASE_PATH for a Pages build.',
+        )
+      }
+    },
+    generateBundle() {
+      if (!site) return
+      this.emitFile({
+        type: 'asset',
+        fileName: PREVIEW_IMAGE.file,
+        source: readFileSync(PREVIEW_IMAGE_SOURCE),
+      })
+    },
+    transformIndexHtml() {
+      if (!site) return []
+      const { title, description } = MESSAGES.en.app
+      const jsonLd = structuredData({
+        site,
+        title,
+        description,
+        languages: LANGUAGE_CODES,
+        googlePlayUrl: GOOGLE_PLAY_LIVE ? GOOGLE_PLAY_URL : null,
+      })
+      return [
+        { tag: 'link', attrs: { rel: 'canonical', href: site }, injectTo: 'head' },
+        property('og:type', 'website'),
+        property('og:title', title),
+        property('og:description', description),
+        property('og:url', site),
+        property('og:image', `${site}${PREVIEW_IMAGE.file}`),
+        property('og:image:width', PREVIEW_IMAGE.width),
+        property('og:image:height', PREVIEW_IMAGE.height),
+        property('og:locale', 'en_US'),
+        property('og:site_name', title),
+        {
+          tag: 'meta',
+          attrs: { name: 'twitter:card', content: 'summary_large_image' },
+          injectTo: 'head',
+        },
+        {
+          tag: 'script',
+          attrs: { type: 'application/ld+json' },
+          // "<" escaped, so no text can close the script element
+          children: JSON.stringify(jsonLd).replace(/</g, '\\u003c'),
+          injectTo: 'head',
+        },
+      ]
+    },
+  }
+}
+
+// The crawl files (SV-4), Pages build only: sitemap.xml lists the two indexable pages, the root and
+// the static privacy page, and robots.txt allows everything and names it. Crawlers read robots.txt
+// only from the host root, which a project site doesn't own, so it is advisory; the sitemap is
+// submitted in Search Console (SV-8). Workbox's globPatterns leave both out of the precache.
+function crawlFiles(): Plugin {
+  let site: string | null = null
+  return {
+    name: 'dots-and-boxes:crawl-files',
+    apply: 'build',
+    configResolved(config) {
+      site = siteFor(config)
+    },
+    generateBundle() {
+      // base '/': no address to list (searchHeadTags warns)
+      if (!site) return
+      const urls = [site, `${site}privacy/`].map((url) => `  <url><loc>${url}</loc></url>`)
+      this.emitFile({
+        type: 'asset',
+        fileName: 'sitemap.xml',
+        source: [
+          '<?xml version="1.0" encoding="UTF-8"?>',
+          '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+          ...urls,
+          '</urlset>',
+          '',
+        ].join('\n'),
+      })
+      this.emitFile({
+        type: 'asset',
+        fileName: 'robots.txt',
+        source: ['User-agent: *', 'Allow: /', '', `Sitemap: ${site}sitemap.xml`, ''].join('\n'),
+      })
     },
   }
 }
@@ -244,6 +438,9 @@ function pwaPlugins() {
           '**/*.{js,css,html,ico,png,svg,woff2}',
           ...EXTRA_MANIFEST_LANGUAGES.map(manifestFile),
         ],
+        // the link preview image (SV-5) is for crawlers and chat apps and never shown in the app,
+        // so it stays out of the offline precache
+        globIgnores: [PREVIEW_IMAGE.file],
         navigateFallback: 'index.html',
         // the privacy policy is its own page (precached through privacy/index.html), not the app (AR-15)
         navigateFallbackDenylist: NOT_THE_APP_PAGES,
@@ -270,10 +467,13 @@ export default defineConfig(({ mode }) => {
       vueDevTools(),
       tailwindcss(),
       firstPaintLanguage(),
+      pageDescription(),
       oldWebViewCss(),
       // after oldWebViewCss: the page links the final stylesheet
       privacyPage(),
-      ...(isCapacitor ? [] : pwaPlugins()),
+      ...(isCapacitor
+        ? []
+        : [prerenderedWelcome(), searchHeadTags(), crawlFiles(), ...pwaPlugins()]),
     ],
     resolve: {
       alias: {

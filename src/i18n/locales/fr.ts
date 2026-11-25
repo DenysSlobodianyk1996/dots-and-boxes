@@ -7,6 +7,7 @@ const fr: typeof en = {
     title: 'Pipopipette',
     shortName: 'Pipopipette',
     headerName: 'Pipopipette',
+    description: 'Le jeu des points et des carrés : tracez des lignes, battez l’ordinateur.',
   },
   language: {
     current: 'Langue : {name}',
@@ -123,6 +124,7 @@ const fr: typeof en = {
     title: 'Bienvenue dans {name}',
     goal: 'Celui qui a le plus de carrés quand la grille est pleine gagne.',
     start: 'Commencer',
+    googlePlay: 'Disponible sur Google Play',
     home: 'Accueil',
     captions: {
       drawLine: 'Touchez deux points voisins pour tracer une ligne.',

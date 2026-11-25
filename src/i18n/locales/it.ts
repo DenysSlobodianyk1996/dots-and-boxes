@@ -6,6 +6,7 @@ const it: typeof en = {
     title: 'Punti e quadrati',
     shortName: 'Punti e quadrati',
     headerName: 'Punti e quadrati',
+    description: 'Il classico carta e penna: traccia linee, chiudi quadrati, batti il computer.',
   },
   language: {
     current: 'Lingua: {name}',
@@ -121,6 +122,7 @@ const it: typeof en = {
     title: 'Benvenuti in {name}',
     goal: 'Vince chi ha più quadrati quando la griglia è piena.',
     start: 'Inizia',
+    googlePlay: 'Disponibile su Google Play',
     home: 'Home',
     captions: {
       drawLine: 'Tocca due punti vicini per tracciare una linea.',

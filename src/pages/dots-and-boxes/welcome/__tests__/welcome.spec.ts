@@ -269,6 +269,12 @@ describe('Welcome screen', () => {
     expect(page.welcomeGoal()).toBe(goal)
   })
 
+  it("makes its title the page's only h1 (SV-3)", async () => {
+    const page = await openGamePage({ onWelcome: true })
+
+    expect(page.pageHeadings()).toEqual(['Welcome to Dots and Boxes'])
+  })
+
   it('has a How to play heading above the steps (WL-10)', async () => {
     const page = await openGamePage({ onWelcome: true })
 

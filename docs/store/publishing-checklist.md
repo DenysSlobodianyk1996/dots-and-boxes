@@ -84,6 +84,7 @@ The Play API can't create an app's first release, so this one upload is manual.
 - [ ] Countries: all, or the list you want.
 - [ ] Release notes for the Welcome and six-language release from [en/listing.md](en/listing.md#release-notes-300--500) and [uk/listing.md](uk/listing.md#release-notes-319--500) (German, French, Italian and Spanish notes come with #95, LG-21); start a full (100%) or staged rollout; send for review.
 - [ ] Once live, open the listing on a phone in each language and check the texts, screenshots, rating, "No data collected" label and privacy link.
+- [ ] Link the web game to the app (SV-9): on a branch, set `GOOGLE_PLAY_LIVE = true` in `src/static/google-play.ts`. Welcome then shows "Get it on Google Play" (never inside the Android app) and the Pages build's JSON-LD adds the Android app. Run `npm run check:step-following` (Start must stay on screen at 320×568, WL-19), then, as for every visible change, update the design canvas boards and `design.md`, the remote canvas, and the store images (`npm run store:screenshots`) before merging. After deploy, check the JSON-LD with Google's Rich Results Test.
 
 ## 8. Every later release is `npm run release`
 

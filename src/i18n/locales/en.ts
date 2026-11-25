@@ -6,6 +6,9 @@ const en = {
     shortName: 'Dots and Boxes',
     // the header's name: the short name, with a soft hyphen where one long word needs it (LG-11)
     headerName: 'Dots and Boxes',
+    // the game's one-line description: the Play short description (docs/store/<lang>/listing.md),
+    // the install manifest's description and the page's meta description (SV-1, SV-7)
+    description: 'The classic dots and boxes game: draw lines, close squares, beat the computer.',
   },
   // the language button's accessible name and its menu's (LG-4); each language's own name is in
   // src/i18n/languages.ts
@@ -130,6 +133,7 @@ const en = {
     title: 'Welcome to {name}',
     goal: 'Whoever owns more squares when the board is full wins.',
     start: 'Start',
+    googlePlay: 'Get it on Google Play',
     home: 'Home',
     captions: {
       drawLine: 'Tap two neighboring dots to draw a line.',

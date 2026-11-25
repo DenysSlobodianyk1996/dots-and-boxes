@@ -6,6 +6,7 @@ const de: typeof en = {
     title: 'Käsekästchen',
     shortName: 'Käsekästchen',
     headerName: 'Käse\u00adkästchen',
+    description: 'Das Spiel Käsekästchen: Linien ziehen, Kästchen schließen, Computer schlagen.',
   },
   language: {
     current: 'Sprache: {name}',
@@ -123,6 +124,7 @@ const de: typeof en = {
     title: 'Willkommen bei {name}',
     goal: 'Wer die meisten Kästchen hat, wenn das Feld voll ist, gewinnt.',
     start: "Los geht's",
+    googlePlay: 'Jetzt bei Google Play',
     home: 'Start',
     captions: {
       drawLine: 'Tippe auf zwei benachbarte Punkte, um eine Linie zu ziehen.',

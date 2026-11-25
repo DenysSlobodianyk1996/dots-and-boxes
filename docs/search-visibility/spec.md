@@ -2,7 +2,7 @@
 
 Terms follow [GLOSSARY.md](../../GLOSSARY.md). User stories carry IDs **SV-n** for commits. Shipped rules this touches: WL-1..WL-21 (Welcome's heading level only) and LG-8 (first paint) in [requirements](../dots-and-boxes/requirements.md), PWA manifests, and the static privacy page (PV-1..PV-4).
 
-**Status**: agreed in a grilling session on 2026-11-25. Not implemented. Parent issue #117. When it ships, fold SV-n into [requirements](../dots-and-boxes/requirements.md); where they differ from this spec, they win.
+**Status**: agreed in a grilling session on 2026-11-25. Implemented (#118..#122); SV-1..SV-9 are folded into [requirements SV](../dots-and-boxes/requirements.md#sv-search-visibility), which win where they differ from this spec. Parent issue #117.
 
 ## Problem Statement
 
@@ -43,7 +43,7 @@ Make the root page rank for English searches such as "dots and boxes online". Vi
 
 ### Language
 
-6. **SV-6**: As a player whose language isn't English, I want the app to keep opening in my language (saved choice, then device language), so that better search results don't change how the app behaves for me. Before the app loads I may briefly see the English text; that's accepted.
+6. **SV-6**: As a player whose language isn't English, I want the app to keep opening in my language (saved choice, then device language), so that better search results don't change how the app behaves for me. Before the app loads I may briefly see the English text on the root page; that's accepted. Where the app opens another screen (a saved game, `/game`, `/settings`, `/privacy-policy`, `404.html`), I don't see Welcome flash first.
 7. **SV-7**: As a player who installs the web app, I want its manifest to carry a description in my language, so that the install prompt describes the game.
 
 ### Measuring
@@ -71,9 +71,10 @@ Make the root page rank for English searches such as "dots and boxes online". Vi
   - `<link rel="canonical">` pointing at the root URL.
   - Open Graph: `og:type` website, `og:title`, `og:description`, `og:url`, `og:image`, `og:image:width`/`height`, `og:locale` `en_US`, `og:site_name`.
   - Twitter: `twitter:card` `summary_large_image`.
-  - A JSON-LD `WebApplication` block: `name`, `description`, `url`, `applicationCategory` `GameApplication`, `operatingSystem` "Web, Android", `offers` with price 0, `inLanguage` `en`, and `availableLanguage` listing all six language codes.
+  - A JSON-LD `WebApplication` block: `name`, `description`, `url`, `applicationCategory` `GameApplication`, `operatingSystem` "Web" (Android appears only through the `MobileApplication` once the Play link is live, SV-9), `offers` with price 0, `inLanguage` `en`, and `availableLanguage` listing all six language codes.
 - Take the English text from `src/i18n/locales/en.ts` at build time, not hand-copied into `index.html`, so it can't drift.
-- The preview image is the English Play feature graphic (1024 × 500), copied into `public/` (for example `public/og-image.png`). It must match the precache `globPatterns` or be deliberately excluded. Excluding it is fine, since it's never shown offline.
+- If Vite's base is `/` in a web build (no `BASE_PATH`), the site URL would be the owner's user site, so that build emits no canonical, no `og:url`/`og:image`, no JSON-LD, no sitemap or robots file and no privacy canonical, and warns instead.
+- The preview image is the English Play feature graphic (1024 × 500), `docs/store/en/feature-graphic.png`, which the Pages build emits as `og-image.png` (not in `public/`, so the Android app doesn't carry it). It is deliberately left out of the precache, since it's never shown offline.
 
 ### Prerendered Welcome (SV-2, SV-3, SV-6)
 
@@ -81,7 +82,8 @@ Make the root page rank for English searches such as "dots and boxes online". Vi
 - Reuse the privacy page's mechanism (`privacyPage()` in `vite.config.ts`: Vue SSR through a throwaway Vite server) with its own entry and its own `createI18n({ locale: 'en' })`. Don't import `src/i18n/index.ts`, `Page.vue` or `HowToPlay.vue` as they stand: they touch `navigator`, `localStorage` and `matchMedia` during setup.
 - A dedicated static component, as `PrivacyStaticPage.vue` is for privacy, is acceptable if rendering the real components needs too many guards. Either way, the text comes from the same message keys, so it can't diverge.
 - The SPA mounts with `createApp(...).mount('#app')`, which replaces the prerendered content. No hydration.
-- The static content is always English and is not hidden for other languages (decision from the grilling). The layout should be close enough to Welcome's that the swap doesn't jump much.
+- The static content is always English (`lang="en"` on its root) and is not hidden for other languages (decision from the grilling). The layout should be close enough to Welcome's that the swap doesn't jump much: the header keeps room for the three round buttons Welcome has (theme, rules, language), and under reduced motion it shows the finished demo with the last step highlighted, as WL-17.
+- It shows only where the app opens Welcome. A pre-paint script hides it (an attribute on `<html>` plus an inline CSS rule) when a game is saved (`CURRENT_GAME`) or the address isn't the base root, so loads that end on another screen don't flash Welcome. Crawlers (no storage, the root address, or no JavaScript) still see it, and it stays in the HTML.
 - Welcome's live heading becomes `<h1>` with no visual change. WL-12's focus on Welcome's heading still applies. The header's game-name `<span>` stays.
 - `404.html` (deploy.yml and `extraPwaFiles()`) is a copy of `index.html` and so carries the same content and canonical. That's fine: `/settings` and `/game` are served with HTTP 404, so they aren't indexed.
 - The prerender runs only in the Pages build, not in capacitor mode.
@@ -107,7 +109,7 @@ Make the root page rank for English searches such as "dots and boxes online". Vi
 ## Testing Decisions
 
 - **Unit (Vitest)**: each `app.description` matches its `listing.md` short description; `setLocale()` updates the meta description; every language's manifest has a `description`; Welcome's heading is an `<h1>`; the Play link is absent while the flag is off and present, translated, when it is on.
-- **Build output** (a script spec like `scripts/__tests__/*`, or checking by hand with `BASE_PATH=/dots-and-boxes/ npm run build`): `dist/index.html` has the meta description, canonical, Open Graph tags, valid JSON-LD and the English Welcome text with one `<h1>`. `dist/sitemap.xml` and `dist/og-image.png` exist. `privacy/index.html` has its description and canonical. The capacitor-mode `dist/` has no prerendered content and no sitemap.
+- **Build output** (a script spec like `scripts/__tests__/*`, or checking by hand with `BASE_PATH=/dots-and-boxes/ npm run build`): `dist/index.html` has the meta description, canonical, Open Graph tags, valid JSON-LD and the English Welcome text with one `<h1>`. `dist/sitemap.xml` and `dist/og-image.png` exist. `privacy/index.html` has its description and canonical. The capacitor-mode `dist/` has no prerendered content, no sitemap and no `og-image.png`; a web build at base `/` has no absolute URLs.
 - **External checks after deploy**: Google's Rich Results Test (JSON-LD), a link-preview check (Open Graph), and Search Console's URL inspection, whose rendered HTML should show the text.
 
 ## Out of Scope

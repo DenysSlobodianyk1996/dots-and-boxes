@@ -25,9 +25,9 @@
       "
     >
       <!-- the rules panel has this heading already -->
-      <h3 v-if="!compact" data-demo-steps-title class="shrink-0 px-2 text-base font-bold text-ink">
+      <h2 v-if="!compact" data-demo-steps-title class="shrink-0 px-2 text-base font-bold text-ink">
         {{ t('rules.title') }}
-      </h3>
+      </h2>
       <ol
         ref="stepList"
         data-demo-steps
