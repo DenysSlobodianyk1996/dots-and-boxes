@@ -43,6 +43,12 @@ describe('the Pages build', () => {
     expect(doc.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe(SITE)
   })
 
+  it("carries the owner's Search Console verification tag (SV-8)", () => {
+    expect(
+      doc.querySelector('meta[name="google-site-verification"]')?.getAttribute('content'),
+    ).toBe('jFybgwwGyr9yepRC53WaJmZYPZGWPFwLZD000UJpGIg')
+  })
+
   it('has the Open Graph and Twitter tags for a link preview', () => {
     expect(meta(doc, 'og:type')).toBe('website')
     expect(meta(doc, 'og:title')).toBe(TITLE)
@@ -95,6 +101,7 @@ describe("the Android app's build", () => {
     expect(doc.querySelector('link[rel="canonical"]')).toBeNull()
     expect(doc.querySelector('meta[property^="og:"], meta[name^="twitter:"]')).toBeNull()
     expect(doc.querySelector('script[type="application/ld+json"]')).toBeNull()
+    expect(doc.querySelector('meta[name="google-site-verification"]')).toBeNull()
   })
 
   it('carries no preview image', () => {
@@ -119,6 +126,7 @@ describe("a web build at base '/'", () => {
     expect(doc.querySelector('link[rel="canonical"]')).toBeNull()
     expect(doc.querySelector('meta[property^="og:"], meta[name^="twitter:"]')).toBeNull()
     expect(doc.querySelector('script[type="application/ld+json"]')).toBeNull()
+    expect(doc.querySelector('meta[name="google-site-verification"]')).toBeNull()
     expect(existsSync(join(outDir, 'og-image.png'))).toBe(false)
   })
 
