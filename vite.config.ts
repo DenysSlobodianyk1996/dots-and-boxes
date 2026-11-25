@@ -11,6 +11,7 @@ import { lowerForOldWebView } from './scripts/css-floor'
 import { manifestFile } from './src/static/manifests'
 import { OLDEST_CHROME } from './src/static/oldest-chrome'
 import { NOT_THE_APP_PAGES } from './src/static/service-worker'
+import { PREVIEW_IMAGE, siteUrl } from './src/static/site'
 import { firstPaintScript } from './src/i18n/first-paint'
 import { LANGUAGE_CODES, type AppLocale } from './src/i18n/languages'
 import { MESSAGES } from './src/i18n/messages'
@@ -236,6 +237,64 @@ function pageDescription(): Plugin {
   }
 }
 
+// Search engines and link previews (SV-4, SV-5): the canonical address, Open Graph and Twitter tags
+// and a JSON-LD WebApplication, in English from the English locale so they can't drift. Pages
+// build only (see the plugin list); absolute URLs come from the site constant and Vite's base.
+function searchHeadTags(): Plugin {
+  let site = ''
+  const property = (name: string, content: string | number) => ({
+    tag: 'meta',
+    attrs: { property: name, content: String(content) },
+    injectTo: 'head' as const,
+  })
+  return {
+    name: 'dots-and-boxes:search-head-tags',
+    apply: 'build',
+    configResolved(config) {
+      site = siteUrl(config.base)
+    },
+    transformIndexHtml() {
+      const { title, description } = MESSAGES.en.app
+      const webApplication = {
+        '@context': 'https://schema.org',
+        '@type': 'WebApplication',
+        name: title,
+        description,
+        url: site,
+        applicationCategory: 'GameApplication',
+        operatingSystem: 'Web, Android',
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+        inLanguage: 'en',
+        availableLanguage: LANGUAGE_CODES,
+      }
+      return [
+        { tag: 'link', attrs: { rel: 'canonical', href: site }, injectTo: 'head' },
+        property('og:type', 'website'),
+        property('og:title', title),
+        property('og:description', description),
+        property('og:url', site),
+        property('og:image', `${site}${PREVIEW_IMAGE.file}`),
+        property('og:image:width', PREVIEW_IMAGE.width),
+        property('og:image:height', PREVIEW_IMAGE.height),
+        property('og:locale', 'en_US'),
+        property('og:site_name', title),
+        {
+          tag: 'meta',
+          attrs: { name: 'twitter:card', content: 'summary_large_image' },
+          injectTo: 'head',
+        },
+        {
+          tag: 'script',
+          attrs: { type: 'application/ld+json' },
+          // "<" escaped, so no text can close the script element
+          children: JSON.stringify(webApplication).replace(/</g, '\\u003c'),
+          injectTo: 'head',
+        },
+      ]
+    },
+  }
+}
+
 // The right language and tab title before the first paint (LG-8), in every build and in dev.
 // Injected at the end of <head>, after <title>, so it updates that element.
 function firstPaintLanguage(): Plugin {
@@ -261,6 +320,9 @@ function pwaPlugins() {
           '**/*.{js,css,html,ico,png,svg,woff2}',
           ...EXTRA_MANIFEST_LANGUAGES.map(manifestFile),
         ],
+        // the link preview image (SV-5) is for crawlers and chat apps and never shown in the app,
+        // so it stays out of the offline precache
+        globIgnores: [PREVIEW_IMAGE.file],
         navigateFallback: 'index.html',
         // the privacy policy is its own page (precached through privacy/index.html), not the app (AR-15)
         navigateFallbackDenylist: NOT_THE_APP_PAGES,
@@ -291,7 +353,7 @@ export default defineConfig(({ mode }) => {
       oldWebViewCss(),
       // after oldWebViewCss: the page links the final stylesheet
       privacyPage(),
-      ...(isCapacitor ? [] : pwaPlugins()),
+      ...(isCapacitor ? [] : [searchHeadTags(), ...pwaPlugins()]),
     ],
     resolve: {
       alias: {
