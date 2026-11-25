@@ -25,6 +25,17 @@
     >
       {{ t('welcome.start') }}
     </BaseButton>
+    <!-- the Android app, once it's in production; never inside that app (SV-9) -->
+    <a
+      v-if="showGooglePlay"
+      data-google-play
+      :href="GOOGLE_PLAY_URL"
+      target="_blank"
+      rel="noopener"
+      class="mx-auto inline-flex min-h-11 shrink-0 items-center px-1 text-sm font-bold text-muted underline underline-offset-3 hover:text-ink focus-visible:outline-2 focus-visible:outline-accent sm:min-h-10"
+    >
+      {{ t('welcome.googlePlay') }}
+    </a>
   </div>
 </template>
 
@@ -32,7 +43,11 @@
 import { useI18n } from 'vue-i18n'
 import BaseButton from '@/shared/components/BaseButton.vue'
 import HowToPlay from '@/shared/components/HowToPlay.vue'
+import { GOOGLE_PLAY_LIVE, GOOGLE_PLAY_URL } from '@/static/google-play'
 
 const emit = defineEmits<{ play: [] }>()
 const { t } = useI18n()
+
+// the Android app's own build never links to its store page
+const showGooglePlay = GOOGLE_PLAY_LIVE && !__CAPACITOR_BUILD__
 </script>

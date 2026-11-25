@@ -124,6 +124,7 @@ const fr: typeof en = {
     title: 'Bienvenue dans {name}',
     goal: 'Celui qui a le plus de carrés quand la grille est pleine gagne.',
     start: 'Commencer',
+    googlePlay: 'Disponible sur Google Play',
     home: 'Accueil',
     captions: {
       drawLine: 'Touchez deux points voisins pour tracer une ligne.',

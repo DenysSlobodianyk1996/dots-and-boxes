@@ -261,6 +261,13 @@ export class GamePage {
     return this.welcome.exists()
   }
 
+  // Welcome's "Get it on Google Play" link, or null while it's hidden (SV-9)
+  googlePlayLink() {
+    const link = this.welcome.find('a[data-google-play]')
+    if (!link.exists()) return null
+    return { text: link.text(), href: link.attributes('href') }
+  }
+
   // the highlighted step, the one the demo is showing (WL-10)
   welcomeCaption() {
     return this.welcome

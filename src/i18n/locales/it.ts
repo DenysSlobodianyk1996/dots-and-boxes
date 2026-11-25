@@ -122,6 +122,7 @@ const it: typeof en = {
     title: 'Benvenuti in {name}',
     goal: 'Vince chi ha più quadrati quando la griglia è piena.',
     start: 'Inizia',
+    googlePlay: 'Disponibile su Google Play',
     home: 'Home',
     captions: {
       drawLine: 'Tocca due punti vicini per tracciare una linea.',
